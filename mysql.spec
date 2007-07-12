@@ -35,15 +35,17 @@
 
 %define major 15
 %define libname %mklibname mysql %{major}
+%define develname %mklibname -d mysql
+%define staticdevelname %mklibname -d -s mysql
 %define conflict1 %mklibname mysql 12
 %define conflict2 %mklibname mysql 14
 
 %define muser	mysql
 
 Summary:	MySQL: a very fast and reliable SQL database engine
-Name: 		MySQL
-Version:	5.0.41
-Release:	%mkrel 3
+Name: 		mysql
+Version:	5.0.45
+Release:	%mkrel 1
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -59,7 +61,7 @@ Source8:	mysqld-ndb_mgmd.init
 Source9:	mysqld-ndb_mgmd.sysconfig
 Source10:	config.ini
 Patch1:		mysql-install_script_mysqld_safe.diff
-Patch2:		mysql-5.0.23-lib64.diff
+Patch2:		mysql-lib64.diff
 Patch3:		mysql-5.0.15-noproc.diff
 Patch6:		mysql-errno.patch
 # Add fast AMD64 mutexes
@@ -78,17 +80,16 @@ Patch24:	mysql-rpl-test.patch
 Patch25:	mysql-install-test.patch
 Patch26:	mysql-bdb-link.patch
 # security fixes
-Patch100:	mysql-5.0.24-CVE-2007-2691.patch
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
 Requires(postun): rpm-helper
-Requires(post): MySQL-common = %{version}-%{release}
-Requires(preun): MySQL-common = %{version}-%{release}
-Requires(post): MySQL-client = %{version}-%{release}
-Requires(preun): MySQL-client = %{version}-%{release}
-Requires:	MySQL-common = %{version}-%{release}
-Requires:	MySQL-client = %{version}-%{release}
+Requires(post): mysql-common = %{version}-%{release}
+Requires(preun): mysql-common = %{version}-%{release}
+Requires(post): mysql-client = %{version}-%{release}
+Requires(preun): mysql-client = %{version}-%{release}
+Requires:	mysql-common = %{version}-%{release}
+Requires:	mysql-client = %{version}-%{release}
 BuildRequires:	autoconf2.5
 BuildRequires:	automake1.7
 BuildRequires:	bison
@@ -105,10 +106,10 @@ BuildRequires:	texinfo
 BuildRequires:	zlib-devel
 BuildRequires:	dos2unix
 BuildRequires:	multiarch-utils >= 1.0.3
-BuildConflicts: edit-devel
-Provides:       msqlormysql MySQL-server mysqlserver mysql
-Obsoletes:      mysql MySQL-devel <= 3.23.39
-Conflicts:      MySQL-Max > 4.0.11
+BuildConflicts:	edit-devel
+Provides:	msqlormysql MySQL-server mysqlserver MySQL = %{version}-%{release}
+Obsoletes:	MySQL MySQL-devel <= 3.23.39
+Conflicts:	MySQL-Max > 4.0.11 mysql-max > 4.0.11
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
@@ -129,26 +130,25 @@ The MySQL web site (http://www.mysql.com/) provides the latest
 news and information about the MySQL software. Also please see the
 documentation and the manual for more information.
 
-%package	Max
+%package	max
 Summary:	MySQL - server with extended functionality
 Group:		System/Servers
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
 Requires(postun): rpm-helper
-Requires(post): MySQL-common = %{version}-%{release}
-Requires(preun): MySQL-common = %{version}-%{release}
-Requires(post): MySQL-client = %{version}-%{release}
-Requires(preun): MySQL-client = %{version}-%{release}
-Requires:	MySQL-common = %{version}-%{release}
-Requires:	MySQL-client = %{version}-%{release}
-Provides:	mysql-Max = %{version}-%{release}
-Provides:	msqlormysql MySQL-server mysqlserver mysql
-Obsoletes:	mysql-Max
+Requires(post): mysql-common = %{version}-%{release}
+Requires(preun): mysql-common = %{version}-%{release}
+Requires(post): mysql-client = %{version}-%{release}
+Requires(preun): mysql-client = %{version}-%{release}
+Requires:	mysql-common = %{version}-%{release}
+Requires:	mysql-client = %{version}-%{release}
+Provides:	msqlormysql MySQL-server mysqlserver mysql MySQL-Max = %{version}-%{release}
+Obsoletes:	MySQL-Max
 Obsoletes:	MySQL-NDB
-Conflicts:	MySQL > 4.0.11
+Conflicts:	MySQL > 4.0.11 mysql > 4.0.11
 
-%description	Max 
+%description	max 
 Optional MySQL server binary that supports features
 like transactional tables. You can use it as an alternate
 to MySQL basic server.
@@ -166,6 +166,8 @@ Summary:	MySQL - ndbcluster storage engine
 Group:		System/Servers
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
+Provides:	MySQL-ndb-storage = %{version}-%{release}
+Obsoletes:	MySQL-ndb-storage
 
 %description	ndb-storage
 This package contains the ndbcluster storage engine. 
@@ -179,12 +181,14 @@ Summary:	MySQL - ndbcluster storage engine management
 Group:		System/Servers
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
-Requires(post): MySQL-common = %{version}-%{release}
-Requires(preun): MySQL-common = %{version}-%{release}
-Requires(post): MySQL-client = %{version}-%{release}
-Requires(preun): MySQL-client = %{version}-%{release}
-Requires:	MySQL-common = %{version}-%{release}
-Requires:	MySQL-client = %{version}-%{release}
+Requires(post): mysql-common = %{version}-%{release}
+Requires(preun): mysql-common = %{version}-%{release}
+Requires(post): mysql-client = %{version}-%{release}
+Requires(preun): mysql-client = %{version}-%{release}
+Requires:	mysql-common = %{version}-%{release}
+Requires:	mysql-client = %{version}-%{release}
+Provides:	MySQL-ndb-management = %{version}-%{release}
+Obsoletes:	MySQL-ndb-management
 
 %description	ndb-management
 This package contains ndbcluster storage engine management.
@@ -194,6 +198,8 @@ one computer in the cluster.
 %package	ndb-tools
 Summary:	MySQL - ndbcluster storage engine basic tools
 Group:		System/Servers
+Provides:	MySQL-ndb-tools = %{version}-%{release}
+Obsoletes:	MySQL-ndb-tools
 
 %description	ndb-tools
 This package contains ndbcluster storage engine basic tools.
@@ -201,6 +207,8 @@ This package contains ndbcluster storage engine basic tools.
 %package	ndb-extra
 Summary:	MySQL - ndbcluster storage engine extra tools
 Group:		System/Servers
+Provides:	MySQL-ndb-extra = %{version}-%{release}
+Obsoletes:	MySQL-ndb-extra
 
 %description	ndb-extra
 This package contains some extra ndbcluster storage engine
@@ -213,14 +221,14 @@ Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
 Requires(postun): rpm-helper
-Requires(post): MySQL-client = %{version}-%{release}
-Requires(preun): MySQL-client = %{version}-%{release}
+Requires(post): mysql-client = %{version}-%{release}
+Requires(preun): mysql-client = %{version}-%{release}
 Requires(post): perl-DBD-mysql
 Requires(preun): perl-DBD-mysql
-Requires:	MySQL-client = %{version}-%{release}
+Requires:	mysql-client = %{version}-%{release}
 Requires:	perl-DBD-mysql
-Provides:       mysql-common
-Obsoletes:      mysql-common
+Provides:	MySQL-common = %{version}-%{release}
+Obsoletes:      MySQL-common
 
 %description	common
 Common files for the MySQL(TM) database server.
@@ -231,8 +239,8 @@ Group:		System/Servers
 Requires(post): %{libname} = %{version}-%{release}
 Requires(preun): %{libname} = %{version}-%{release}
 Requires:	%{libname} = %{version}-%{release}
-Provides:       mysql-client
-Obsoletes:      mysql-client
+Provides:       MySQL-client = %{version}-%{release}
+Obsoletes:      MySQL-client
 # note to self: add a conflict here because files moved from -client (v4.0.x) to -common (v5.0.x) #19789
 Conflicts:	MySQL-common < 5.0
 
@@ -242,12 +250,12 @@ This package contains the standard MySQL clients.
 %package	bench
 Summary:	MySQL - Benchmarks and test system
 Group:		System/Servers
-Requires(post): MySQL-client = %{version}-%{release}
-Requires(preun): MySQL-client = %{version}-%{release}
-Requires:	MySQL-client = %{version}-%{release}
+Requires(post): mysql-client = %{version}-%{release}
+Requires(preun): mysql-client = %{version}-%{release}
+Requires:	mysql-client = %{version}-%{release}
 Requires:	perl
-Provides:       mysql-bench
-Obsoletes:      mysql-bench
+Provides:       MySQL-bench = %{version}-%{release}
+Obsoletes:      MySQL-bench
 
 %description	bench
 This package contains MySQL benchmark scripts and data.
@@ -257,6 +265,8 @@ Summary:	The test suite distributed with MySQL
 Group:		System/Servers
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-server = %{version}-%{release}
+Provides:       MySQL-test = %{version}-%{release}
+Obsoletes:      MySQL-test
 
 %description	test
 This package contains the regression test suite distributed with the MySQL
@@ -266,33 +276,33 @@ sources.
 Summary:	MySQL - Shared libraries
 Group:		System/Libraries
 Obsoletes:	MySQL-shared-libs MySQL-shared
-Provides:	MySQL-shared-libs = %{version}-%{release}
-Provides:	MySQL-shared = %{version}-%{release}
+Provides:	MySQL-shared-libs = %{version}-%{release} mysql-shared-libs = %{version}-%{release}
+Provides:	MySQL-shared = %{version}-%{release} mysql-shared = %{version}-%{release}
 
 %description -n	%{libname}
 This package contains the shared libraries (*.so*) which certain
 languages and applications need to dynamically load and use MySQL.
 
-%package -n	%{libname}-devel
+%package -n	%{develname}
 Summary:	MySQL - Development header files and libraries
 Group:		Development/Other
 Requires(post): %{libname} = %{version}-%{release}
 Requires(preun): %{libname} = %{version}-%{release}
-Requires(post): MySQL-common = %{version}-%{release}
-Requires(preun): MySQL-common = %{version}-%{release}
-Requires(post): MySQL-client = %{version}-%{release}
-Requires(preun): MySQL-client = %{version}-%{release}
+Requires(post): mysql-common = %{version}-%{release}
+Requires(preun): mysql-common = %{version}-%{release}
+Requires(post): mysql-client = %{version}-%{release}
+Requires(preun): mysql-client = %{version}-%{release}
 Requires:	%{libname} = %{version}-%{release}
-Requires:	MySQL-common = %{version}-%{release}
-Requires:	MySQL-client = %{version}-%{release}
-Obsoletes:	MySQL-devel mysql-devel
-Provides:       mysql-devel = %{version}-%{release}
-Provides:	libmysql-devel
+Requires:	mysql-common = %{version}-%{release}
+Requires:	mysql-client = %{version}-%{release}
+Provides:	MySQL-devel = %{version}-%{release}
+Obsoletes:	MySQL-devel
+Provides:	%{libname}-devel = %{version}-%{release}
+Obsoletes:	%{libname}-devel
 Conflicts:	%{conflict1}-devel
 Conflicts:	%{conflict2}-devel
-Provides:	MySQL-devel = %{version}-%{release}
 
-%description -n	%{libname}-devel
+%description -n	%{develname}
 This package contains the development header files and libraries
 necessary to develop MySQL client applications.
 
@@ -306,16 +316,17 @@ for embedded applications.
 The API is identical for the embedded MySQL version and the
 client/server version.
 
-%package -n	%{libname}-static-devel
+%package -n	%{staticdevelname}
 Summary:	MySQL - Static development libraries
 Group:		Development/Other
-Requires:	MySQL-devel = %{version}-%{release}
+Requires:	mysql-devel = %{version}-%{release}
 Conflicts:	MySQL-devel < 5.0.16-5mdk
-Provides:       mysql-static-devel = %{version}-%{release}
-Provides:	libmysql-static-devel
 Provides:	MySQL-static-devel = %{version}-%{release}
+Obsoletes:	mysql-static-devel
+Provides:	%{libname}-static-devel = %{version}-%{release}
+Obsoletes:	%{libname}-static-devel
 
-%description -n	%{libname}-static-devel
+%description -n	%{staticdevelname}
 This package contains the static development libraries.
 
 %prep
@@ -354,9 +365,6 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch24 -p1
 %patch25 -p1
 %patch26 -p1
-
-# security fixes
-%patch100 -p1
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
@@ -939,7 +947,7 @@ if [ "$1" = "0" ]; then
     fi
 fi
 
-%post Max
+%post max
 # Change permissions so that the user that will run the MySQL daemon
 # owns all database files.
 chown -R %{muser}:%{muser} %{_localstatedir}/mysql
@@ -997,14 +1005,14 @@ else
 	fix_privileges
 fi
 
-%preun Max
+%preun max
 if [ -x %{_sbindir}/mysqld -o -x %{_initrddir}/mysqld ]; then
     chkconfig --del mysqld
 else
     %_preun_service mysqld-max
 fi
 
-%postun Max
+%postun max
 if [ "$1" = "0" ]; then
     if [ -f /var/lock/subsys/mysqld-max ]; then
         %{_initrddir}/mysqld-max restart 1>&2
@@ -1053,7 +1061,7 @@ if [ -f /var/lock/subsys/mysql ]; then
     fi
 fi
 
-%triggerin -n %{name}-Max -- MySQL-Max < 4.1.10
+%triggerin -n %{name}-max -- MySQL-Max < 4.1.10
 if [ -f /var/lock/subsys/mysql-max ]; then
     pidname="/var/lib/mysql/`/bin/hostname`.pid"
     if [ -f ${pidname} ]; then
@@ -1075,7 +1083,7 @@ fi
 %attr(0755,root,root) %{_initrddir}/mysqld
 %attr(0755,root,root) %{_sbindir}/mysqld
 
-%files Max
+%files max
 %defattr(-,root,root)
 %doc README.urpmi
 %attr(0755,root,root) %{_initrddir}/mysqld-max
@@ -1303,7 +1311,7 @@ fi
 %doc ChangeLog
 %attr(0755,root,root) %{_libdir}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{develname}
 %defattr(-,root,root)
 %doc INSTALL-SOURCE EXCEPTIONS-CLIENT Docs/devel/*
 %attr(0755,root,root) %{_bindir}/comp_err
@@ -1325,7 +1333,7 @@ fi
 %attr(0644,root,root) %{_mandir}/man1/comp_err.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_config.1*
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevelname}
 %defattr(-,root,root)
 %dir %{_libdir}/mysql
 %attr(0644,root,root) %{_libdir}/mysql/libdbug.a

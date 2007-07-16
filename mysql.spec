@@ -70,7 +70,7 @@ Patch7:		db-4.1.24-amd64-mutexes.diff
 Patch8:		db-4.1.24-disable-pthreadsmutexes.diff
 Patch9:		mysql-5.0.15-disable-pthreadsmutexes.diff
 Patch10:	mysql-5.0.4-beta-libndbclient_soname.diff
-Patch11:	mysql-5.0.6-beta-logrotate.diff
+Patch11:	mysql-logrotate.diff
 Patch12:	mysql-initscript.diff
 Patch13:	mysql-5.0.19-instance-manager.diff
 # stolen from fedora
@@ -296,7 +296,9 @@ Requires:	%{libname} = %{version}-%{release}
 Requires:	mysql-common = %{version}-%{release}
 Requires:	mysql-client = %{version}-%{release}
 Provides:	MySQL-devel = %{version}-%{release}
+Provides:	mysql-devel = %{version}-%{release}
 Obsoletes:	MySQL-devel
+Obsoletes:	mysql-devel
 Provides:	%{libname}-devel = %{version}-%{release}
 Obsoletes:	%{libname}-devel
 Conflicts:	%{conflict1}-devel
@@ -322,6 +324,7 @@ Group:		Development/Other
 Requires:	mysql-devel = %{version}-%{release}
 Conflicts:	MySQL-devel < 5.0.16-5mdk
 Provides:	MySQL-static-devel = %{version}-%{release}
+Provides:	mysql-static-devel = %{version}-%{release}
 Obsoletes:	mysql-static-devel
 Provides:	%{libname}-static-devel = %{version}-%{release}
 Obsoletes:	%{libname}-static-devel
@@ -779,7 +782,7 @@ perl -pi -e 's,\$manager --user=\$user,\$manager --default-mysqld-path=%{_sbindi
 
 # install configuration files
 install -m0644 Mandriva/mysqld.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld
-install -m0644 Mandriva/mysqld-ndb.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld-ndb
+install -m0644 Mandriva/mysqld-ndb.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld-ndbd
 install -m0644 Mandriva/mysqld-ndb_cpcd.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld-ndb_cpcd
 install -m0644 Mandriva/mysqld-ndb_mgmd.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld-ndb_mgmd
 install -m0644 Mandriva/my.cnf %{buildroot}%{_sysconfdir}/my.cnf
@@ -1092,7 +1095,7 @@ fi
 %files ndb-storage
 %defattr(-,root,root)
 %attr(0755,root,root) %{_initrddir}/mysqld-ndbd
-%attr(0644,root,root) %config(noreplace,missingok) %{_sysconfdir}/sysconfig/mysqld-ndb
+%attr(0644,root,root) %config(noreplace,missingok) %{_sysconfdir}/sysconfig/mysqld-ndbd
 %attr(0755,root,root) %{_sbindir}/ndbd
 %attr(0644,root,root) %{_mandir}/man1/ndbd.1*
 

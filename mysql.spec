@@ -45,7 +45,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.0.45
-Release:	%mkrel 2
+Release:	%mkrel 3
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -869,6 +869,11 @@ is running under.
 EOF
 
 %pre common
+# delete the mysql group if no mysql user is found, before adding the user
+if [ -z "`getent passwd %{muser}`" ] && ! [ -z "`getent group %{muser}`" ]; then
+    %{_sbindir}/groupdel %{muser} 2> /dev/null || :
+fi
+
 %_pre_useradd %{muser} %{_localstatedir}/mysql /bin/bash
 
 %post common

@@ -45,7 +45,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.0.45
-Release:	%mkrel 3
+Release:	%mkrel 4
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -73,6 +73,7 @@ Patch10:	mysql-5.0.4-beta-libndbclient_soname.diff
 Patch11:	mysql-logrotate.diff
 Patch12:	mysql-initscript.diff
 Patch13:	mysql-5.0.19-instance-manager.diff
+Patch14:	mysql-mysqlhotcopy_fix.diff
 # stolen from fedora
 Patch22:	mysql-no-atomic.patch
 Patch23:	mysql-rpl_ddl.patch
@@ -361,6 +362,7 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch11 -p0 -b .logrotate
 %patch12 -p0 -b .initscript
 %patch13 -p0 -b .instance-manager
+%patch14 -p0 -b .bug29451
 
 # stolen from fedora
 %patch22 -p1
@@ -885,8 +887,8 @@ fi
 
 %post
 # Change permissions so that the user that will run the MySQL daemon
-# owns all database files.
-chown -R %{muser}:%{muser} %{_localstatedir}/mysql
+# owns all needed files.
+chown -R %{muser}:%{muser} %{_localstatedir}/mysql /var/run/mysqld /var/log/mysqld
 
 # make sure the %{_localstatedir}/mysql directory can be accessed
 chmod 711 %{_localstatedir}/mysql
@@ -957,8 +959,8 @@ fi
 
 %post max
 # Change permissions so that the user that will run the MySQL daemon
-# owns all database files.
-chown -R %{muser}:%{muser} %{_localstatedir}/mysql
+# owns all needed files.
+chown -R %{muser}:%{muser} %{_localstatedir}/mysql /var/run/mysqld /var/log/mysqld
 
 # make sure the %{_localstatedir}/mysql directory can be accessed
 chmod 711 %{_localstatedir}/mysql

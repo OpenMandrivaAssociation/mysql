@@ -45,7 +45,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.0.45
-Release:	%mkrel 4
+Release:	%mkrel 5
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -110,7 +110,7 @@ BuildRequires:	multiarch-utils >= 1.0.3
 BuildConflicts:	edit-devel
 Provides:	msqlormysql MySQL-server mysqlserver MySQL = %{version}-%{release}
 Obsoletes:	MySQL MySQL-devel <= 3.23.39
-Conflicts:	MySQL-Max > 4.0.11 mysql-max > 4.0.11
+Conflicts:	MySQL-Max > 4.0.11
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
@@ -147,7 +147,7 @@ Requires:	mysql-client = %{version}-%{release}
 Provides:	msqlormysql MySQL-server mysqlserver mysql MySQL-Max = %{version}-%{release}
 Obsoletes:	MySQL-Max
 Obsoletes:	MySQL-NDB
-Conflicts:	MySQL > 4.0.11 mysql > 4.0.11
+Conflicts:	MySQL > 4.0.11
 
 %description	max 
 Optional MySQL server binary that supports features
@@ -952,7 +952,7 @@ fi
 
 %postun
 if [ "$1" = "0" ]; then
-    if [ -f /var/lock/subsys/mysqld ]; then
+    if [ -f /var/lock/subsys/mysqld -o -f /var/lock/subsys/mysqlmanager ]; then
         %{_initrddir}/mysqld restart 1>&2
     fi
 fi
@@ -1024,7 +1024,7 @@ fi
 
 %postun max
 if [ "$1" = "0" ]; then
-    if [ -f /var/lock/subsys/mysqld-max ]; then
+    if [ -f /var/lock/subsys/mysqld-max -o -f /var/lock/subsys/mysqlmanager ]; then
         %{_initrddir}/mysqld-max restart 1>&2
     fi
 fi

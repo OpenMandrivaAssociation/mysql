@@ -45,7 +45,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.0.45
-Release:	%mkrel 7
+Release:	%mkrel 8
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -80,6 +80,9 @@ Patch23:	mysql-rpl_ddl.patch
 Patch24:	mysql-rpl-test.patch
 Patch25:	mysql-install-test.patch
 Patch26:	mysql-bdb-link.patch
+Source100:	http://www.sphinxsearch.com/downloads/sphinx-0.9.7.tar.gz
+Patch100:	mysql-sphinx.diff
+Patch101:	mysql-sphinx-gcc41x.diff
 # security fixes
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
@@ -150,9 +153,9 @@ Obsoletes:	MySQL-NDB
 Conflicts:	MySQL > 4.0.11
 
 %description	max 
-Optional MySQL server binary that supports features
-like transactional tables. You can use it as an alternate
-to MySQL basic server.
+Optional MySQL server binary that supports features like transactional tables
+and more. You can use it as an alternate to MySQL basic server. The mysql-max
+server is compiled with the following storage engines:
 
  - Berkeley DB Storage Engine
  - Ndbcluster Storage Engine interface
@@ -161,6 +164,8 @@ to MySQL basic server.
  - Example Storage Engine
  - Federated Storage Engine
  - User Defined Functions (UDFs).
+ - Blackhole Storage Engine
+ - Sphinx storage engine (experimental)
 
 %package	ndb-storage
 Summary:	MySQL - ndbcluster storage engine
@@ -171,11 +176,10 @@ Provides:	MySQL-ndb-storage = %{version}-%{release}
 Obsoletes:	MySQL-ndb-storage
 
 %description	ndb-storage
-This package contains the ndbcluster storage engine. 
-It is necessary to have this package installed on all 
-computers that should store ndbcluster table data.
-Note that this storage engine can only be used in conjunction
-with the MySQL Max server.
+This package contains the ndbcluster storage engine. It is necessary to have
+this package installed on all computers that should store ndbcluster table
+data. Note that this storage engine can only be used in conjunction with the
+MySQL Max server.
 
 %package	ndb-management
 Summary:	MySQL - ndbcluster storage engine management
@@ -192,9 +196,8 @@ Provides:	MySQL-ndb-management = %{version}-%{release}
 Obsoletes:	MySQL-ndb-management
 
 %description	ndb-management
-This package contains ndbcluster storage engine management.
-It is necessary to have this package installed on at least 
-one computer in the cluster.
+This package contains ndbcluster storage engine management. It is necessary to
+have this package installed on at least one computer in the cluster.
 
 %package	ndb-tools
 Summary:	MySQL - ndbcluster storage engine basic tools
@@ -212,11 +215,11 @@ Provides:	MySQL-ndb-extra = %{version}-%{release}
 Obsoletes:	MySQL-ndb-extra
 
 %description	ndb-extra
-This package contains some extra ndbcluster storage engine
-tools for the advanced user. They should be used with caution.
+This package contains some extra ndbcluster storage engine tools for the
+advanced user. They should be used with caution.
 
 %package	common
-Summary:	MySQL: common files
+Summary:	MySQL - common files
 Group:		System/Servers
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
@@ -262,7 +265,7 @@ Obsoletes:      MySQL-bench
 This package contains MySQL benchmark scripts and data.
 
 %package	test
-Summary:	The test suite distributed with MySQL
+Summary:	MySQL - The test suite distributed with MySQL
 Group:		System/Servers
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-server = %{version}-%{release}
@@ -281,8 +284,8 @@ Provides:	MySQL-shared-libs = %{version}-%{release} mysql-shared-libs = %{versio
 Provides:	MySQL-shared = %{version}-%{release} mysql-shared = %{version}-%{release}
 
 %description -n	%{libname}
-This package contains the shared libraries (*.so*) which certain
-languages and applications need to dynamically load and use MySQL.
+This package contains the shared libraries (*.so*) which certain languages and
+applications need to dynamically load and use MySQL.
 
 %package -n	%{develname}
 Summary:	MySQL - Development header files and libraries
@@ -306,18 +309,17 @@ Conflicts:	%{conflict1}-devel
 Conflicts:	%{conflict2}-devel
 
 %description -n	%{develname}
-This package contains the development header files and libraries
-necessary to develop MySQL client applications.
+This package contains the development header files and libraries necessary to
+develop MySQL client applications.
 
 This package also contains the MySQL server as an embedded library.
 
-The embedded MySQL server library makes it possible to run a
-full-featured MySQL server inside the client application.
-The main benefits are increased speed and more simple management
-for embedded applications.
+The embedded MySQL server library makes it possible to run a full-featured
+MySQL server inside the client application. The main benefits are increased
+speed and more simple management for embedded applications.
 
-The API is identical for the embedded MySQL version and the
-client/server version.
+The API is identical for the embedded MySQL version and the client/server
+version.
 
 %package -n	%{staticdevelname}
 Summary:	MySQL - Static development libraries
@@ -370,6 +372,15 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch24 -p1
 %patch25 -p1
 %patch26 -p1
+
+# Sphinx storage engine, --without-sphinx-storage-engine does not work atm
+tar -zxf %{SOURCE100}
+cp -rp sphinx-*/mysqlse sql/sphinx
+%patch100 -p1
+%patch101 -p0
+
+# use a more unique name for the sphinx search daemon
+perl -pi -e "s|searchd|sphinx-searchd|g" sql/sphinx/*
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
@@ -679,7 +690,8 @@ MYSQL_COMMON_CONFIGURE_LINE="--prefix=/ \
     --with-comment='Mandriva Linux - MySQL Standard Edition (GPL)' \
     --without-embedded-server \
     --without-berkeley-db \
-    --without-vio
+    --without-vio \
+    --with-sphinx-storage-engine
 
 # benchdir does not fit in above model. Maybe a separate bench distribution
 make benchdir_root=%{buildroot}%{_datadir}
@@ -701,6 +713,7 @@ make clean
     --with-example-storage-engine \
     --with-blackhole-storage-engine \
     --with-federated-storage-engine \
+    --with-sphinx-storage-engine \
     --with-big-tables \
     --with-ndbcluster \
     --with-ndb-shm \

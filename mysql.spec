@@ -44,8 +44,8 @@
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.0.45
-Release:	%mkrel 8
+Version:	5.0.51
+Release:	%mkrel 1
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -73,7 +73,6 @@ Patch10:	mysql-5.0.4-beta-libndbclient_soname.diff
 Patch11:	mysql-logrotate.diff
 Patch12:	mysql-initscript.diff
 Patch13:	mysql-5.0.19-instance-manager.diff
-Patch14:	mysql-mysqlhotcopy_fix.diff
 # stolen from fedora
 Patch22:	mysql-no-atomic.patch
 Patch23:	mysql-rpl_ddl.patch
@@ -364,7 +363,6 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch11 -p0 -b .logrotate
 %patch12 -p0 -b .initscript
 %patch13 -p0 -b .instance-manager
-%patch14 -p0 -b .bug29451
 
 # stolen from fedora
 %patch22 -p1
@@ -838,6 +836,7 @@ rm -f %{buildroot}%{_datadir}/mysql/postinstall
 rm -f %{buildroot}%{_datadir}/mysql/preinstall
 rm -f %{buildroot}%{_datadir}/mysql/mysql-log-rotate
 rm -f %{buildroot}%{_datadir}/mysql/mysql.server
+rm -f %{buildroot}%{_datadir}/mysql/mysqld_multi.server
 rm -f %{buildroot}%{_bindir}/client_test
 #rm -f %{buildroot}%{_bindir}/mysql_client_test*
 rm -f %{buildroot}%{_bindir}/mysqltest_embedded
@@ -1224,7 +1223,7 @@ fi
 
 %files common
 %defattr(-,root,root) 
-%doc README COPYING support-files/*.cnf SSL/NOTES SSL/run* SSL/*.pem Docs/html
+%doc README COPYING support-files/*.cnf SSL/NOTES SSL/run* Docs/html
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/mysqld
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/my.cnf

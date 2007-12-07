@@ -45,7 +45,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.0.51
-Release:	%mkrel 1
+Release:	%mkrel 2
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -333,6 +333,13 @@ Obsoletes:	%{libname}-static-devel
 
 %description -n	%{staticdevelname}
 This package contains the static development libraries.
+
+%package	doc
+Summary:	Documentation for MySQL
+Group:		Books/Other
+
+%description	doc
+This package contains the HTML documentation for MySQL.
 
 %prep
 
@@ -1220,10 +1227,9 @@ fi
 %attr(0644,root,root) %{_mandir}/man1/mysqltest.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqltest_embedded.1*
 
-
 %files common
 %defattr(-,root,root) 
-%doc README COPYING support-files/*.cnf SSL/NOTES SSL/run* Docs/html
+%doc README COPYING support-files/*.cnf SSL/NOTES SSL/run* 
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/mysqld
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/my.cnf
@@ -1367,3 +1373,7 @@ fi
 %attr(0644,root,root) %{_libdir}/mysql/libmysys.a
 %attr(0644,root,root) %{_libdir}/mysql/libvio.a
 %attr(0644,root,root) %{_libdir}/*.a
+
+%files doc
+%defattr(-,root,root)
+%doc Docs/html/*

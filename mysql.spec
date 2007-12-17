@@ -113,7 +113,6 @@ BuildConflicts:	edit-devel
 Provides:	msqlormysql MySQL-server mysqlserver MySQL = %{version}-%{release}
 Obsoletes:	MySQL MySQL-devel <= 3.23.39
 Conflicts:	MySQL-Max > 4.0.11
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
 The MySQL(TM) software delivers a very fast, multi-threaded, multi-user,

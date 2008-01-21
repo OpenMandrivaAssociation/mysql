@@ -79,10 +79,12 @@ Patch23:	mysql-rpl_ddl.patch
 Patch24:	mysql-rpl-test.patch
 Patch25:	mysql-install-test.patch
 Patch26:	mysql-bdb-link.patch
+Patch27:	mysql-5.0.37-deb-CVE-2007-5925.patch
+Patch28:	mysql-5.0.45-rh-CVE-2007-6303.patch
+Patch29:	mysql-5.0.52-CVE-2007-6304.patch
 Source100:	http://www.sphinxsearch.com/downloads/sphinx-0.9.7.tar.gz
 Patch100:	mysql-sphinx.diff
 Patch101:	mysql-sphinx-gcc41x.diff
-# security fixes
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -376,6 +378,10 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch24 -p1
 %patch25 -p1
 %patch26 -p1
+
+%patch27 -p1 -b .cve-2007-5925
+%patch28 -p1 -b .cve-2007-6303
+%patch29 -p1 -b .cve-2007-6304
 
 # Sphinx storage engine, --without-sphinx-storage-engine does not work atm
 tar -zxf %{SOURCE100}

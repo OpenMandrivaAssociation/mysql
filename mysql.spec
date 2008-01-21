@@ -777,7 +777,7 @@ export DONT_GPRINTIFY=1
 export DONT_STRIP=1
 %endif
 
-install -d %{buildroot}%{_sysconfdir}/{logrotate.d,sysconfig}
+install -d %{buildroot}%{_sysconfdir}/sysconfig
 install -d %{buildroot}%{_initrddir}
 install -d %{buildroot}%{_var}/run/{mysqld,ndb_cpcd}
 install -d %{buildroot}%{_var}/log/mysqld
@@ -812,7 +812,6 @@ install -m0644 Mandriva/mysqld-ndb_cpcd.sysconfig %{buildroot}%{_sysconfdir}/sys
 install -m0644 Mandriva/mysqld-ndb_mgmd.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld-ndb_mgmd
 install -m0644 Mandriva/my.cnf %{buildroot}%{_sysconfdir}/my.cnf
 install -m0644 Mandriva/config.ini %{buildroot}%{_localstatedir}/mysql-cluster/config.ini
-install -m0644 support-files/mysql-log-rotate %{buildroot}%{_sysconfdir}/logrotate.d/mysqld
 
 # Install docs
 install -m0644 Docs/mysql.info %{buildroot}%{_infodir}/mysql.info
@@ -1236,7 +1235,6 @@ fi
 %defattr(-,root,root) 
 %doc README COPYING support-files/*.cnf SSL/NOTES SSL/run* 
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/mysqld
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/my.cnf
 %ghost %attr(0640,%{muser},%{muser}) %config(noreplace,missingok) %{_sysconfdir}/mysqlmanager.passwd
 %attr(0755,root,root) %{_bindir}/myisamchk

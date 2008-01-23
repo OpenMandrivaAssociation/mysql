@@ -7,7 +7,7 @@
 #  configure.
 
 %define build_debug 0
-%define build_test 0
+%define build_test 1
 
 # commandline overrides:
 # rpm -ba|--rebuild --with 'xxx'
@@ -45,7 +45,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.0.51
-Release:	%mkrel 2
+Release:	%mkrel 3
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -73,18 +73,29 @@ Patch10:	mysql-5.0.4-beta-libndbclient_soname.diff
 Patch11:	mysql-logrotate.diff
 Patch12:	mysql-initscript.diff
 Patch13:	mysql-5.0.19-instance-manager.diff
+Patch14:	mysql-bug32458.diff
+Patch15:	mysql-bug31761.diff
 # stolen from fedora
 Patch22:	mysql-no-atomic.patch
 Patch23:	mysql-rpl_ddl.patch
 Patch24:	mysql-rpl-test.patch
 Patch25:	mysql-install-test.patch
 Patch26:	mysql-bdb-link.patch
-Patch27:	mysql-5.0.37-deb-CVE-2007-5925.patch
-Patch28:	mysql-5.0.45-rh-CVE-2007-6303.patch
-Patch29:	mysql-5.0.52-CVE-2007-6304.patch
+Patch27:	mysql-bdb-open.patch
 Source100:	http://www.sphinxsearch.com/downloads/sphinx-0.9.7.tar.gz
 Patch100:	mysql-sphinx.diff
 Patch101:	mysql-sphinx-gcc41x.diff
+Patch102:	mysql-sphinx_ps_1general.result_fix.diff
+# stolen from debian
+Patch200:	50_fix_mysqldump.dpatch
+Patch201:	53_integer-gcc-4.2.dpatch
+Patch202:	54_ssl-client-support.dpatch
+Patch203:	55_testsuite-2008.dpatch
+Patch204:	86_PATH_MAX.dpatch
+# security fixes
+Patch300:	mysql-5.0.37-deb-CVE-2007-5925.patch
+Patch301:	mysql-5.0.45-rh-CVE-2007-6303.patch
+Patch302:	mysql-5.0.52-CVE-2007-6304.patch
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -346,12 +357,27 @@ This package contains the HTML documentation for MySQL.
 
 %setup -q -n mysql-%{version} -a2
 
+# HOWTO pull mysql-5.0.52
+# bkf clone -rmysql-5.0.52 bk://mysql.bkbits.net/mysql-5.0 mysql-5.0.52
+# libtoolize --automake --force; aclocal; autoheader; automake --force --add-missing; autoconf
+# cd innobase; aclocal; autoheader; autoconf; automake
+# cd bdb/dist; sh s_all
+
+if [ -d BK ]; then
+    rm -rf ndb/src/cw/cpcc-win32
+    rm -rf ndb/src/cw/test
+    rm -rf ndb/src/cw/util
+    rm -rf VC++Files
+fi
+
 # put html docs in place
 mv refman-5.0-en.html-chapter Docs/html
 
 find . -type d -perm 0700 -exec chmod 755 {} \;
 find . -type f -perm 0555 -exec chmod 755 {} \;
+find . -type f -perm 0554 -exec chmod 755 {} \;
 find . -type f -perm 0444 -exec chmod 644 {} \;
+find . -type f -perm 0440 -exec chmod 644 {} \;
 
 for i in `find . -type d -name CVS` `find . -type f -name .cvs\*` `find . -type f -name .#\*`; do
     if [ -e "$i" ]; then rm -rf $i; fi >&/dev/null
@@ -371,6 +397,8 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch11 -p0 -b .logrotate
 %patch12 -p0 -b .initscript
 %patch13 -p0 -b .instance-manager
+%patch14 -p1 -b .bug32458
+%patch15 -p1 -b .bug31761
 
 # stolen from fedora
 %patch22 -p1
@@ -378,16 +406,26 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch24 -p1
 %patch25 -p1
 %patch26 -p1
-
-%patch27 -p1 -b .cve-2007-5925
-%patch28 -p1 -b .cve-2007-6303
-%patch29 -p1 -b .cve-2007-6304
+%patch27 -p1
 
 # Sphinx storage engine, --without-sphinx-storage-engine does not work atm
 tar -zxf %{SOURCE100}
 cp -rp sphinx-*/mysqlse sql/sphinx
 %patch100 -p1
 %patch101 -p0
+%patch102 -p0
+
+# stolen from debian
+%patch200 -p1 -b .fix_mysqldump
+%patch201 -p1 -b .integer-gcc-4.2
+%patch202 -p1 -b .ssl-client-support
+%patch203 -p1 -b .testsuite-2008
+%patch204 -p1 -b .PATH_MAX
+
+# security fixes
+%patch300 -p1 -b .cve-2007-5925
+%patch301 -p1 -b .cve-2007-6303
+%patch302 -p1 -b .cve-2007-6304
 
 # use a more unique name for the sphinx search daemon
 perl -pi -e "s|searchd|sphinx-searchd|g" sql/sphinx/*
@@ -606,9 +644,16 @@ EOF
 # Run aclocal in order to get an updated libtool.m4 in generated
 # configure script for "new" architectures (aka. x86_64, mips)
 export WANT_AUTOCONF_2_5=1
-libtoolize --copy --force; aclocal-1.7; autoconf; automake-1.7 --foreign --add-missing --copy
+libtoolize --automake --copy --force; aclocal-1.7; autoheader; automake-1.7  --foreign --add-missing --copy; autoconf
+
+if [ -d BK ]; then
+    pushd innobase
+	libtoolize --automake --copy  --force; aclocal-1.7; autoheader; autoconf; automake-1.7
+    popd
+fi
 
 pushd bdb/dist
+#    sh ./s_all
     sh ./s_config
 popd
 
@@ -618,6 +663,9 @@ pushd bdb/build_unix
 popd
 
 %serverbuild
+export CFLAGS="${CFLAGS:-%{optflags}}"
+export CXXFLAGS="${CXXFLAGS:-%{optflags}}"
+export FFLAGS="${FFLAGS:-%{optflags}}"
 
 # (gb) We shall always have the fully versioned binary
 # FIXME: Please, please, do tell why you need fully qualified version
@@ -629,10 +677,6 @@ CXXFLAGS="$CXXFLAGS -fPIC"
 CXXFLAGS="$CXXFLAGS"
 %endif
 
-%if %{build_debug}
-CFLAGS="$CFLAGS -DUNIV_MUST_NOT_INLINE -DEXTRA_DEBUG -DFORCE_INIT_OF_VARS -DSAFEMALLOC -DPEDANTIC_SAFEMALLOC -DSAFE_MUTEX"
-%endif
-
 export MYSQL_BUILD_CC="gcc-$GCC_VERSION"
 export MYSQL_BUILD_CXX="g++-$GCC_VERSION"
 
@@ -640,9 +684,13 @@ export MYSQL_BUILD_CFLAGS="$CFLAGS"
 export MYSQL_BUILD_CXXFLAGS="$CXXFLAGS"
 
 %if %mdkversion >= 200710
-export CFLAGS="$CFLAGS -fstack-protector"
-export CXXFLAGS="$CXXFLAGS -fstack-protector"
-export FFLAGS="$FFLAGS -fstack-protector"
+export CFLAGS="$CFLAGS -fstack-protector -fstack-protector-all"
+export CXXFLAGS="$CXXFLAGS -fstack-protector -fstack-protector-all"
+export FFLAGS="$FFLAGS -fstack-protector -fstack-protector-all"
+%endif
+
+%if %{build_debug}
+CFLAGS="$CFLAGS -DUNIV_MUST_NOT_INLINE -DEXTRA_DEBUG -DFORCE_INIT_OF_VARS -DSAFEMALLOC -DPEDANTIC_SAFEMALLOC -DSAFE_MUTEX"
 %endif
 
 #
@@ -746,6 +794,7 @@ make benchdir_root=%{buildroot}%{_datadir}
 echo "rpl_trigger : Unstable test case" >> mysql-test/t/disabled.def
 echo "type_enum : Unstable test case" >> mysql-test/t/disabled.def
 echo "windows : For MS Windows only" >> mysql-test/t/disabled.def
+echo "ndb_restore_different_endian_data : does not pass" >> mysql-test/t/disabled.def
 # set some test env, should be free high random ports...
 #export MYSQL_TEST_MANAGER_PORT=9305
 #export MYSQL_TEST_MASTER_PORT=9306

@@ -45,7 +45,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.0.51
-Release:	%mkrel 3
+Release:	%mkrel 4
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -75,6 +75,12 @@ Patch12:	mysql-initscript.diff
 Patch13:	mysql-5.0.19-instance-manager.diff
 Patch14:	mysql-bug32458.diff
 Patch15:	mysql-bug31761.diff
+Patch16:	mysql-bug31669.diff
+Patch17:	mysql-bug37300.diff
+Patch18:	mysql-bug30069.diff
+Patch19:	mysql-bug5731.diff
+Patch20:	mysql-bug29419.diff
+Patch21:	mysql-bug29446.diff
 # stolen from fedora
 Patch22:	mysql-no-atomic.patch
 Patch23:	mysql-rpl_ddl.patch
@@ -399,6 +405,12 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch13 -p0 -b .instance-manager
 %patch14 -p1 -b .bug32458
 %patch15 -p1 -b .bug31761
+%patch16 -p1 -b .bug31669
+%patch17 -p1 -b .bug37300
+%patch18 -p1 -b .bug30069
+%patch19 -p1 -b .bug5731
+%patch20 -p1 -b .bug29419
+%patch21 -p1 -b .bug29446
 
 # stolen from fedora
 %patch22 -p1
@@ -482,6 +494,8 @@ net_buffer_length = 8K
 read_buffer_size = 256K
 read_rnd_buffer_size = 512K
 myisam_sort_buffer_size = 8M
+collation_server = utf8_unicode_ci
+character_set_server = utf8
 
 # Default to using old password format for compatibility with old and
 # shorter password hash.
@@ -601,6 +615,7 @@ max_allowed_packet = 16M
 no-auto-rehash
 # Remove the next comment character if you are not familiar with SQL
 #safe-updates
+default-character-set = utf8
 
 [isamchk]
 key_buffer = 20M

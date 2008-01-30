@@ -44,8 +44,8 @@
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.0.51
-Release:	%mkrel 4
+Version:	5.0.51a
+Release:	%mkrel 1
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -73,7 +73,6 @@ Patch10:	mysql-5.0.4-beta-libndbclient_soname.diff
 Patch11:	mysql-logrotate.diff
 Patch12:	mysql-initscript.diff
 Patch13:	mysql-5.0.19-instance-manager.diff
-Patch14:	mysql-bug32458.diff
 Patch15:	mysql-bug31761.diff
 Patch16:	mysql-bug31669.diff
 Patch17:	mysql-bug37300.diff
@@ -100,8 +99,6 @@ Patch203:	55_testsuite-2008.dpatch
 Patch204:	86_PATH_MAX.dpatch
 # security fixes
 Patch300:	mysql-5.0.37-deb-CVE-2007-5925.patch
-Patch301:	mysql-5.0.45-rh-CVE-2007-6303.patch
-Patch302:	mysql-5.0.52-CVE-2007-6304.patch
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -403,7 +400,6 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch11 -p0 -b .logrotate
 %patch12 -p0 -b .initscript
 %patch13 -p0 -b .instance-manager
-%patch14 -p1 -b .bug32458
 %patch15 -p1 -b .bug31761
 %patch16 -p1 -b .bug31669
 %patch17 -p1 -b .bug37300
@@ -436,8 +432,6 @@ cp -rp sphinx-*/mysqlse sql/sphinx
 
 # security fixes
 %patch300 -p1 -b .cve-2007-5925
-%patch301 -p1 -b .cve-2007-6303
-%patch302 -p1 -b .cve-2007-6304
 
 # use a more unique name for the sphinx search daemon
 perl -pi -e "s|searchd|sphinx-searchd|g" sql/sphinx/*

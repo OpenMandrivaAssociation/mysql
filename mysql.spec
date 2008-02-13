@@ -80,13 +80,17 @@ Patch18:	mysql-bug30069.diff
 Patch19:	mysql-bug5731.diff
 Patch20:	mysql-bug29419.diff
 Patch21:	mysql-bug29446.diff
+Patch22:	mysql-bug33201.diff
+Patch23:	mysql-bug26489.diff
+Patch24:	mysql-bug27427.diff
+Patch25:	mysql-bug28908.diff
 # stolen from fedora
-Patch22:	mysql-no-atomic.patch
-Patch23:	mysql-rpl_ddl.patch
-Patch24:	mysql-rpl-test.patch
-Patch25:	mysql-install-test.patch
-Patch26:	mysql-bdb-link.patch
-Patch27:	mysql-bdb-open.patch
+Patch50:	mysql-no-atomic.patch
+Patch51:	mysql-rpl_ddl.patch
+Patch52:	mysql-rpl-test.patch
+Patch53:	mysql-install-test.patch
+Patch54:	mysql-bdb-link.patch
+Patch55:	mysql-bdb-open.patch
 Source100:	http://www.sphinxsearch.com/downloads/sphinx-0.9.8-svn-r1112.tar.gz
 Patch100:	mysql-sphinx.diff
 Patch102:	mysql-sphinx_ps_1general.result_fix.diff
@@ -406,14 +410,18 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch19 -p1 -b .bug5731
 %patch20 -p1 -b .bug29419
 %patch21 -p1 -b .bug29446
+%patch22 -p1 -b .bug33201
+%patch23 -p1 -b .bug26489
+%patch24 -p1 -b .bug27427
+%patch25 -p1 -b .bug28908
 
 # stolen from fedora
-%patch22 -p1
-%patch23 -p1
-%patch24 -p1
-%patch25 -p1
-%patch26 -p1
-%patch27 -p1
+%patch50 -p1
+%patch51 -p1
+%patch52 -p1
+%patch53 -p1
+%patch54 -p1
+%patch55 -p1
 
 # Sphinx storage engine, --without-sphinx-storage-engine does not work atm
 tar -zxf %{SOURCE100}
@@ -808,7 +816,7 @@ echo "ndb_restore_different_endian_data : does not pass" >> mysql-test/t/disable
 #export MYSQL_TEST_SLAVE_PORT=9308
 #export MYSQL_TEST_NDB_PORT=9350
 make check
-make test
+#make test
 #%ifnarch s390x
 #pushd mysql-test
 #    ./mysql-test-run.pl \
@@ -821,6 +829,17 @@ make test
 #    --suite-timeout=120 || false
 #popd
 #%endif
+
+pushd mysql-test
+export LANG=C
+export LC_ALL=C
+export LANGUAGE=C
+    perl ./mysql-test-run.pl \
+    --timer \
+    --testcase-timeout=60 \
+    --suite-timeout=120 || false
+popd
+
 %endif
 
 %install 

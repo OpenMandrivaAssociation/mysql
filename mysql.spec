@@ -84,6 +84,8 @@ Patch22:	mysql-bug33201.diff
 Patch23:	mysql-bug26489.diff
 Patch24:	mysql-bug27427.diff
 Patch25:	mysql-bug28908.diff
+#
+Patch40:	mysql-ndb_basic_test_fix.diff
 # stolen from fedora
 Patch50:	mysql-no-atomic.patch
 Patch51:	mysql-rpl_ddl.patch
@@ -363,6 +365,13 @@ This package contains the HTML documentation for MySQL.
 
 %setup -q -n mysql-%{version} -a2
 
+if [ "`/bin/hostname`" == "localhost" ]; then
+    echo "ERROR: Your hostname cannot be \"localhost\", the tests will fail, please look here:"
+    echo "https://qa.mandriva.com/show_bug.cgi?id=38398"
+    exit 1
+fi
+
+
 # HOWTO pull mysql-5.0.52
 # bkf clone -rmysql-5.0.52 bk://mysql.bkbits.net/mysql-5.0 mysql-5.0.52
 # libtoolize --automake --force; aclocal; autoheader; automake --force --add-missing; autoconf
@@ -414,6 +423,8 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch23 -p1 -b .bug26489
 %patch24 -p1 -b .bug27427
 %patch25 -p1 -b .bug28908
+#
+%patch40 -b .db_basic_test_fix
 
 # stolen from fedora
 %patch50 -p1
@@ -481,6 +492,7 @@ socket		= %{_localstatedir}/mysql/mysql.sock
 # The MySQL server
 [mysqld]
 user		= %{muser}
+basedir		= %{_localstatedir}
 datadir		= %{_localstatedir}/mysql
 port		= 3306
 socket		= %{_localstatedir}/mysql/mysql.sock
@@ -996,6 +1008,10 @@ chmod 711 %{_localstatedir}/mysql
 # Initiate databases
 export TMPDIR="%{_localstatedir}/mysql/.tmp"
 export TMP="${TMPDIR}"
+# https://qa.mandriva.com/show_bug.cgi?id=38398
+if [ "`/bin/hostname`" == "localhost" ]; then
+    /bin/hostname 127.0.0.1
+fi
 su - %{muser} -c "mysql_install_db --rpm --user=%{muser}" > /dev/null
 
 # try to fix privileges table, use a no password user table for that
@@ -1041,6 +1057,11 @@ else
 	fix_privileges
 fi
 
+# https://qa.mandriva.com/show_bug.cgi?id=38398
+if [ "`/bin/hostname`" == "127.0.0.1" ]; then
+    /bin/hostname localhost
+fi
+
 %preun
 if [ -x %{_sbindir}/mysqld-max -o -x %{_initrddir}/mysqld-max ]; then
     chkconfig --del mysqld-max
@@ -1068,6 +1089,10 @@ chmod 711 %{_localstatedir}/mysql
 # Initiate databases
 export TMPDIR="%{_localstatedir}/mysql/.tmp"
 export TMP="${TMPDIR}"
+# https://qa.mandriva.com/show_bug.cgi?id=38398
+if [ "`/bin/hostname`" == "localhost" ]; then
+    /bin/hostname 127.0.0.1
+fi
 su - %{muser} -c "mysql_install_db --rpm --user=%{muser}" > /dev/null
 
 # try to fix privileges table, use a no password user table for that
@@ -1111,6 +1136,11 @@ if [ -f /var/lock/subsys/mysqlmanager -o -f /var/lock/subsys/mysqld -o -f /var/l
     fi
 else
 	fix_privileges
+fi
+
+# https://qa.mandriva.com/show_bug.cgi?id=38398
+if [ "`/bin/hostname`" == "127.0.0.1" ]; then
+    /bin/hostname localhost
 fi
 
 %preun max

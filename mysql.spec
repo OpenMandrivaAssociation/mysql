@@ -45,7 +45,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.0.51a
-Release:	%mkrel 4
+Release:	%mkrel 5
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -63,6 +63,7 @@ Source10:	config.ini
 Patch1:		mysql-install_script_mysqld_safe.diff
 Patch2:		mysql-lib64.diff
 Patch3:		mysql-5.0.15-noproc.diff
+Patch4:		mysql-mysqldumpslow_no_basedir.diff
 Patch6:		mysql-errno.patch
 # Add fast AMD64 mutexes
 Patch7:		db-4.1.24-amd64-mutexes.diff
@@ -404,6 +405,7 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch1 -p0
 %patch2 -p1
 %patch3 -p0 -b .noproc
+%patch4 -p0 -b .mysqldumpslow_no_basedir
 %patch6 -p1 -b .errno_as_defines
 %patch7 -p1 -b .amd64-mutexes
 %patch8 -p1 -b .pthreadsmutexes
@@ -492,7 +494,6 @@ socket		= %{_localstatedir}/mysql/mysql.sock
 # The MySQL server
 [mysqld]
 user		= %{muser}
-basedir		= %{_localstatedir}
 datadir		= %{_localstatedir}/mysql
 port		= 3306
 socket		= %{_localstatedir}/mysql/mysql.sock
@@ -868,7 +869,7 @@ install -d %{buildroot}%{_sysconfdir}/sysconfig
 install -d %{buildroot}%{_initrddir}
 install -d %{buildroot}%{_var}/run/{mysqld,ndb_cpcd}
 install -d %{buildroot}%{_var}/log/mysqld
-install -d %{buildroot}%{_localstatedir}/mysql/{mysql,test,.tmp}
+install -d %{buildroot}%{_localstatedir}/mysql/{mysql,test}
 install -d %{buildroot}%{_localstatedir}/mysql-cluster
 
 %makeinstall_std benchdir_root=%{_datadir} testdir=%{_datadir}/mysql-test 
@@ -958,6 +959,11 @@ by MySQL AB. This means the following changes:
  * The MySQL Instance Manager is used by default, set use_mysqld_safe="1" in
    the /etc/sysconfig/mysqld file to use the old mysqld_safe script.
 
+ * The generation of the initial system mysql database is now done when mysql
+   is started from the initscript and only if the %{_localstatedir}/mysql/mysql
+   directory is empty (mysql_install_db). Previousely this was quite hidden and
+   silently done at (rpm) install time.
+
 The extra MySQL-NDB server package has been merged into the MySQL-Max package 
 and ndb related pieces has been split into different sub packages as done by
 MySQL AB. The MySQL libraries and the MySQL-common sub package uses the
@@ -1005,63 +1011,6 @@ chmod 711 %{_localstatedir}/mysql
 
 %_post_service mysqld
 
-# Initiate databases
-export TMPDIR="%{_localstatedir}/mysql/.tmp"
-export TMP="${TMPDIR}"
-# https://qa.mandriva.com/show_bug.cgi?id=38398
-if [ "`/bin/hostname`" == "localhost" ]; then
-    /bin/hostname 127.0.0.1
-fi
-su - %{muser} -c "mysql_install_db --rpm --user=%{muser}" > /dev/null
-
-# try to fix privileges table, use a no password user table for that
-fix_privileges() 
-{
-    datadir=`my_print_defaults --defaults-file=/etc/my.cnf mysqld | grep '^--datadir=' | cut -d= -f2`
-    if [ -z $datadir ]; then
-        datadir=%{_localstatedir}/mysql/
-    fi
-    cd $datadir/mysql
-    pid_file=$datadir/mysqld-fix_privileges.pid
-    if [ -f $pid_file ]; then rm -f $pid_file; fi
-    if %{_bindir}/mysqld_safe --skip-grant-tables --skip-networking --pid-file=$pid_file &> /dev/null & then  
-        pid=$!
-        i=1
-        while [ $i -lt 10 -a ! -f $pid_file ]; do 
-            i=$(($i+1))
-            sleep 1
-        done
-        if [ -f $datadir/mysqld-fix_privileges.pid ]; then
-            %{_bindir}/mysql_fix_privilege_tables &> /dev/null 
-            kill `cat $pid_file` &> /dev/null
-            rm -f $pid_file
-        else 
-            # just in case
-            kill $pid &> /dev/null
-        fi
-        sleep 2
-    fi
-}
-
-# Shut down a previously installed server first
-manager_pid=`my_print_defaults --defaults-file=/etc/my.cnf manager | grep '^--pid-file=' | cut -d= -f2`
-mysql_pid=`my_print_defaults --defaults-file=/etc/my.cnf mysqld | grep '^--pid-file=' | cut -d= -f2`
-
-if [ -f /var/lock/subsys/mysqlmanager -o -f /var/lock/subsys/mysqld -o -f /var/lock/subsys/mysqld-max -o -f "$manager_pid" -o -f "$mysql_pid" ]; then
-    if [ -x %{_sbindir}/mysqld-max -o -x %{_initrddir}/mysqld-max ]; then
-	%{_initrddir}/mysqld-max stop && fix_privileges && %{_initrddir}/mysqld start
-    else
-	%{_initrddir}/mysqld stop && fix_privileges && %{_initrddir}/mysqld start
-    fi
-else
-	fix_privileges
-fi
-
-# https://qa.mandriva.com/show_bug.cgi?id=38398
-if [ "`/bin/hostname`" == "127.0.0.1" ]; then
-    /bin/hostname localhost
-fi
-
 %preun
 if [ -x %{_sbindir}/mysqld-max -o -x %{_initrddir}/mysqld-max ]; then
     chkconfig --del mysqld-max
@@ -1085,63 +1034,6 @@ chown -R %{muser}:%{muser} %{_localstatedir}/mysql /var/run/mysqld /var/log/mysq
 chmod 711 %{_localstatedir}/mysql
 
 %_post_service mysqld-max
-
-# Initiate databases
-export TMPDIR="%{_localstatedir}/mysql/.tmp"
-export TMP="${TMPDIR}"
-# https://qa.mandriva.com/show_bug.cgi?id=38398
-if [ "`/bin/hostname`" == "localhost" ]; then
-    /bin/hostname 127.0.0.1
-fi
-su - %{muser} -c "mysql_install_db --rpm --user=%{muser}" > /dev/null
-
-# try to fix privileges table, use a no password user table for that
-fix_privileges() 
-{
-    datadir=`my_print_defaults --defaults-file=/etc/my.cnf mysqld | grep '^--datadir=' | cut -d= -f2`
-    if [ -z $datadir ]; then
-        datadir=%{_localstatedir}/mysql/
-    fi
-    cd $datadir/mysql
-    pid_file=$datadir/mysqld-max-fix_privileges.pid
-    if [ -f $pid_file ]; then rm -f $pid_file; fi
-    if %{_bindir}/mysqld_safe --skip-grant-tables --skip-networking --pid-file=$pid_file &> /dev/null & then  
-        pid=$!
-        i=1
-        while [ $i -lt 10 -a ! -f $pid_file ]; do 
-            i=$(($i+1))
-            sleep 1
-        done
-        if [ -f $datadir/mysqld-max-fix_privileges.pid ]; then
-            %{_bindir}/mysql_fix_privilege_tables &> /dev/null 
-            kill `cat $pid_file` &> /dev/null
-            rm -f $pid_file
-        else 
-            # just in case
-            kill $pid &> /dev/null
-        fi
-        sleep 2
-    fi
-}
-
-# Shut down a previously installed server first
-manager_pid=`my_print_defaults --defaults-file=/etc/my.cnf manager | grep '^--pid-file=' | cut -d= -f2`
-mysql_pid=`my_print_defaults --defaults-file=/etc/my.cnf mysqld | grep '^--pid-file=' | cut -d= -f2`
-
-if [ -f /var/lock/subsys/mysqlmanager -o -f /var/lock/subsys/mysqld -o -f /var/lock/subsys/mysqld-max -o -f "$manager_pid" -o -f "$mysql_pid" ]; then
-    if [ -x %{_sbindir}/mysqld -o -x %{_initrddir}/mysqld ]; then
-	%{_initrddir}/mysqld stop && fix_privileges && %{_initrddir}/mysqld-max start
-    else
-	%{_initrddir}/mysqld-max stop && fix_privileges && %{_initrddir}/mysqld-max start
-    fi
-else
-	fix_privileges
-fi
-
-# https://qa.mandriva.com/show_bug.cgi?id=38398
-if [ "`/bin/hostname`" == "127.0.0.1" ]; then
-    /bin/hostname localhost
-fi
 
 %preun max
 if [ -x %{_sbindir}/mysqld -o -x %{_initrddir}/mysqld ]; then
@@ -1374,7 +1266,6 @@ fi
 %attr(0711,%{muser},%{muser}) %dir %{_localstatedir}/mysql
 %attr(0711,%{muser},%{muser}) %dir %{_localstatedir}/mysql/mysql
 %attr(0711,%{muser},%{muser}) %dir %{_localstatedir}/mysql/test
-%attr(0711,%{muser},%{muser}) %dir %{_localstatedir}/mysql/.tmp
 %attr(0755,%{muser},%{muser}) %dir %{_var}/run/mysqld
 %attr(0755,%{muser},%{muser}) %dir %{_var}/log/mysqld
 %dir %{_datadir}/mysql

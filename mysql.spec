@@ -869,7 +869,7 @@ install -d %{buildroot}%{_sysconfdir}/sysconfig
 install -d %{buildroot}%{_initrddir}
 install -d %{buildroot}%{_var}/run/{mysqld,ndb_cpcd}
 install -d %{buildroot}%{_var}/log/mysqld
-install -d %{buildroot}%{_localstatedir}/mysql/{mysql,test}
+install -d %{buildroot}%{_localstatedir}/mysql/{mysql,test,.tmp}
 install -d %{buildroot}%{_localstatedir}/mysql-cluster
 
 %makeinstall_std benchdir_root=%{_datadir} testdir=%{_datadir}/mysql-test 
@@ -1266,6 +1266,7 @@ fi
 %attr(0711,%{muser},%{muser}) %dir %{_localstatedir}/mysql
 %attr(0711,%{muser},%{muser}) %dir %{_localstatedir}/mysql/mysql
 %attr(0711,%{muser},%{muser}) %dir %{_localstatedir}/mysql/test
+%attr(0711,%{muser},%{muser}) %dir %{_localstatedir}/mysql/.tmp
 %attr(0755,%{muser},%{muser}) %dir %{_var}/run/mysqld
 %attr(0755,%{muser},%{muser}) %dir %{_var}/log/mysqld
 %dir %{_datadir}/mysql

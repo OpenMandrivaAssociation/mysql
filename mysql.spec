@@ -85,6 +85,7 @@ Patch22:	mysql-bug33201.diff
 Patch23:	mysql-bug26489.diff
 Patch24:	mysql-bug27427.diff
 Patch25:	mysql-bug28908.diff
+Patch26:	mysql-bug32202.diff
 #
 Patch40:	mysql-ndb_basic_test_fix.diff
 # stolen from fedora
@@ -425,6 +426,7 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch23 -p1 -b .bug26489
 %patch24 -p1 -b .bug27427
 %patch25 -p1 -b .bug28908
+%patch26 -p1 -b .bug32202
 #
 %patch40 -b .db_basic_test_fix
 

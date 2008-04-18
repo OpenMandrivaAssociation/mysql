@@ -428,7 +428,7 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch25 -p1 -b .bug28908
 %patch26 -p1 -b .bug32202
 #
-%patch40 -b .db_basic_test_fix
+%patch40 -p0 -b .db_basic_test_fix
 
 # stolen from fedora
 %patch50 -p1

@@ -477,16 +477,16 @@ cat > Mandriva/my.cnf << EOF
 user		= root
 #password	= your_password
 port		= 3306
-socket		= %{_localstatedir}/lib/mysql/mysql.sock
+socket		= /var/lib/mysql/mysql.sock
 
 # Here follows entries for some specific programs
 
 # The MySQL server
 [mysqld]
 user		= %{muser}
-datadir		= %{_localstatedir}/lib/mysql
+datadir		= /var/lib/mysql
 port		= 3306
-socket		= %{_localstatedir}/lib/mysql/mysql.sock
+socket		= /var/lib/mysql/mysql.sock
 pid-file	= /var/run/mysqld/mysqld.pid
 skip-locking
 key_buffer = 16M
@@ -637,7 +637,7 @@ interactive-timeout
 
 [mysql.server]
 user=%{muser}
-basedir=%{_localstatedir}/lib
+basedir=/var/lib
 
 [mysqld_safe]
 err-log=/var/log/mysqld/mysqld.log
@@ -647,7 +647,7 @@ pid-file=/var/run/mysqld/mysqld.pid
 [manager]
 user=%{muser}
 default-mysqld-path=%{_sbindir}/mysqld
-socket=%{_localstatedir}/lib/mysql/mysqlmanager.sock
+socket=/var/lib/mysql/mysqlmanager.sock
 pid-file=/var/run/mysqld/mysqlmanager.pid
 password-file=%{_sysconfdir}/mysqlmanager.passwd
 run-as-service
@@ -728,7 +728,7 @@ MYSQL_COMMON_CONFIGURE_LINE="--prefix=/ \
     --libdir=%{_libdir} \
     --sysconfdir=%{_sysconfdir} \
     --datadir=%{_datadir} \
-    --localstatedir=%{_localstatedir}/lib/mysql \
+    --localstatedir=/var/lib/mysql \
     --infodir=%{_infodir} \
     --includedir=%{_includedir} \
     --mandir=%{_mandir} \
@@ -753,7 +753,7 @@ MYSQL_COMMON_CONFIGURE_LINE="--prefix=/ \
     --without-debug \
 %endif
     --with-mysqld-user=%{muser} \
-    --with-unix-socket-path=%{_localstatedir}/lib/mysql/mysql.sock"
+    --with-unix-socket-path=/var/lib/mysql/mysql.sock"
 
 ################################################################################
 # make the plain mysqld server
@@ -859,8 +859,8 @@ install -d %{buildroot}%{_sysconfdir}/sysconfig
 install -d %{buildroot}%{_initrddir}
 install -d %{buildroot}%{_var}/run/{mysqld,ndb_cpcd}
 install -d %{buildroot}%{_var}/log/mysqld
-install -d %{buildroot}%{_localstatedir}/lib/mysql/{mysql,test,.tmp}
-install -d %{buildroot}%{_localstatedir}/lib/mysql-cluster
+install -d %{buildroot}/var/lib/mysql/{mysql,test,.tmp}
+install -d %{buildroot}/var/lib/mysql-cluster
 
 %makeinstall_std benchdir_root=%{_datadir} testdir=%{_datadir}/mysql-test 
 
@@ -889,7 +889,7 @@ install -m0644 Mandriva/mysqld-ndb.sysconfig %{buildroot}%{_sysconfdir}/sysconfi
 install -m0644 Mandriva/mysqld-ndb_cpcd.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld-ndb_cpcd
 install -m0644 Mandriva/mysqld-ndb_mgmd.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld-ndb_mgmd
 install -m0644 Mandriva/my.cnf %{buildroot}%{_sysconfdir}/my.cnf
-install -m0644 Mandriva/config.ini %{buildroot}%{_localstatedir}/lib/mysql-cluster/config.ini
+install -m0644 Mandriva/config.ini %{buildroot}/var/lib/mysql-cluster/config.ini
 
 # Install docs
 install -m0644 Docs/mysql.info %{buildroot}%{_infodir}/mysql.info
@@ -909,7 +909,7 @@ popd
 # touch some files
 touch %{buildroot}%{_sysconfdir}/mysqlmanager.passwd
 echo "#" > %{buildroot}%{_sysconfdir}/ndb_cpcd.conf
-echo "#" > %{buildroot}%{_localstatedir}/lib/mysql/Ndb.cfg
+echo "#" > %{buildroot}/var/lib/mysql/Ndb.cfg
 
 # fix devel docs
 rm -rf Docs/devel; mkdir -p Docs/devel
@@ -950,7 +950,7 @@ by MySQL AB. This means the following changes:
    the /etc/sysconfig/mysqld file to use the old mysqld_safe script.
 
  * The generation of the initial system mysql database is now done when mysql
-   is started from the initscript and only if the %{_localstatedir}/lib/mysql/mysql
+   is started from the initscript and only if the /var/lib/mysql/mysql
    directory is empty (mysql_install_db). Previousely this was quite hidden and
    silently done at (rpm) install time.
 
@@ -982,7 +982,7 @@ if [ -z "`getent passwd %{muser}`" ] && ! [ -z "`getent group %{muser}`" ]; then
     %{_sbindir}/groupdel %{muser} 2> /dev/null || :
 fi
 
-%_pre_useradd %{muser} %{_localstatedir}/lib/mysql /bin/bash
+%_pre_useradd %{muser} /var/lib/mysql /bin/bash
 
 %post common
 %_install_info mysql.info
@@ -994,10 +994,10 @@ fi
 %post
 # Change permissions so that the user that will run the MySQL daemon
 # owns all needed files.
-chown -R %{muser}:%{muser} %{_localstatedir}/lib/mysql /var/run/mysqld /var/log/mysqld
+chown -R %{muser}:%{muser} /var/lib/mysql /var/run/mysqld /var/log/mysqld
 
-# make sure the %{_localstatedir}/lib/mysql directory can be accessed
-chmod 711 %{_localstatedir}/lib/mysql
+# make sure the /var/lib/mysql directory can be accessed
+chmod 711 /var/lib/mysql
 
 %_post_service mysqld
 
@@ -1018,10 +1018,10 @@ fi
 %post max
 # Change permissions so that the user that will run the MySQL daemon
 # owns all needed files.
-chown -R %{muser}:%{muser} %{_localstatedir}/lib/mysql /var/run/mysqld /var/log/mysqld
+chown -R %{muser}:%{muser} /var/lib/mysql /var/run/mysqld /var/log/mysqld
 
-# make sure the %{_localstatedir}/lib/mysql directory can be accessed
-chmod 711 %{_localstatedir}/lib/mysql
+# make sure the /var/lib/mysql directory can be accessed
+chmod 711 /var/lib/mysql
 
 %_post_service mysqld-max
 
@@ -1054,7 +1054,7 @@ fi
 
 %post ndb-management
 %create_ghostfile %{_sysconfdir}/ndb_cpcd.conf root root 0644
-%create_ghostfile %{_localstatedir}/lib/mysql/Ndb.cfg root root 0644
+%create_ghostfile /var/lib/mysql/Ndb.cfg root root 0644
 %_post_service mysqld-ndb_cpcd
 %_post_service mysqld-ndb_mgmd
 
@@ -1123,8 +1123,8 @@ fi
 %files ndb-management
 %defattr(-,root,root)
 %ghost %attr(0644,root,root) %config(noreplace,missingok) %{_sysconfdir}/ndb_cpcd.conf
-%ghost %attr(0644,root,root) %config(noreplace,missingok) %{_localstatedir}/lib/mysql/Ndb.cfg
-%attr(0644,root,root) %config(noreplace,missingok) %{_localstatedir}/lib/mysql-cluster/config.ini
+%ghost %attr(0644,root,root) %config(noreplace,missingok) /var/lib/mysql/Ndb.cfg
+%attr(0644,root,root) %config(noreplace,missingok) /var/lib/mysql-cluster/config.ini
 %attr(0644,root,root) %config(noreplace,missingok) %{_sysconfdir}/sysconfig/mysqld-ndb_cpcd
 %attr(0644,root,root) %config(noreplace,missingok) %{_sysconfdir}/sysconfig/mysqld-ndb_mgmd
 %attr(0755,root,root) %{_initrddir}/mysqld-ndb_cpcd
@@ -1256,11 +1256,11 @@ fi
 %attr(0755,root,root) %{_bindir}/mysql_upgrade_shell
 %attr(0755,root,root) %{_sbindir}/mysqlmanager
 %{_infodir}/mysql.info*
-%attr(0711,%{muser},%{muser}) %dir %{_localstatedir}/lib/mysql-cluster
-%attr(0711,%{muser},%{muser}) %dir %{_localstatedir}/lib/mysql
-%attr(0711,%{muser},%{muser}) %dir %{_localstatedir}/lib/mysql/mysql
-%attr(0711,%{muser},%{muser}) %dir %{_localstatedir}/lib/mysql/test
-%attr(0711,%{muser},%{muser}) %dir %{_localstatedir}/lib/mysql/.tmp
+%attr(0711,%{muser},%{muser}) %dir /var/lib/mysql-cluster
+%attr(0711,%{muser},%{muser}) %dir /var/lib/mysql
+%attr(0711,%{muser},%{muser}) %dir /var/lib/mysql/mysql
+%attr(0711,%{muser},%{muser}) %dir /var/lib/mysql/test
+%attr(0711,%{muser},%{muser}) %dir /var/lib/mysql/.tmp
 %attr(0755,%{muser},%{muser}) %dir %{_var}/run/mysqld
 %attr(0755,%{muser},%{muser}) %dir %{_var}/log/mysqld
 %dir %{_datadir}/mysql

@@ -1,3 +1,5 @@
+%define _disable_ld_no_undefined 1
+
 #(ie. use with rpm --rebuild):
 #
 #	--with debug	Compile with debugging code

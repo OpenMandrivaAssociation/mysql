@@ -285,18 +285,6 @@ Obsoletes:      MySQL-bench
 %description	bench
 This package contains MySQL benchmark scripts and data.
 
-%package	test
-Summary:	MySQL - The test suite distributed with MySQL
-Group:		System/Servers
-Requires:	%{name} = %{version}-%{release}
-Requires:	%{name}-server = %{version}-%{release}
-Provides:       MySQL-test = %{version}-%{release}
-Obsoletes:      MySQL-test
-
-%description	test
-This package contains the regression test suite distributed with the MySQL
-sources.
-
 %package -n	%{libname}
 Summary:	MySQL - Shared libraries
 Group:		System/Libraries

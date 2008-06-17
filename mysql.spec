@@ -147,15 +147,7 @@ is intended for mission-critical, heavy-load production systems as well
 as for embedding into mass-deployed software. MySQL is a trademark of
 MySQL AB.
 
-The MySQL software has Dual Licensing, which means you can use the MySQL
-software free of charge under the GNU General Public License.  You can also
-purchase commercial MySQL licenses from MySQL AB if you do not wish to be bound
-by the terms of the GPL. See the chapter "Licensing and Support" in the manual
-for further info.
-
-The MySQL web site provides the latest news and information about the MySQL
-software. Also please see the documentation and the manual for more
-information.
+Please see the documentation and the manual for more information.
 
 %package	max
 Summary:	MySQL - server with extended functionality

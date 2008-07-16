@@ -47,7 +47,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.0.51b
-Release:	%mkrel 2
+Release:	%mkrel 3
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -108,6 +108,7 @@ Patch203:	55_testsuite-2008.dpatch
 Patch204:	86_PATH_MAX.dpatch
 # security fixes
 Patch300:	mysql-5.0.37-deb-CVE-2007-5925.patch
+Patch301:	mysql-5.0.51a-CVE-2008-2079.patch
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -435,6 +436,7 @@ cp -rp sphinx-*/mysqlse sql/sphinx
 
 # security fixes
 %patch300 -p1 -b .cve-2007-5925
+%patch301 -p0 -b .CVE-2008-2079
 
 # use a more unique name for the sphinx search daemon
 perl -pi -e "s|searchd|sphinx-searchd|g" sql/sphinx/*

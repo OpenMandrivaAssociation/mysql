@@ -47,7 +47,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.0.51b
-Release:	%mkrel 3
+Release:	%mkrel 4
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -657,12 +657,13 @@ EOF
 %build
 # Run aclocal in order to get an updated libtool.m4 in generated
 # configure script for "new" architectures (aka. x86_64, mips)
-export WANT_AUTOCONF_2_5=1
-libtoolize --automake --copy --force; aclocal-1.7; autoheader; automake-1.7  --foreign --add-missing --copy; autoconf
+autoreconf --install --force
+#export WANT_AUTOCONF_2_5=1
+#libtoolize --automake --copy --force; aclocal; autoheader; automake  --foreign --add-missing --copy; autoconf
 
 if [ -d BK ]; then
     pushd innobase
-	libtoolize --automake --copy  --force; aclocal-1.7; autoheader; autoconf; automake-1.7
+	libtoolize --automake --copy  --force; aclocal; autoheader; autoconf; automake
     popd
 fi
 

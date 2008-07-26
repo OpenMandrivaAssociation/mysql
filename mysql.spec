@@ -47,7 +47,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.0.51b
-Release:	%mkrel 4
+Release:	%mkrel 5
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -97,7 +97,7 @@ Patch52:	mysql-rpl-test.patch
 Patch53:	mysql-install-test.patch
 Patch54:	mysql-bdb-link.patch
 Patch55:	mysql-bdb-open.patch
-Source100:	http://www.sphinxsearch.com/downloads/sphinx-0.9.8-rc2.tar.gz
+Source100:	http://www.sphinxsearch.com/downloads/sphinx-0.9.8.tar.gz
 Patch100:	mysql-sphinx.diff
 Patch102:	mysql-sphinx_ps_1general.result_fix.diff
 # stolen from debian

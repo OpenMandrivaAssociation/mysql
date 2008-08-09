@@ -46,8 +46,8 @@
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.0.51b
-Release:	%mkrel 5
+Version:	5.0.67
+Release:	%mkrel 1
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -76,18 +76,6 @@ Patch10:	mysql-5.0.4-beta-libndbclient_soname.diff
 Patch11:	mysql-logrotate.diff
 Patch12:	mysql-initscript.diff
 Patch13:	mysql-5.0.19-instance-manager.diff
-Patch15:	mysql-bug31761.diff
-Patch16:	mysql-bug31669.diff
-Patch17:	mysql-bug37300.diff
-Patch18:	mysql-bug30069.diff
-Patch19:	mysql-bug5731.diff
-Patch20:	mysql-bug29419.diff
-Patch21:	mysql-bug29446.diff
-Patch22:	mysql-bug33201.diff
-Patch23:	mysql-bug26489.diff
-Patch24:	mysql-bug27427.diff
-Patch25:	mysql-bug28908.diff
-Patch26:	mysql-bug32202.diff
 #
 Patch40:	mysql-ndb_basic_test_fix.diff
 # stolen from fedora
@@ -101,14 +89,7 @@ Source100:	http://www.sphinxsearch.com/downloads/sphinx-0.9.8.tar.gz
 Patch100:	mysql-sphinx.diff
 Patch102:	mysql-sphinx_ps_1general.result_fix.diff
 # stolen from debian
-Patch200:	50_fix_mysqldump.dpatch
-Patch201:	53_integer-gcc-4.2.dpatch
-Patch202:	54_ssl-client-support.dpatch
-Patch203:	55_testsuite-2008.dpatch
 Patch204:	86_PATH_MAX.dpatch
-# security fixes
-Patch300:	mysql-5.0.37-deb-CVE-2007-5925.patch
-Patch301:	mysql-5.0.51a-CVE-2008-2079.patch
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -398,18 +379,6 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch11 -p0 -b .logrotate
 %patch12 -p0 -b .initscript
 %patch13 -p0 -b .instance-manager
-%patch15 -p1 -b .bug31761
-%patch16 -p1 -b .bug31669
-%patch17 -p1 -b .bug37300
-%patch18 -p1 -b .bug30069
-%patch19 -p1 -b .bug5731
-%patch20 -p1 -b .bug29419
-%patch21 -p1 -b .bug29446
-%patch22 -p1 -b .bug33201
-%patch23 -p1 -b .bug26489
-%patch24 -p1 -b .bug27427
-%patch25 -p1 -b .bug28908
-%patch26 -p1 -b .bug32202
 #
 %patch40 -p0 -b .db_basic_test_fix
 
@@ -428,15 +397,7 @@ cp -rp sphinx-*/mysqlse sql/sphinx
 %patch102 -p0
 
 # stolen from debian
-%patch200 -p1 -b .fix_mysqldump
-%patch201 -p1 -b .integer-gcc-4.2
-%patch202 -p1 -b .ssl-client-support
-%patch203 -p1 -b .testsuite-2008
 %patch204 -p1 -b .PATH_MAX
-
-# security fixes
-%patch300 -p1 -b .cve-2007-5925
-%patch301 -p0 -b .CVE-2008-2079
 
 # use a more unique name for the sphinx search daemon
 perl -pi -e "s|searchd|sphinx-searchd|g" sql/sphinx/*
@@ -843,7 +804,7 @@ popd
 %endif
 
 %install 
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+rm -rf %{buildroot}
 
 # don't fiddle with the initscript!
 export DONT_GPRINTIFY=1
@@ -1096,7 +1057,7 @@ fi
 %endif
 
 %clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -1115,7 +1076,7 @@ fi
 %attr(0755,root,root) %{_initrddir}/mysqld-ndbd
 %attr(0644,root,root) %config(noreplace,missingok) %{_sysconfdir}/sysconfig/mysqld-ndbd
 %attr(0755,root,root) %{_sbindir}/ndbd
-%attr(0644,root,root) %{_mandir}/man1/ndbd.1*
+%attr(0644,root,root) %{_mandir}/man8/ndbd.8*
 
 %files ndb-management
 %defattr(-,root,root)
@@ -1131,7 +1092,7 @@ fi
 %attr(0755,root,root) %{_bindir}/ndb_mgm
 %attr(0755,%{muser},%{muser}) %dir %{_var}/run/ndb_cpcd
 %attr(0644,root,root) %{_mandir}/man1/ndb_cpcd.1*
-%attr(0644,root,root) %{_mandir}/man1/ndb_mgmd.1*
+%attr(0644,root,root) %{_mandir}/man8/ndb_mgmd.8*
 
 %files ndb-tools
 %defattr(-,root,root)
@@ -1159,6 +1120,13 @@ fi
 %attr(0644,root,root) %{_mandir}/man1/ndb_show_tables.1*
 %attr(0644,root,root) %{_mandir}/man1/ndb_size.pl.1*
 %attr(0644,root,root) %{_mandir}/man1/ndb_waiter.1*
+
+         
+
+
+
+
+
 
 %files ndb-extra
 %defattr(-,root,root)
@@ -1297,33 +1265,35 @@ fi
 %lang(sv) %{_datadir}/mysql/swedish
 %lang(uk) %{_datadir}/mysql/ukrainian
 %attr(0644,root,root) %{_mandir}/man1/innochecksum.1*
-%attr(0644,root,root) %{_mandir}/man1/my_print_defaults.1*
 %attr(0644,root,root) %{_mandir}/man1/myisamchk.1*
 %attr(0644,root,root) %{_mandir}/man1/myisamlog.1*
 %attr(0644,root,root) %{_mandir}/man1/myisampack.1*
-%attr(0644,root,root) %{_mandir}/man1/mysql.server.1*
+%attr(0644,root,root) %{_mandir}/man1/my_print_defaults.1*
+%attr(0644,root,root) %{_mandir}/man1/mysqlbug.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_convert_table_format.1*
+%attr(0644,root,root) %{_mandir}/man1/mysqld_multi.1*
+%attr(0644,root,root) %{_mandir}/man1/mysqld_safe.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_explain_log.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_fix_extensions.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_fix_privilege_tables.1*
+%attr(0644,root,root) %{_mandir}/man1/mysqlhotcopy.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_install_db.1*
+%attr(0644,root,root) %{_mandir}/man1/mysqlman.1*
+%attr(0644,root,root) %{_mandir}/man1/mysqlmanagerc.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_secure_installation.1*
+%attr(0644,root,root) %{_mandir}/man1/mysql.server.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_setpermission.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_tzinfo_to_sql.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_upgrade.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_zap.1*
-%attr(0644,root,root) %{_mandir}/man1/mysqld_multi.1*
-%attr(0644,root,root) %{_mandir}/man1/mysqld_safe.1*
-%attr(0644,root,root) %{_mandir}/man1/mysqlhotcopy.1*
-%attr(0644,root,root) %{_mandir}/man1/mysqlman.1*
-%attr(0644,root,root) %{_mandir}/man1/mysqlmanagerc.1*
 %attr(0644,root,root) %{_mandir}/man1/perror.1*
 %attr(0644,root,root) %{_mandir}/man1/replace.1*
-%attr(0644,root,root) %{_mandir}/man1/resolve_stack_dump.1*
 %attr(0644,root,root) %{_mandir}/man1/resolveip.1*
+%attr(0644,root,root) %{_mandir}/man1/resolve_stack_dump.1*
 %attr(0644,root,root) %{_mandir}/man1/safe_mysqld.1*
 %attr(0644,root,root) %{_mandir}/man8/mysqld.8*
 %attr(0644,root,root) %{_mandir}/man8/mysqlmanager.8*
+
 
 %files -n %{libname}
 %defattr(-,root,root)

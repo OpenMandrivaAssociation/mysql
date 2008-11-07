@@ -879,6 +879,9 @@ rm -rf Docs/devel; mkdir -p Docs/devel
 cp -rp ndb/docs/mgmapi.html Docs/devel/mgmapi
 cp -rp ndb/docs/ndbapi.html Docs/devel/ndbapi
 
+# nuke -Wl,--as-needed from the mysql_config file
+perl -pi -e "s|^ldflags=.*|ldflags=\'-rdynamic\'|g %{buildroot}%{_bindir}/mysql_config
+
 # house cleaning
 rm -f %{buildroot}%{_datadir}/info/dir
 rm -f %{buildroot}%{_bindir}/make_win_src_distribution

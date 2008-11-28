@@ -798,11 +798,8 @@ install -m0755 Mandriva/mysqld-ndb_mgmd.init %{buildroot}%{_initrddir}/mysqld-nd
 # fix status and subsys
 perl -pi -e 's/status mysqld\b/status mysqld-max/g;s,(/var/lock/subsys/mysqld\b),${1}-max,' %{buildroot}%{_initrddir}/mysqld-max
 
-# force the instance manager to use the correct server
-perl -pi -e 's,\$manager --user=\$user,\$manager --default-mysqld-path=%{_sbindir}/mysqld --user=\$user,' %{buildroot}%{_initrddir}/mysqld
-
 # mysqld-max needs special treatment running under the instance manager...
-perl -pi -e 's,\$manager --user=\$user,\$manager --default-mysqld-path=%{_sbindir}/mysqld-max --user=\$user,' %{buildroot}%{_initrddir}/mysqld-max
+perl -pi -e "s|--default-mysqld-path=%{_sbindir}/mysqld|--default-mysqld-path=%{_sbindir}/mysqld-max|g"  %{buildroot}%{_initrddir}/mysqld-max
 
 # install configuration files
 install -m0644 Mandriva/mysqld.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld

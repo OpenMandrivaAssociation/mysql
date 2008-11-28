@@ -9,7 +9,7 @@
 #  configure.
 
 %define build_debug 0
-%define build_test 1
+%define build_test 0
 
 # commandline overrides:
 # rpm -ba|--rebuild --with 'xxx'
@@ -35,25 +35,23 @@
 
 %define _requires_exceptions perl(this)
 
-%define major 15
+%define major 16
 %define libname %mklibname mysql %{major}
 %define develname %mklibname -d mysql
 %define staticdevelname %mklibname -d -s mysql
-%define conflict1 %mklibname mysql 12
-%define conflict2 %mklibname mysql 14
 
 %define muser	mysql
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.0.67
-Release:	%mkrel 3
+Version:	5.1.30
+Release:	%mkrel 1
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
-Source0:	http://mysql.dataphone.se/Downloads/MySQL-5.0/mysql-%{version}.tar.gz
-Source1:	http://mysql.dataphone.se/Downloads/MySQL-5.0/mysql-%{version}.tar.gz.asc
-Source2:	http://downloads.mysql.com/docs/refman-5.0-en.html-chapter.tar.gz
+Source0:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz
+Source1:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz.asc
+Source2:	http://downloads.mysql.com/docs/refman-5.1-en.html-chapter.tar.gz
 Source3:	mysqld.sysconfig
 Source4:	mysqld-ndbd.init
 Source5:	mysqld-ndb.sysconfig
@@ -67,31 +65,16 @@ Patch2:		mysql-lib64.diff
 Patch3:		mysql-5.0.15-noproc.diff
 Patch4:		mysql-mysqldumpslow_no_basedir.diff
 Patch6:		mysql-errno.patch
-# Add fast AMD64 mutexes
-Patch7:		db-4.1.24-amd64-mutexes.diff
-# NPTL pthreads mutex are evil
-Patch8:		db-4.1.24-disable-pthreadsmutexes.diff
-Patch9:		mysql-5.0.15-disable-pthreadsmutexes.diff
-Patch10:	mysql-5.0.4-beta-libndbclient_soname.diff
 Patch11:	mysql-logrotate.diff
 Patch12:	mysql-initscript.diff
-Patch13:	mysql-5.0.19-instance-manager.diff
-#
-Patch40:	mysql-ndb_basic_test_fix.diff
+Patch13:	mysql-instance-manager.diff
+Patch14:	mysql-5.1.30-use_-avoid-version_for_plugins.diff
 # stolen from fedora
-Patch50:	mysql-no-atomic.patch
-Patch51:	mysql-rpl_ddl.patch
-Patch52:	mysql-rpl-test.patch
 Patch53:	mysql-install-test.patch
-Patch54:	mysql-bdb-link.patch
-Patch55:	mysql-bdb-open.patch
-Source100:	http://www.sphinxsearch.com/downloads/sphinx-0.9.8.tar.gz
-Patch100:	mysql-sphinx.diff
+Source100:	http://www.sphinxsearch.com/downloads/sphinx-0.9.8.1.tar.gz
+Patch100:	sphinx-plugindir_fix.diff
+Patch101:	sphinx-0.9.8.1-no_-DENGINE_fix.diff
 Patch102:	mysql-sphinx_ps_1general.result_fix.diff
-# stolen from debian
-Patch204:	86_PATH_MAX.dpatch
-# security fixes
-Patch300:	mysql-5.0.67-CVE-2008-2079.diff
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -292,8 +275,9 @@ Obsoletes:	MySQL-devel
 Obsoletes:	mysql-devel
 Provides:	%{libname}-devel = %{version}-%{release}
 Obsoletes:	%{libname}-devel
-Conflicts:	%{conflict1}-devel
-Conflicts:	%{conflict2}-devel
+Conflicts:	%{mklibname mysql 12 -d}
+Conflicts:	%{mklibname mysql 14 -d}
+Conflicts:	%{mklibname mysql 15 -d}
 
 %description -n	%{develname}
 This package contains the development header files and libraries necessary to
@@ -354,7 +338,7 @@ if [ -d BK ]; then
 fi
 
 # put html docs in place
-mv refman-5.0-en.html-chapter Docs/html
+mv refman-5.1-en.html-chapter Docs/html
 
 find . -type d -perm 0700 -exec chmod 755 {} \;
 find . -type f -perm 0555 -exec chmod 755 {} \;
@@ -374,38 +358,26 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch3 -p0 -b .noproc
 %patch4 -p0 -b .mysqldumpslow_no_basedir
 %patch6 -p1 -b .errno_as_defines
-%patch7 -p1 -b .amd64-mutexes
-%patch8 -p1 -b .pthreadsmutexes
-%patch9 -p0 -b .disable-pthreadsmutexes
-%patch10 -p0 -b .libndbclient_soname
 %patch11 -p0 -b .logrotate
 %patch12 -p0 -b .initscript
 %patch13 -p0 -b .instance-manager
-#
-%patch40 -p0 -b .db_basic_test_fix
 
 # stolen from fedora
-%patch50 -p1
-%patch51 -p1
-%patch52 -p1
 %patch53 -p1
-%patch54 -p1
-%patch55 -p1
 
-# Sphinx storage engine, --without-sphinx-storage-engine does not work atm
+# Sphinx storage engine
 tar -zxf %{SOURCE100}
-cp -rp sphinx-*/mysqlse sql/sphinx
-%patch100 -p1
-%patch102 -p0
+pushd sphinx-*
+%patch100 -p0
+%patch101 -p0
+popd
+cp -rp sphinx-*/mysqlse storage/sphinx
+#%patch102 -p0
 
-# stolen from debian
-%patch204 -p1 -b .PATH_MAX
-
-# security fixes
-%patch300 -p1 -b .CVE-2008-2079
+%patch14 -p1 -b .use_-avoid-version_for_plugins
 
 # use a more unique name for the sphinx search daemon
-perl -pi -e "s|searchd|sphinx-searchd|g" sql/sphinx/*
+perl -pi -e "s|searchd|sphinx-searchd|g" storage/sphinx/*
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
@@ -623,25 +595,15 @@ EOF
 %build
 # Run aclocal in order to get an updated libtool.m4 in generated
 # configure script for "new" architectures (aka. x86_64, mips)
-autoreconf --install --force
+#autoreconf --install --force
 #export WANT_AUTOCONF_2_5=1
-#libtoolize --automake --copy --force; aclocal; autoheader; automake  --foreign --add-missing --copy; autoconf
+libtoolize --automake --copy --force; aclocal -I config/ac-macros; autoheader; automake --foreign --add-missing --copy; autoconf
 
 if [ -d BK ]; then
     pushd innobase
 	libtoolize --automake --copy  --force; aclocal; autoheader; autoconf; automake
     popd
 fi
-
-pushd bdb/dist
-#    sh ./s_all
-    sh ./s_config
-popd
-
-pushd bdb/build_unix
-    CONFIGURE_TOP="../dist" %configure2_5x --disable-pthreadsmutexes
-    CONFIGURE_TOP="."
-popd
 
 %serverbuild
 export CFLAGS="${CFLAGS:-%{optflags}}"
@@ -695,23 +657,19 @@ MYSQL_COMMON_CONFIGURE_LINE="--prefix=/ \
     --infodir=%{_infodir} \
     --includedir=%{_includedir} \
     --mandir=%{_mandir} \
-    --enable-shared \
     --with-pic \
     --with-extra-charsets=all \
     --enable-assembler \
     --enable-local-infile \
-    --enable-large-files=yes \
     --enable-largefile=yes \
     --without-readline \
     --without-libwrap \
-    --without-mysqlfs \
-    --with-openssl \
-    --with-berkeley-db \
-    --with-innodb \
+    --with-ssl=%{_libdir} \
     --with-big-tables \
     --enable-thread-safe-client \
+    --with-fast-mutexes \
 %if %{build_debug}
-    --enable-debug \
+    --with-debug=full \
 %else
     --without-debug \
 %endif
@@ -722,15 +680,18 @@ MYSQL_COMMON_CONFIGURE_LINE="--prefix=/ \
 # make the plain mysqld server
 %configure2_5x $MYSQL_COMMON_CONFIGURE_LINE \
     --disable-shared \
-%ifarch i386
-    --with-mysqld-ldflags='-all-static' \
-    --with-client-ldflags='-all-static' \
-%endif
+    --enable-static \
     --with-comment='Mandriva Linux - MySQL Standard Edition (GPL)' \
     --without-embedded-server \
-    --without-berkeley-db \
-    --without-vio \
-    --with-sphinx-storage-engine
+    --with-plugins='archive,csv,heap,innobase,myisam,myisammrg' \
+    --without-plugin-blackhole \
+    --without-plugin-daemon_example \
+    --without-plugin-example \
+    --without-plugin-federated \
+    --without-plugin-ftexample \
+    --without-plugin-ndbcluster \
+    --without-plugin-partition \
+    --without-plugin-sphinx
 
 # benchdir does not fit in above model. Maybe a separate bench distribution
 make benchdir_root=%{buildroot}%{_datadir}
@@ -745,23 +706,20 @@ make clean
 ################################################################################
 # make the mysqld-max server
 %configure2_5x $MYSQL_COMMON_CONFIGURE_LINE \
+    --enable-shared \
+    --enable-static \
     --with-comment='Mandriva Linux - MySQL Max Edition (GPL)' \
     --with-embedded-server \
-    --with-archive-storage-engine \
-    --with-csv-storage-engine \
-    --with-example-storage-engine \
-    --with-blackhole-storage-engine \
-    --with-federated-storage-engine \
-    --with-sphinx-storage-engine \
+    --with-plugins=max \
+    --with-plugins='archive,blackhole,csv,federated,heap,innobase,myisam,myisammrg,ndbcluster,partition,sphinx' \
+    --without-plugin-example \
+    --without-plugin-daemon_example \
+    --without-plugin-ftexample \
     --with-big-tables \
     --with-ndbcluster \
     --with-ndb-shm \
     --with-ndb-docs \
     --with-server-suffix="-Max"
-
-# --with-raid won't compile
-# --with-ndb-sci requires stuff from http://www.dolphinics.no/
-# --with-ndb-test won't compile
 
 make benchdir_root=%{buildroot}%{_datadir}
 
@@ -876,11 +834,11 @@ echo "#" > %{buildroot}/var/lib/mysql/Ndb.cfg
 
 # fix devel docs
 rm -rf Docs/devel; mkdir -p Docs/devel
-cp -rp ndb/docs/mgmapi.html Docs/devel/mgmapi
-cp -rp ndb/docs/ndbapi.html Docs/devel/ndbapi
+cp -rp storage/ndb/docs/mgmapi.html Docs/devel/mgmapi
+cp -rp storage/ndb/docs/ndbapi.html Docs/devel/ndbapi
 
 # nuke -Wl,--as-needed from the mysql_config file
-perl -pi -e "s|^ldflags=.*|ldflags=\'-rdynamic\'|g %{buildroot}%{_bindir}/mysql_config
+perl -pi -e "s|^ldflags=.*|ldflags=\'-rdynamic\'|g" %{buildroot}%{_bindir}/mysql_config
 
 # house cleaning
 rm -f %{buildroot}%{_datadir}/info/dir
@@ -898,11 +856,10 @@ rm -f %{buildroot}%{_bindir}/mysqltest_embedded
 rm -f %{buildroot}%{_datadir}/mysql/binary-configure
 rm -f %{buildroot}%{_mandir}/man1/make_win_bin_dist.1*
 rm -f %{buildroot}%{_mandir}/man1/make_win_src_distribution.1*
+rm -f %{buildroot}%{_datadir}/mysql/ChangeLog
 
 %multiarch_binaries %{buildroot}%{_bindir}/mysql_config
 %multiarch_includes %{buildroot}%{_includedir}/mysql/my_config.h
-%multiarch_includes %{buildroot}%{_includedir}/mysql/ndb/ndb_types.h
-%multiarch_includes %{buildroot}%{_includedir}/mysql/ndb/ndb_constants.h
 
 cat > README.urpmi <<EOF
 
@@ -1072,12 +1029,15 @@ rm -rf %{buildroot}
 %doc README.urpmi
 %attr(0755,root,root) %{_initrddir}/mysqld
 %attr(0755,root,root) %{_sbindir}/mysqld
+%dir %{_libdir}/mysql/plugin
 
 %files max
 %defattr(-,root,root)
 %doc README.urpmi
 %attr(0755,root,root) %{_initrddir}/mysqld-max
 %attr(0755,root,root) %{_sbindir}/mysqld-max
+%dir %{_libdir}/mysql/plugin
+#%attr(0755,root,root) %{_libdir}/mysql/plugin/*.so
 
 %files ndb-storage
 %defattr(-,root,root)
@@ -1104,19 +1064,23 @@ rm -rf %{buildroot}
 
 %files ndb-tools
 %defattr(-,root,root)
+%attr(0755,root,root) %{_bindir}/ndb_print_schema_file
+%attr(0755,root,root) %{_bindir}/ndb_print_sys_file
 %attr(0755,root,root) %{_bindir}/ndb_config
+%attr(0755,root,root) %{_bindir}/ndb_desc
+%attr(0755,root,root) %{_bindir}/ndb_error_reporter
 %attr(0755,root,root) %{_bindir}/ndb_mgm
+%attr(0755,root,root) %{_bindir}/ndb_print_backup_file
 %attr(0755,root,root) %{_bindir}/ndb_restore
-%attr(0755,root,root) %{_bindir}/ndb_waiter
 %attr(0755,root,root) %{_bindir}/ndb_select_all
 %attr(0755,root,root) %{_bindir}/ndb_select_count
-%attr(0755,root,root) %{_bindir}/ndb_desc
 %attr(0755,root,root) %{_bindir}/ndb_show_tables
-%attr(0755,root,root) %{_bindir}/ndb_test_platform
-%attr(0755,root,root) %{_bindir}/ndb_error_reporter
 %attr(0755,root,root) %{_bindir}/ndb_size.pl
+%attr(0755,root,root) %{_bindir}/ndb_test_platform
+%attr(0755,root,root) %{_bindir}/ndb_waiter
 %attr(0644,root,root) %{_mandir}/man1/ndb_config.1*
 %attr(0644,root,root) %{_mandir}/man1/ndb_desc.1*
+%attr(0644,root,root) %{_mandir}/man1/ndbd_redo_log_reader.1*
 %attr(0644,root,root) %{_mandir}/man1/ndb_error_reporter.1*
 %attr(0644,root,root) %{_mandir}/man1/ndb_mgm.1*
 %attr(0644,root,root) %{_mandir}/man1/ndb_print_backup_file.1*
@@ -1128,13 +1092,6 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %{_mandir}/man1/ndb_show_tables.1*
 %attr(0644,root,root) %{_mandir}/man1/ndb_size.pl.1*
 %attr(0644,root,root) %{_mandir}/man1/ndb_waiter.1*
-
-         
-
-
-
-
-
 
 %files ndb-extra
 %defattr(-,root,root)
@@ -1161,13 +1118,12 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_bindir}/mysqloptimize
 %attr(0755,root,root) %{_bindir}/mysqlrepair
 %attr(0755,root,root) %{_bindir}/mysqlshow
-%attr(0755,root,root) %{_bindir}/mysql_tableinfo
+%attr(0755,root,root) %{_bindir}/mysqlslap
 %attr(0755,root,root) %{_bindir}/mysql_waitpid
 %attr(0644,root,root) %{_mandir}/man1/msql2mysql.1*
 %attr(0644,root,root) %{_mandir}/man1/myisam_ftdump.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_find_rows.1*
-%attr(0644,root,root) %{_mandir}/man1/mysql_tableinfo.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_waitpid.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqlaccess.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqladmin.1*
@@ -1182,22 +1138,18 @@ rm -rf %{buildroot}
 %doc sql-bench/README
 %attr(0755,root,root) %{_bindir}/mysql_client_test
 %attr(0755,root,root) %{_bindir}/mysql_client_test_embedded
-%attr(0755,root,root) %{_bindir}/mysqltestmanager
-%attr(0755,root,root) %{_bindir}/mysqltestmanager-pwgen
-%attr(0755,root,root) %{_bindir}/mysqltestmanagerc
 %{_datadir}/sql-bench
 %attr(-,mysql,mysql) %{_datadir}/mysql-test
 %attr(0644,root,root) %{_mandir}/man1/mysql-stress-test.pl.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql-test-run.pl.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_client_test.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_client_test_embedded.1*
-%attr(0644,root,root) %{_mandir}/man1/mysqlmanager-pwgen.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqltest.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqltest_embedded.1*
 
 %files common
 %defattr(-,root,root) 
-%doc README COPYING support-files/*.cnf SSL/NOTES SSL/run* 
+%doc README COPYING support-files/*.cnf
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/my.cnf
 %ghost %attr(0640,%{muser},%{muser}) %config(noreplace,missingok) %{_sysconfdir}/mysqlmanager.passwd
@@ -1210,7 +1162,6 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_bindir}/mysql_convert_table_format
 %attr(0755,root,root) %{_bindir}/mysqld_multi
 %attr(0755,root,root) %{_bindir}/mysqld_safe
-%attr(0755,root,root) %{_bindir}/mysql_explain_log 
 %attr(0755,root,root) %{_bindir}/mysql_fix_extensions 
 %attr(0755,root,root) %{_bindir}/mysql_fix_privilege_tables
 %attr(0755,root,root) %{_bindir}/mysqlhotcopy
@@ -1226,7 +1177,6 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_bindir}/resolveip
 %attr(0755,root,root) %{_bindir}/resolve_stack_dump
 %attr(0755,root,root) %{_bindir}/innochecksum
-%attr(0755,root,root) %{_bindir}/mysql_upgrade_shell
 %attr(0755,root,root) %{_sbindir}/mysqlmanager
 %{_infodir}/mysql.info*
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql-cluster
@@ -1248,7 +1198,6 @@ rm -rf %{buildroot}
 %{_datadir}/mysql/mysql_test_data_timezone.sql
 %{_datadir}/mysql/*.ini
 %{_datadir}/mysql/errmsg.txt
-%{_datadir}/mysql/ndb_size.tmpl
 %lang(cz) %{_datadir}/mysql/czech
 %lang(da) %{_datadir}/mysql/danish
 %lang(nl) %{_datadir}/mysql/dutch
@@ -1281,16 +1230,15 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %{_mandir}/man1/mysql_convert_table_format.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqld_multi.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqld_safe.1*
-%attr(0644,root,root) %{_mandir}/man1/mysql_explain_log.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_fix_extensions.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_fix_privilege_tables.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqlhotcopy.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_install_db.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqlman.1*
-%attr(0644,root,root) %{_mandir}/man1/mysqlmanagerc.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_secure_installation.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql.server.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_setpermission.1*
+%attr(0644,root,root) %{_mandir}/man1/mysqlslap.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_tzinfo_to_sql.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_upgrade.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_zap.1*
@@ -1298,10 +1246,8 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %{_mandir}/man1/replace.1*
 %attr(0644,root,root) %{_mandir}/man1/resolveip.1*
 %attr(0644,root,root) %{_mandir}/man1/resolve_stack_dump.1*
-%attr(0644,root,root) %{_mandir}/man1/safe_mysqld.1*
 %attr(0644,root,root) %{_mandir}/man8/mysqld.8*
 %attr(0644,root,root) %{_mandir}/man8/mysqlmanager.8*
-
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -1311,24 +1257,23 @@ rm -rf %{buildroot}
 %files -n %{develname}
 %defattr(-,root,root)
 %doc INSTALL-SOURCE EXCEPTIONS-CLIENT Docs/devel/*
-%attr(0755,root,root) %{_bindir}/comp_err
 %multiarch %{multiarch_bindir}/mysql_config
 %attr(0755,root,root) %{_bindir}/mysql_config
 %attr(0644,root,root) %{_libdir}/*.la
+#%attr(0644,root,root) %{_libdir}/mysql/plugin/*.la
 %attr(0755,root,root) %{_libdir}/*.so
 %dir %{_includedir}/mysql
-%dir %{_includedir}/mysql/ndb
-%dir %{_includedir}/mysql/ndb/mgmapi
-%dir %{_includedir}/mysql/ndb/ndbapi
+%dir %{_includedir}/mysql/storage/ndb
+%dir %{_includedir}/mysql/storage/ndb/mgmapi
+%dir %{_includedir}/mysql/storage/ndb/ndbapi
 %attr(0644,root,root) %{_includedir}/mysql/*.h
-%attr(0644,root,root) %{_includedir}/mysql/ndb/*.h
-%attr(0644,root,root) %{_includedir}/mysql/ndb/mgmapi/*.h
-%attr(0644,root,root) %{_includedir}/mysql/ndb/ndbapi/*.h*
+%attr(0644,root,root) %{_includedir}/mysql/storage/ndb/*.h
+%attr(0644,root,root) %{_includedir}/mysql/storage/ndb/mgmapi/*.h
+%attr(0644,root,root) %{_includedir}/mysql/storage/ndb/ndbapi/*.h*
 %multiarch %{multiarch_includedir}/mysql/my_config.h
-%multiarch %{multiarch_includedir}/mysql/ndb/ndb_types.h
-%multiarch %{multiarch_includedir}/mysql/ndb/ndb_constants.h
 %attr(0644,root,root) %{_mandir}/man1/comp_err.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_config.1*
+%attr(0644,root,root) %{_datadir}/aclocal/mysql.m4
 
 %files -n %{staticdevelname}
 %defattr(-,root,root)
@@ -1342,6 +1287,7 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %{_libdir}/mysql/libmysys.a
 %attr(0644,root,root) %{_libdir}/mysql/libvio.a
 %attr(0644,root,root) %{_libdir}/*.a
+#%attr(0755,root,root) %{_libdir}/mysql/plugin/*.a
 
 %files doc
 %defattr(-,root,root)

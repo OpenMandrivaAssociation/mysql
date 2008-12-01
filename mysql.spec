@@ -710,7 +710,6 @@ make clean
     --enable-static \
     --with-comment='Mandriva Linux - MySQL Max Edition (GPL)' \
     --with-embedded-server \
-    --with-plugins=max \
     --with-plugins='archive,blackhole,csv,federated,heap,innobase,myisam,myisammrg,ndbcluster,partition,sphinx' \
     --without-plugin-example \
     --without-plugin-daemon_example \

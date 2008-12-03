@@ -871,7 +871,13 @@ by MySQL AB. This means the following changes:
  * The generation of the initial system mysql database is now done when mysql
    is started from the initscript and only if the /var/lib/mysql/mysql
    directory is empty (mysql_install_db). Previousely this was quite hidden and
-   silently done at (rpm) install time.
+   silently done at (rpm) install time. As a consequence to this change you may
+   have to perform some manual tasks to upgrade the mysql system database and
+   such. So, doing something like this might help you:
+
+   /etc/rc.d/init.d/mysqld stop
+   TMPDIR=/var/tmp mysql_install_db
+   mysql_upgrade
 
 The extra MySQL-NDB server package has been merged into the MySQL-Max package 
 and ndb related pieces has been split into different sub packages as done by

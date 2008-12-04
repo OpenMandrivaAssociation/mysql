@@ -42,10 +42,16 @@
 
 %define muser	mysql
 
+# various version info
+%define sphinx_version 0.9.8.1
+%define federatedx_version 0.4
+%define pbxt_version 1.0.06
+%define revision_version 0.1
+
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.1.30
-Release:	%mkrel 1
+Release:	%mkrel 2
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -71,10 +77,17 @@ Patch13:	mysql-instance-manager.diff
 Patch14:	mysql-5.1.30-use_-avoid-version_for_plugins.diff
 # stolen from fedora
 Patch53:	mysql-install-test.patch
-Source100:	http://www.sphinxsearch.com/downloads/sphinx-0.9.8.1.tar.gz
+# addons
+Source99:	convert_engine.pl
+Source100:	http://www.sphinxsearch.com/downloads/sphinx-%{sphinx_version}.tar.gz
 Patch100:	sphinx-plugindir_fix.diff
 Patch101:	sphinx-0.9.8.1-no_-DENGINE_fix.diff
-Patch102:	mysql-sphinx_ps_1general.result_fix.diff
+Source200:	federatedx_engine-%{federatedx_version}.tar.gz
+Patch200:	federatedx_engine-0.4-build_fix.diff
+Source300:	pbxt-%{pbxt_version}-beta.tar.gz
+Patch300:	pbxt-1.0.06-beta-avoid-version_fix.diff
+Source400:	revisionv01.tar.gz
+Patch400:	revision-0.1-build_fix.diff
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -139,15 +152,19 @@ Optional MySQL server binary that supports features like transactional tables
 and more. You can use it as an alternate to MySQL basic server. The mysql-max
 server is compiled with the following storage engines:
 
- - Berkeley DB Storage Engine
  - Ndbcluster Storage Engine interface
  - Archive Storage Engine
  - CSV Storage Engine
- - Example Storage Engine
  - Federated Storage Engine
  - User Defined Functions (UDFs).
  - Blackhole Storage Engine
- - Sphinx storage engine (experimental)
+ - Partition Storage Engine
+
+Addon storage engines (use with care):
+ - Sphinx storage engine %{sphinx_version}
+ - FederatedX Storage Engine %{federatedx_version}
+ - PBXT Storage Engine %{pbxt_version}
+ - Revision Storage Engine %{revision_version}
 
 %package	ndb-storage
 Summary:	MySQL - ndbcluster storage engine
@@ -340,6 +357,8 @@ fi
 # put html docs in place
 mv refman-5.1-en.html-chapter Docs/html
 
+cp %{SOURCE99} convert_engine.pl
+
 find . -type d -perm 0700 -exec chmod 755 {} \;
 find . -type f -perm 0555 -exec chmod 755 {} \;
 find . -type f -perm 0554 -exec chmod 755 {} \;
@@ -367,17 +386,37 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 
 # Sphinx storage engine
 tar -zxf %{SOURCE100}
-pushd sphinx-*
+pushd sphinx-%{sphinx_version}
 %patch100 -p0
 %patch101 -p0
+# use a more unique name for the sphinx search daemon
+perl -pi -e "s|searchd|sphinx-searchd|g" mysqlse/*
 popd
-cp -rp sphinx-*/mysqlse storage/sphinx
-#%patch102 -p0
+cp -rp sphinx-%{sphinx_version}/mysqlse storage/sphinx
 
 %patch14 -p1 -b .use_-avoid-version_for_plugins
 
-# use a more unique name for the sphinx search daemon
-perl -pi -e "s|searchd|sphinx-searchd|g" storage/sphinx/*
+# federatedx storage engine
+tar -zxf %{SOURCE200}
+pushd federatedx_engine-%{federatedx_version}
+%patch200 -p0
+popd
+cp -rp federatedx_engine-%{federatedx_version}/src storage/federatedx
+
+# pbxt storage engine
+tar -zxf %{SOURCE300}
+pushd pbxt-%{pbxt_version}*
+%patch300 -p0
+popd
+
+# revision storage engine
+mkdir -p revision-%{revision_version}
+tar -zxf %{SOURCE400} -C revision-%{revision_version}
+pushd revision-%{revision_version}
+%patch400 -p0
+cp -p src/* .
+popd
+cp -rp revision-%{revision_version} storage/revision
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
@@ -691,7 +730,9 @@ MYSQL_COMMON_CONFIGURE_LINE="--prefix=/ \
     --without-plugin-ftexample \
     --without-plugin-ndbcluster \
     --without-plugin-partition \
-    --without-plugin-sphinx
+    --without-plugin-sphinx \
+    --without-plugin-federatedx \
+    --without-plugin-revision
 
 # benchdir does not fit in above model. Maybe a separate bench distribution
 make benchdir_root=%{buildroot}%{_datadir}
@@ -710,7 +751,7 @@ make clean
     --enable-static \
     --with-comment='Mandriva Linux - MySQL Max Edition (GPL)' \
     --with-embedded-server \
-    --with-plugins='archive,blackhole,csv,federated,heap,innobase,myisam,myisammrg,ndbcluster,partition,sphinx' \
+    --with-plugins='archive,blackhole,csv,federated,heap,innobase,myisam,myisammrg,ndbcluster,partition,sphinx,federatedx,revision' \
     --without-plugin-example \
     --without-plugin-daemon_example \
     --without-plugin-ftexample \
@@ -721,6 +762,18 @@ make clean
     --with-server-suffix="-Max"
 
 make benchdir_root=%{buildroot}%{_datadir}
+
+# this one is built dynamically..., heh... 
+pushd pbxt-%{pbxt_version}*
+autoreconf -fis
+%configure2_5x \
+    --enable-shared \
+    --enable-static \
+    --with-mysql=../ \
+    --with-plugindir=%{_libdir}/mysql/plugin
+make
+popd
+
 
 ################################################################################
 # run the tests
@@ -784,6 +837,10 @@ install -d %{buildroot}/var/lib/mysql-cluster
 
 %makeinstall_std benchdir_root=%{_datadir} testdir=%{_datadir}/mysql-test 
 
+pushd pbxt-%{pbxt_version}*
+%makeinstall_std
+popd
+
 mv %{buildroot}%{_sbindir}/mysqld %{buildroot}%{_sbindir}/mysqld-max
 install -m0755 STD/usr/sbin/mysqld %{buildroot}%{_sbindir}/mysqld
 
@@ -832,6 +889,27 @@ echo "#" > %{buildroot}/var/lib/mysql/Ndb.cfg
 rm -rf Docs/devel; mkdir -p Docs/devel
 cp -rp storage/ndb/docs/mgmapi.html Docs/devel/mgmapi
 cp -rp storage/ndb/docs/ndbapi.html Docs/devel/ndbapi
+
+install -m0755 convert_engine.pl %{buildroot}%{_bindir}/mysql_convert_engine
+
+# addon docs
+pushd federatedx_engine-%{federatedx_version}
+    for i in AUTHORS ChangeLog COPYING INSTALL README TODO; do
+	cp $i ../${i}.federatedx
+    done
+popd
+
+pushd pbxt-%{pbxt_version}*
+    for i in ChangeLog TODO AUTHORS COPYING NEWS README; do
+	cp $i ../${i}.pbxt
+    done
+popd
+
+pushd revision-%{revision_version}
+    for i in AUTHORS ChangeLog COPYING INSTALL README TODO; do
+	cp $i ../${i}.revision
+    done
+popd
 
 # nuke -Wl,--as-needed from the mysql_config file
 perl -pi -e "s|^ldflags=.*|ldflags=\'-rdynamic\'|g" %{buildroot}%{_bindir}/mysql_config
@@ -1036,10 +1114,11 @@ rm -rf %{buildroot}
 %files max
 %defattr(-,root,root)
 %doc README.urpmi
+%doc *.federatedx *.pbxt *.revision
 %attr(0755,root,root) %{_initrddir}/mysqld-max
 %attr(0755,root,root) %{_sbindir}/mysqld-max
 %dir %{_libdir}/mysql/plugin
-#%attr(0755,root,root) %{_libdir}/mysql/plugin/*.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/libpbxt.so
 
 %files ndb-storage
 %defattr(-,root,root)
@@ -1155,12 +1234,14 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/my.cnf
 %ghost %attr(0640,%{muser},%{muser}) %config(noreplace,missingok) %{_sysconfdir}/mysqlmanager.passwd
+%attr(0755,root,root) %{_bindir}/innochecksum
 %attr(0755,root,root) %{_bindir}/myisamchk
 %attr(0755,root,root) %{_bindir}/myisam_ftdump
 %attr(0755,root,root) %{_bindir}/myisamlog
 %attr(0755,root,root) %{_bindir}/myisampack
 %attr(0755,root,root) %{_bindir}/my_print_defaults
 %attr(0755,root,root) %{_bindir}/mysqlbug
+%attr(0755,root,root) %{_bindir}/mysql_convert_engine
 %attr(0755,root,root) %{_bindir}/mysql_convert_table_format
 %attr(0755,root,root) %{_bindir}/mysqld_multi
 %attr(0755,root,root) %{_bindir}/mysqld_safe
@@ -1172,13 +1253,12 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_bindir}/mysql_setpermission
 %attr(0755,root,root) %{_bindir}/mysqltest
 %attr(0755,root,root) %{_bindir}/mysql_tzinfo_to_sql
-%attr(0755,root,root) %{_bindir}/mysql_zap
 %attr(0755,root,root) %{_bindir}/mysql_upgrade
+%attr(0755,root,root) %{_bindir}/mysql_zap
 %attr(0755,root,root) %{_bindir}/perror
 %attr(0755,root,root) %{_bindir}/replace
 %attr(0755,root,root) %{_bindir}/resolveip
 %attr(0755,root,root) %{_bindir}/resolve_stack_dump
-%attr(0755,root,root) %{_bindir}/innochecksum
 %attr(0755,root,root) %{_sbindir}/mysqlmanager
 %{_infodir}/mysql.info*
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql-cluster
@@ -1262,7 +1342,7 @@ rm -rf %{buildroot}
 %multiarch %{multiarch_bindir}/mysql_config
 %attr(0755,root,root) %{_bindir}/mysql_config
 %attr(0644,root,root) %{_libdir}/*.la
-#%attr(0644,root,root) %{_libdir}/mysql/plugin/*.la
+%attr(0644,root,root) %{_libdir}/mysql/plugin/*.la
 %attr(0755,root,root) %{_libdir}/*.so
 %dir %{_includedir}/mysql
 %dir %{_includedir}/mysql/storage/ndb
@@ -1289,7 +1369,7 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %{_libdir}/mysql/libmysys.a
 %attr(0644,root,root) %{_libdir}/mysql/libvio.a
 %attr(0644,root,root) %{_libdir}/*.a
-#%attr(0755,root,root) %{_libdir}/mysql/plugin/*.a
+%attr(0755,root,root) %{_libdir}/mysql/plugin/*.a
 
 %files doc
 %defattr(-,root,root)

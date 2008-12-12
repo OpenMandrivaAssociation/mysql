@@ -51,7 +51,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.1.30
-Release:	%mkrel 2
+Release:	%mkrel 3
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -376,7 +376,7 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch2 -p1
 %patch3 -p0 -b .noproc
 %patch4 -p0 -b .mysqldumpslow_no_basedir
-%patch6 -p1 -b .errno_as_defines
+%patch6 -p0 -b .errno_as_defines
 %patch11 -p0 -b .logrotate
 %patch12 -p0 -b .initscript
 %patch13 -p0 -b .instance-manager

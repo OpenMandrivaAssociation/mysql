@@ -1,3 +1,5 @@
+%define Werror_cflags %nil
+
 %define _disable_ld_no_undefined 1
 
 #(ie. use with rpm --rebuild):
@@ -51,7 +53,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.1.30
-Release:	%mkrel 3
+Release:	%mkrel 4
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com

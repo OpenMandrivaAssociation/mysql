@@ -53,7 +53,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.1.30
-Release:	%mkrel 4
+Release:	%mkrel 5
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -335,13 +335,6 @@ This package contains the HTML documentation for MySQL.
 %prep
 
 %setup -q -n mysql-%{version} -a2
-
-if [ "`/bin/hostname`" == "localhost" ]; then
-    echo "ERROR: Your hostname cannot be \"localhost\", the tests will fail, please look here:"
-    echo "https://qa.mandriva.com/show_bug.cgi?id=38398"
-    exit 1
-fi
-
 
 # HOWTO pull mysql-5.0.52
 # bkf clone -rmysql-5.0.52 bk://mysql.bkbits.net/mysql-5.0 mysql-5.0.52

@@ -47,13 +47,13 @@
 # various version info
 %define sphinx_version 0.9.8.1
 %define federatedx_version 0.4
-%define pbxt_version 1.0.06
+%define pbxt_version 1.0.07
 %define revision_version 0.1
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.1.30
-Release:	%mkrel 5
+Version:	5.1.31
+Release:	%mkrel 1
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -68,6 +68,7 @@ Source7:	mysqld-ndb_cpcd.sysconfig
 Source8:	mysqld-ndb_mgmd.init
 Source9:	mysqld-ndb_mgmd.sysconfig
 Source10:	config.ini
+Source11:	my.cnf
 Patch1:		mysql-install_script_mysqld_safe.diff
 Patch2:		mysql-lib64.diff
 Patch3:		mysql-5.0.15-noproc.diff
@@ -80,15 +81,15 @@ Patch14:	mysql-5.1.30-use_-avoid-version_for_plugins.diff
 # stolen from fedora
 Patch53:	mysql-install-test.patch
 # addons
-Source99:	convert_engine.pl
+Source99:	http://patg.net/downloads/convert_engine.pl
 Source100:	http://www.sphinxsearch.com/downloads/sphinx-%{sphinx_version}.tar.gz
 Patch100:	sphinx-plugindir_fix.diff
 Patch101:	sphinx-0.9.8.1-no_-DENGINE_fix.diff
-Source200:	federatedx_engine-%{federatedx_version}.tar.gz
+Source200:	http://patg.net/downloads/federatedx_engine-%{federatedx_version}.tar.gz
 Patch200:	federatedx_engine-0.4-build_fix.diff
-Source300:	pbxt-%{pbxt_version}-beta.tar.gz
+Source300:	http://www.primebase.org/download/pbxt-%{pbxt_version}-rc.tar.gz
 Patch300:	pbxt-1.0.06-beta-avoid-version_fix.diff
-Source400:	revisionv01.tar.gz
+Source400:	http://www.ddengine.org/dl/revision/files/revisionv01.tar.gz
 Patch400:	revision-0.1-build_fix.diff
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
@@ -427,204 +428,7 @@ cp %{SOURCE7} Mandriva/mysqld-ndb_cpcd.sysconfig
 cp %{SOURCE8} Mandriva/mysqld-ndb_mgmd.init
 cp %{SOURCE9} Mandriva/mysqld-ndb_mgmd.sysconfig
 cp %{SOURCE10} Mandriva/config.ini
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-# construct a generic my.cnf file based on support-files/my-medium.cnf
-
-cat > Mandriva/my.cnf << EOF
-# Example MySQL config file for medium systems.
-#
-# This is for a system with little memory (32M - 64M) where MySQL plays
-# an important part, or systems up to 128M where MySQL is used together with
-# other programs (such as a web server)
-#
-
-# The following options will be passed to all MySQL clients
-[client]
-user		= root
-#password	= your_password
-port		= 3306
-socket		= /var/lib/mysql/mysql.sock
-
-# Here follows entries for some specific programs
-
-# The MySQL server
-[mysqld]
-user		= %{muser}
-datadir		= /var/lib/mysql
-port		= 3306
-socket		= /var/lib/mysql/mysql.sock
-pid-file	= /var/run/mysqld/mysqld.pid
-skip-locking
-key_buffer = 16M
-max_allowed_packet = 1M
-table_cache = 64
-sort_buffer_size = 512K
-net_buffer_length = 8K
-read_buffer_size = 256K
-read_rnd_buffer_size = 512K
-myisam_sort_buffer_size = 8M
-collation_server = utf8_unicode_ci
-character_set_server = utf8
-
-# Default to using old password format for compatibility with old and
-# shorter password hash.
-# Reference: http://dev.mysql.com/doc/mysql/en/Password_hashing.html
-old_passwords
-
-# Don't listen on a TCP/IP port at all. This can be a security enhancement,
-# if all processes that need to connect to mysqld run on the same host.
-# All interaction with mysqld must be made via Unix sockets or named pipes.
-# Note that using this option without enabling named pipes on Windows
-# (via the "enable-named-pipe" option) will render mysqld useless!
-# 
-skip-networking
-
-# Replication Master Server (default)
-# binary logging is required for replication
-#log-bin=mysql-bin
-
-# required unique id between 1 and 2^32 - 1
-# defaults to 1 if master-host is not set
-# but will not function as a master if omitted
-server-id	= 1
-
-# Replication Slave (comment out master section to use this)
-#
-# To configure this host as a replication slave, you can choose between
-# two methods :
-#
-# 1) Use the CHANGE MASTER TO command (fully described in our manual) -
-#    the syntax is:
-#
-#    CHANGE MASTER TO MASTER_HOST=<host>, MASTER_PORT=<port>,
-#    MASTER_USER=<user>, MASTER_PASSWORD=<password> ;
-#
-#    where you replace <host>, <user>, <password> by quoted strings and
-#    <port> by the master's port number (3306 by default).
-#
-#    Example:
-#
-#    CHANGE MASTER TO MASTER_HOST='125.564.12.1', MASTER_PORT=3306,
-#    MASTER_USER='joe', MASTER_PASSWORD='secret';
-#
-# OR
-#
-# 2) Set the variables below. However, in case you choose this method, then
-#    start replication for the first time (even unsuccessfully, for example
-#    if you mistyped the password in master-password and the slave fails to
-#    connect), the slave will create a master.info file, and any later
-#    change in this file to the variables' values below will be ignored and
-#    overridden by the content of the master.info file, unless you shutdown
-#    the slave server, delete master.info and restart the slaver server.
-#    For that reason, you may want to leave the lines below untouched
-#    (commented) and instead use CHANGE MASTER TO (see above)
-#
-# required unique id between 2 and 2^32 - 1
-# (and different from the master)
-# defaults to 2 if master-host is set
-# but will not function as a slave if omitted
-#server-id       = 2
-#
-# The replication master for this slave - required
-#master-host     =   <hostname>
-#
-# The username the slave will use for authentication when connecting
-# to the master - required
-#master-user     =   <username>
-#
-# The password the slave will authenticate with when connecting to
-# the master - required
-#master-password =   <password>
-#
-# The port the master is listening on.
-# optional - defaults to 3306
-#master-port     =  <port>
-#
-# binary logging - not required for slaves, but recommended
-#log-bin=mysql-bin
-
-# Point the following paths to different dedicated disks
-#tmpdir		= /tmp/		
-#log-update 	= /path-to-dedicated-directory/hostname
-
-# Uncomment the following if you are using BDB tables
-#bdb_cache_size = 4M
-#bdb_max_lock = 10000
-
-# Uncomment the following if you are using InnoDB tables
-#innodb_data_home_dir = /var/lib/mysql/
-#innodb_data_file_path = ibdata1:10M:autoextend
-#innodb_log_group_home_dir = /var/lib/mysql/
-#innodb_log_arch_dir = /var/lib/mysql/
-# You can set .._buffer_pool_size up to 50 - 80 %
-# of RAM but beware of setting memory usage too high
-#innodb_buffer_pool_size = 16M
-#innodb_additional_mem_pool_size = 2M
-# Set .._log_file_size to 25 % of buffer pool size
-#innodb_log_file_size = 5M
-#innodb_log_buffer_size = 8M
-#innodb_flush_log_at_trx_commit = 1
-#innodb_lock_wait_timeout = 50
-
-#bind-address=192.168.100.1
-
-## Options for mysqld process:
-#ndbcluster                      # run NDB engine
-#ndb-connectstring=192.168.0.10  # location of MGM node
-
-## Options for ndbd process:
-#[mysql_cluster]                 
-#ndb-connectstring=192.168.0.10  # location of MGM node
-
-[mysqldump]
-quick
-max_allowed_packet = 16M
-
-[mysql]
-no-auto-rehash
-# Remove the next comment character if you are not familiar with SQL
-#safe-updates
-default-character-set = utf8
-
-[isamchk]
-key_buffer = 20M
-sort_buffer_size = 20M
-read_buffer = 2M
-write_buffer = 2M
-
-[myisamchk]
-key_buffer = 20M
-sort_buffer_size = 20M
-read_buffer = 2M
-write_buffer = 2M
-
-[mysqlhotcopy]
-interactive-timeout
-
-[mysql.server]
-user=%{muser}
-basedir=/var/lib
-
-[mysqld_safe]
-err-log=/var/log/mysqld/mysqld.log
-pid-file=/var/run/mysqld/mysqld.pid
-
-# MySQL Instance Manager options section
-[manager]
-user=%{muser}
-default-mysqld-path=%{_sbindir}/mysqld
-socket=/var/lib/mysql/mysqlmanager.sock
-pid-file=/var/run/mysqld/mysqlmanager.pid
-password-file=%{_sysconfdir}/mysqlmanager.passwd
-run-as-service
-monitoring-interval=20
-port=2273
-#bind-address=192.168.100.1
-
-EOF
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+cp %{SOURCE11} Mandriva/my.cnf
 
 %build
 # Run aclocal in order to get an updated libtool.m4 in generated
@@ -827,10 +631,10 @@ install -d %{buildroot}%{_sysconfdir}/sysconfig
 install -d %{buildroot}%{_initrddir}
 install -d %{buildroot}%{_var}/run/{mysqld,ndb_cpcd}
 install -d %{buildroot}%{_var}/log/mysqld
-install -d %{buildroot}/var/lib/mysql/{mysql,test,.tmp}
+install -d %{buildroot}/var/lib/mysql/{mysql,test}
 install -d %{buildroot}/var/lib/mysql-cluster
 
-%makeinstall_std benchdir_root=%{_datadir} testdir=%{_datadir}/mysql-test 
+%makeinstall_std benchdir_root=%{_datadir} testdir=%{_datadir}/mysql-test
 
 pushd pbxt-%{pbxt_version}*
 %makeinstall_std
@@ -959,8 +763,7 @@ MySQL-Max build so that no functionality required by for example the NDB
 parts are lost.
 
 The MySQL-common package now ships with a default /etc/my.cnf file that is 
-based on the my-medium.cnf file that comes with the source code. The
-/etc/my.cnf  file is constructed at build time of this package.
+based on the my-medium.cnf file that comes with the source code.
 
 To connect to the Instance Manager you need to pass the correct command line 
 options like in the following examples:
@@ -1114,6 +917,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_sbindir}/mysqld-max
 %dir %{_libdir}/mysql/plugin
 %attr(0755,root,root) %{_libdir}/mysql/plugin/libpbxt.so
+%attr(0755,root,root) %{_bindir}/xtstat
 
 %files ndb-storage
 %defattr(-,root,root)
@@ -1121,6 +925,7 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %config(noreplace,missingok) %{_sysconfdir}/sysconfig/mysqld-ndbd
 %attr(0755,root,root) %{_sbindir}/ndbd
 %attr(0644,root,root) %{_mandir}/man8/ndbd.8*
+%attr(0644,root,root) %{_mandir}/man8/ndbmtd.8*
 
 %files ndb-management
 %defattr(-,root,root)
@@ -1199,15 +1004,16 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %{_mandir}/man1/msql2mysql.1*
 %attr(0644,root,root) %{_mandir}/man1/myisam_ftdump.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql.1*
-%attr(0644,root,root) %{_mandir}/man1/mysql_find_rows.1*
-%attr(0644,root,root) %{_mandir}/man1/mysql_waitpid.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqlaccess.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqladmin.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqlbinlog.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqlcheck.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqldump.1*
+%attr(0644,root,root) %{_mandir}/man1/mysqldumpslow.1*
+%attr(0644,root,root) %{_mandir}/man1/mysql_find_rows.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqlimport.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqlshow.1*
+%attr(0644,root,root) %{_mandir}/man1/mysql_waitpid.1*
 
 %files bench
 %defattr(-,root,root)
@@ -1260,7 +1066,6 @@ rm -rf %{buildroot}
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql/mysql
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql/test
-%attr(0711,%{muser},%{muser}) %dir /var/lib/mysql/.tmp
 %attr(0755,%{muser},%{muser}) %dir %{_var}/run/mysqld
 %attr(0755,%{muser},%{muser}) %dir %{_var}/log/mysqld
 %dir %{_datadir}/mysql
@@ -1275,29 +1080,29 @@ rm -rf %{buildroot}
 %{_datadir}/mysql/mysql_test_data_timezone.sql
 %{_datadir}/mysql/*.ini
 %{_datadir}/mysql/errmsg.txt
-%lang(cz) %{_datadir}/mysql/czech
-%lang(da) %{_datadir}/mysql/danish
-%lang(nl) %{_datadir}/mysql/dutch
+%{_datadir}/mysql/czech
+%{_datadir}/mysql/danish
+%{_datadir}/mysql/dutch
 %{_datadir}/mysql/english
-%lang(et) %{_datadir}/mysql/estonian
-%lang(fr) %{_datadir}/mysql/french
-%lang(de) %{_datadir}/mysql/german
-%lang(el) %{_datadir}/mysql/greek
-%lang(hu) %{_datadir}/mysql/hungarian
-%lang(it) %{_datadir}/mysql/italian
-%lang(jp) %{_datadir}/mysql/japanese
-%lang(ko) %{_datadir}/mysql/korean
-%lang(no) %{_datadir}/mysql/norwegian
-%lang(no_ny) %{_datadir}/mysql/norwegian-ny
-%lang(pl) %{_datadir}/mysql/polish
-%lang(pt) %{_datadir}/mysql/portuguese
-%lang(ro) %{_datadir}/mysql/romanian
-%lang(ru) %{_datadir}/mysql/russian
-%lang(sr) %{_datadir}/mysql/serbian
-%lang(sl) %{_datadir}/mysql/slovak
-%lang(es) %{_datadir}/mysql/spanish
-%lang(sv) %{_datadir}/mysql/swedish
-%lang(uk) %{_datadir}/mysql/ukrainian
+%{_datadir}/mysql/estonian
+%{_datadir}/mysql/french
+%{_datadir}/mysql/german
+%{_datadir}/mysql/greek
+%{_datadir}/mysql/hungarian
+%{_datadir}/mysql/italian
+%{_datadir}/mysql/japanese
+%{_datadir}/mysql/korean
+%{_datadir}/mysql/norwegian
+%{_datadir}/mysql/norwegian-ny
+%{_datadir}/mysql/polish
+%{_datadir}/mysql/portuguese
+%{_datadir}/mysql/romanian
+%{_datadir}/mysql/russian
+%{_datadir}/mysql/serbian
+%{_datadir}/mysql/slovak
+%{_datadir}/mysql/spanish
+%{_datadir}/mysql/swedish
+%{_datadir}/mysql/ukrainian
 %attr(0644,root,root) %{_mandir}/man1/innochecksum.1*
 %attr(0644,root,root) %{_mandir}/man1/myisamchk.1*
 %attr(0644,root,root) %{_mandir}/man1/myisamlog.1*

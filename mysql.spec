@@ -52,8 +52,8 @@
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.1.31
-Release:	%mkrel 2
+Version:	5.1.32
+Release:	%mkrel 1
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -78,8 +78,6 @@ Patch11:	mysql-logrotate.diff
 Patch12:	mysql-initscript.diff
 Patch13:	mysql-instance-manager.diff
 Patch14:	mysql-5.1.30-use_-avoid-version_for_plugins.diff
-# stolen from fedora
-Patch53:	mysql-install-test.patch
 # addons
 Source99:	http://patg.net/downloads/convert_engine.pl
 Source100:	http://www.sphinxsearch.com/downloads/sphinx-%{sphinx_version}.tar.gz
@@ -376,9 +374,6 @@ find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2u
 %patch11 -p0 -b .logrotate
 %patch12 -p0 -b .initscript
 %patch13 -p0 -b .instance-manager
-
-# stolen from fedora
-%patch53 -p1
 
 # Sphinx storage engine
 tar -zxf %{SOURCE100}
@@ -730,6 +725,7 @@ rm -f %{buildroot}%{_datadir}/mysql/binary-configure
 rm -f %{buildroot}%{_mandir}/man1/make_win_bin_dist.1*
 rm -f %{buildroot}%{_mandir}/man1/make_win_src_distribution.1*
 rm -f %{buildroot}%{_datadir}/mysql/ChangeLog
+rm -f %{buildroot}/mysql-test/lib/My/SafeProcess/my_safe_process
 
 %multiarch_binaries %{buildroot}%{_bindir}/mysql_config
 %multiarch_includes %{buildroot}%{_includedir}/mysql/my_config.h

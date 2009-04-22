@@ -53,7 +53,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.1.34
-Release:	%mkrel 1
+Release:	%mkrel 2
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -89,6 +89,8 @@ Source300:	http://www.primebase.org/download/pbxt-%{pbxt_version}-rc.tar.gz
 Patch300:	pbxt-1.0.06-beta-avoid-version_fix.diff
 Source400:	http://www.ddengine.org/dl/revision/files/revisionv01.tar.gz
 Patch400:	revision-0.1-build_fix.diff
+# security fixes
+Patch1000:	mysql-5.1.x-CVE-2008-4456.diff
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -408,6 +410,9 @@ pushd revision-%{revision_version}
 cp -p src/* .
 popd
 cp -rp revision-%{revision_version} storage/revision
+
+# security fixes
+%patch1000 -p1 -b .CVE-2008-4456
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*

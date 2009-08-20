@@ -453,6 +453,12 @@ CXXFLAGS="$CXXFLAGS -fPIC"
 CXXFLAGS="$CXXFLAGS"
 %endif
 
+# MySQL 4.1.10 definitely doesn't work under strict aliasing; also,
+# gcc 4.1 breaks MySQL 5.0.16 without -fwrapv
+export CFLAGS="$CFLAGS -fno-strict-aliasing -fwrapv"
+# extra C++ flags as per recommendations in mysql's INSTALL-SOURCE doc
+export CXXFLAGS="$CFLAGS -felide-constructors -fno-rtti -fno-exceptions"
+
 export MYSQL_BUILD_CC="gcc-$GCC_VERSION"
 export MYSQL_BUILD_CXX="g++-$GCC_VERSION"
 

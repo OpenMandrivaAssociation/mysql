@@ -529,7 +529,7 @@ MYSQL_COMMON_CONFIGURE_LINE="--prefix=/ \
     --without-plugin-revision
 
 # benchdir does not fit in above model. Maybe a separate bench distribution
-make benchdir_root=%{buildroot}%{_datadir}
+%make benchdir_root=%{buildroot}%{_datadir}
 
 # tuck away various built files
 make DESTDIR=`pwd`/STD benchdir_root=%{_datadir} testdir=%{_datadir}/mysql-test install
@@ -555,7 +555,7 @@ make clean
     --with-ndb-docs \
     --with-server-suffix="-Max"
 
-make benchdir_root=%{buildroot}%{_datadir}
+%make benchdir_root=%{buildroot}%{_datadir}
 
 # this one is built dynamically..., heh... 
 pushd pbxt-%{pbxt_version}*

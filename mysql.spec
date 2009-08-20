@@ -459,12 +459,6 @@ export MYSQL_BUILD_CXX="g++-$GCC_VERSION"
 export MYSQL_BUILD_CFLAGS="$CFLAGS"
 export MYSQL_BUILD_CXXFLAGS="$CXXFLAGS"
 
-%if %mdkversion >= 200710
-export CFLAGS="$CFLAGS -fstack-protector -fstack-protector-all"
-export CXXFLAGS="$CXXFLAGS -fstack-protector -fstack-protector-all"
-export FFLAGS="$FFLAGS -fstack-protector -fstack-protector-all"
-%endif
-
 %if %{build_debug}
 CFLAGS="$CFLAGS -DUNIV_MUST_NOT_INLINE -DEXTRA_DEBUG -DFORCE_INIT_OF_VARS -DSAFEMALLOC -DPEDANTIC_SAFEMALLOC -DSAFE_MUTEX"
 %endif

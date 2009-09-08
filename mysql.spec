@@ -46,14 +46,13 @@
 
 # various version info
 %define sphinx_version 0.9.8.1
-%define federatedx_version 0.4
 %define pbxt_version 1.0.07
 %define revision_version 0.1
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.1.37
-Release:	%mkrel 2
+Version:	5.1.38
+Release:	%mkrel 1
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -83,8 +82,6 @@ Source99:	http://patg.net/downloads/convert_engine.pl
 Source100:	http://www.sphinxsearch.com/downloads/sphinx-%{sphinx_version}.tar.gz
 Patch100:	sphinx-plugindir_fix.diff
 Patch101:	sphinx-0.9.8.1-no_-DENGINE_fix.diff
-Source200:	http://patg.net/downloads/federatedx_engine-%{federatedx_version}.tar.gz
-Patch200:	federatedx_engine-0.4-build_fix.diff
 Source300:	http://www.primebase.org/download/pbxt-%{pbxt_version}-rc.tar.gz
 Patch300:	pbxt-1.0.06-beta-avoid-version_fix.diff
 Source400:	http://www.ddengine.org/dl/revision/files/revisionv01.tar.gz
@@ -163,7 +160,6 @@ server is compiled with the following storage engines:
 
 Addon storage engines (use with care):
  - Sphinx storage engine %{sphinx_version}
- - FederatedX Storage Engine %{federatedx_version}
  - PBXT Storage Engine %{pbxt_version}
  - Revision Storage Engine %{revision_version}
 
@@ -385,15 +381,6 @@ perl -pi -e "s|searchd|sphinx-searchd|g" mysqlse/*
 popd
 cp -rp sphinx-%{sphinx_version}/mysqlse storage/sphinx
 
-%patch14 -p1 -b .use_-avoid-version_for_plugins
-
-# federatedx storage engine
-tar -zxf %{SOURCE200}
-pushd federatedx_engine-%{federatedx_version}
-%patch200 -p0
-popd
-cp -rp federatedx_engine-%{federatedx_version}/src storage/federatedx
-
 # pbxt storage engine
 tar -zxf %{SOURCE300}
 pushd pbxt-%{pbxt_version}*
@@ -408,6 +395,8 @@ pushd revision-%{revision_version}
 cp -p src/* .
 popd
 cp -rp revision-%{revision_version} storage/revision
+
+%patch14 -p1 -b .use_-avoid-version_for_plugins
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
@@ -424,6 +413,9 @@ cp %{SOURCE8} Mandriva/mysqld-ndb_mgmd.init
 cp %{SOURCE9} Mandriva/mysqld-ndb_mgmd.sysconfig
 cp %{SOURCE10} Mandriva/config.ini
 cp %{SOURCE11} Mandriva/my.cnf
+
+# lib64 fix
+perl -pi -e "s|/usr/lib/|%{_libdir}/|g" Mandriva/my.cnf
 
 %build
 # Run aclocal in order to get an updated libtool.m4 in generated
@@ -516,17 +508,18 @@ MYSQL_COMMON_CONFIGURE_LINE="--prefix=/ \
     --enable-static \
     --with-comment='Mandriva Linux - MySQL Standard Edition (GPL)' \
     --without-embedded-server \
-    --with-plugins='archive,csv,heap,innobase,myisam,myisammrg' \
-    --without-plugin-blackhole \
+    --with-plugin-archive \
+    --with-plugin-innobase \
     --without-plugin-daemon_example \
     --without-plugin-example \
-    --without-plugin-federated \
     --without-plugin-ftexample \
+    --without-plugin-blackhole \
+    --without-plugin-federated \
+    --without-plugin-innodb_plugin \
     --without-plugin-ndbcluster \
     --without-plugin-partition \
-    --without-plugin-sphinx \
-    --without-plugin-federatedx \
-    --without-plugin-revision
+    --without-plugin-revision \
+    --without-plugin-sphinx
 
 # benchdir does not fit in above model. Maybe a separate bench distribution
 %make benchdir_root=%{buildroot}%{_datadir}
@@ -545,14 +538,10 @@ make clean
     --enable-static \
     --with-comment='Mandriva Linux - MySQL Max Edition (GPL)' \
     --with-embedded-server \
-    --with-plugins='archive,blackhole,csv,federated,heap,innobase,myisam,myisammrg,ndbcluster,partition,sphinx,federatedx,revision' \
-    --without-plugin-example \
-    --without-plugin-daemon_example \
-    --without-plugin-ftexample \
+    --with-plugins=ndbcluster \
     --with-big-tables \
     --with-ndbcluster \
     --with-ndb-shm \
-    --with-ndb-docs \
     --with-server-suffix="-Max"
 
 %make benchdir_root=%{buildroot}%{_datadir}
@@ -565,9 +554,8 @@ autoreconf -fis
     --enable-static \
     --with-mysql=../ \
     --with-plugindir=%{_libdir}/mysql/plugin
-make
+%make
 popd
-
 
 ################################################################################
 # run the tests
@@ -635,6 +623,12 @@ pushd pbxt-%{pbxt_version}*
 %makeinstall_std
 popd
 
+# antibork...
+mv %{buildroot}%{_libdir}/mysql/ha_* %{buildroot}%{_libdir}/mysql/plugin/
+
+# nuke one useless plugin
+rm -f %{buildroot}%{_libdir}/mysql/plugin/ha_example*
+
 mv %{buildroot}%{_sbindir}/mysqld %{buildroot}%{_sbindir}/mysqld-max
 install -m0755 STD/usr/sbin/mysqld %{buildroot}%{_sbindir}/mysqld
 
@@ -679,19 +673,7 @@ touch %{buildroot}%{_sysconfdir}/mysqlmanager.passwd
 echo "#" > %{buildroot}%{_sysconfdir}/ndb_cpcd.conf
 echo "#" > %{buildroot}/var/lib/mysql/Ndb.cfg
 
-# fix devel docs
-rm -rf Docs/devel; mkdir -p Docs/devel
-cp -rp storage/ndb/docs/mgmapi.html Docs/devel/mgmapi
-cp -rp storage/ndb/docs/ndbapi.html Docs/devel/ndbapi
-
 install -m0755 convert_engine.pl %{buildroot}%{_bindir}/mysql_convert_engine
-
-# addon docs
-pushd federatedx_engine-%{federatedx_version}
-    for i in AUTHORS ChangeLog COPYING INSTALL README TODO; do
-	cp $i ../${i}.federatedx
-    done
-popd
 
 pushd pbxt-%{pbxt_version}*
     for i in ChangeLog TODO AUTHORS COPYING NEWS README; do
@@ -770,6 +752,14 @@ options like in the following examples:
 Please note you also need to add a user in the /etc/mysqlmanager.passwd file and 
 make sure the file is owned by the user under which the Instance Manager service 
 is running under.
+
+Starting from mysql-max-5.1.38-1 the storage engines is built as dynamically
+loadable modules for the mysql-max version. You can either load the engines using
+the  /etc/my.cnf file or at runtime. Please look at these lines in the /etc/my.cnf
+file to enable additional engines or disable one or more of the default ones:
+
+plugin_dir=%{_libdir}/mysql/plugin
+plugin-load=ha_archive.so;ha_blackhole.so;ha_federated.so;ha_innodb.so;ha_revision.so;ha_sphinx.so;libpbxt.so
 
 EOF
 
@@ -908,10 +898,17 @@ rm -rf %{buildroot}
 %files max
 %defattr(-,root,root)
 %doc README.urpmi
-%doc *.federatedx *.pbxt *.revision
+%doc *.pbxt *.revision
 %attr(0755,root,root) %{_initrddir}/mysqld-max
 %attr(0755,root,root) %{_sbindir}/mysqld-max
 %dir %{_libdir}/mysql/plugin
+%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_archive.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_blackhole.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_federated.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_innodb_plugin.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_innodb.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_revision.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_sphinx.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/libpbxt.so
 %attr(0755,root,root) %{_bindir}/xtstat
 
@@ -1134,7 +1131,7 @@ rm -rf %{buildroot}
 
 %files -n %{develname}
 %defattr(-,root,root)
-%doc INSTALL-SOURCE EXCEPTIONS-CLIENT Docs/devel/*
+%doc INSTALL-SOURCE EXCEPTIONS-CLIENT
 %multiarch %{multiarch_bindir}/mysql_config
 %attr(0755,root,root) %{_bindir}/mysql_config
 %attr(0644,root,root) %{_libdir}/*.la

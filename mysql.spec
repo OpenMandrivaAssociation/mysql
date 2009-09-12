@@ -52,7 +52,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.1.38
-Release:	%mkrel 1
+Release:	%mkrel 2
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -112,6 +112,7 @@ BuildRequires:	texinfo
 BuildRequires:	zlib-devel
 BuildRequires:	dos2unix
 BuildRequires:	multiarch-utils >= 1.0.3
+BuildRequires:	xfs-devel
 BuildConflicts:	edit-devel
 Provides:	msqlormysql MySQL-server mysqlserver MySQL = %{version}-%{release}
 Obsoletes:	MySQL MySQL-devel <= 3.23.39

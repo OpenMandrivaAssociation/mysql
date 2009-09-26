@@ -52,7 +52,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.1.39
-Release:	%mkrel 1
+Release:	%mkrel 2
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -540,6 +540,7 @@ make clean
     --with-comment='Mandriva Linux - MySQL Max Edition (GPL)' \
     --with-embedded-server \
     --with-plugins=ndbcluster \
+    --with-plugin-federated \
     --with-big-tables \
     --with-ndbcluster \
     --with-ndb-shm \
@@ -760,7 +761,7 @@ the  /etc/my.cnf file or at runtime. Please look at these lines in the /etc/my.c
 file to enable additional engines or disable one or more of the default ones:
 
 plugin_dir=%{_libdir}/mysql/plugin
-plugin-load=ha_archive.so;ha_blackhole.so;ha_federated.so;ha_innodb.so;ha_revision.so;ha_sphinx.so;libpbxt.so
+plugin-load=ha_archive.so;ha_blackhole.so;ha_innodb.so;ha_revision.so;ha_sphinx.so;libpbxt.so
 
 EOF
 
@@ -905,7 +906,6 @@ rm -rf %{buildroot}
 %dir %{_libdir}/mysql/plugin
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_archive.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_blackhole.so
-%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_federated.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_innodb_plugin.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_innodb.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_revision.so

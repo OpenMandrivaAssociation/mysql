@@ -765,6 +765,11 @@ plugin-load=ha_archive.so;ha_blackhole.so;ha_innodb.so;ha_revision.so;ha_sphinx.
 
 EOF
 
+%pre
+# disable plugins
+perl -pi -e "s|^plugin-load|#plugin-load|g" %{_sysconfdir}/my.cnf
+perl -pi -e "s|^federated|#federated|g" %{_sysconfdir}/my.cnf
+
 %pre common
 # delete the mysql group if no mysql user is found, before adding the user
 if [ -z "`getent passwd %{muser}`" ] && ! [ -z "`getent group %{muser}`" ]; then
@@ -803,6 +808,11 @@ if [ "$1" = "0" ]; then
         %{_initrddir}/mysqld restart 1>&2
     fi
 fi
+
+%pre max
+# enable plugins
+perl -pi -e "s|^#plugin-load|plugin-load|g" %{_sysconfdir}/my.cnf
+perl -pi -e "s|^#federated|federated|g" %{_sysconfdir}/my.cnf
 
 %post max
 # Change permissions so that the user that will run the MySQL daemon

@@ -52,7 +52,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.1.39
-Release:	%mkrel 2
+Release:	%mkrel 3
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -95,6 +95,7 @@ Requires(preun): mysql-common = %{version}-%{release}
 Requires(post): mysql-client = %{version}-%{release}
 Requires(preun): mysql-client = %{version}-%{release}
 Requires:	mysql-common = %{version}-%{release}
+Requires:	mysql-core = %{version}-%{release}
 Requires:	mysql-client = %{version}-%{release}
 BuildRequires:	autoconf2.5
 BuildRequires:	automake1.7
@@ -215,6 +216,24 @@ Obsoletes:	MySQL-ndb-extra
 This package contains some extra ndbcluster storage engine tools for the
 advanced user. They should be used with caution.
 
+%package	core
+Summary:	MySQL - server core binary
+Group:		System/Servers
+Conflicts:	MySQL < 5.1.39-3
+Requires:	mysql-common-core = %{version}-%{release}
+
+%description	core
+Core mysqld server binary. For a full MySQL database server, install
+package 'mysql'.
+
+%package	common-core
+Summary:	MySQL - common files required by core binary
+Group:		System/Servers
+Conflicts:	MySQL-common < 5.1.39-3
+
+%description	common-core
+Common files minimally required by mysqld server binary.
+
 %package	common
 Summary:	MySQL - common files
 Group:		System/Servers
@@ -228,6 +247,7 @@ Requires(post): perl-DBD-mysql
 Requires(preun): perl-DBD-mysql
 Requires:	mysql-client = %{version}-%{release}
 Requires:	perl-DBD-mysql
+Requires:	mysql-common-core = %{version}-%{release}
 Provides:	MySQL-common = %{version}-%{release}
 Obsoletes:      MySQL-common
 
@@ -904,7 +924,6 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %doc README.urpmi
 %attr(0755,root,root) %{_initrddir}/mysqld
-%attr(0755,root,root) %{_sbindir}/mysqld
 %dir %{_libdir}/mysql/plugin
 
 %files max
@@ -1033,6 +1052,16 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %{_mandir}/man1/mysqltest.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqltest_embedded.1*
 
+%files core
+%defattr(-,root,root) 
+%attr(0755,root,root) %{_sbindir}/mysqld
+
+%files common-core
+%defattr(-,root,root)
+%dir %{_datadir}/mysql
+%{_datadir}/mysql/english
+%{_datadir}/mysql/charsets
+
 %files common
 %defattr(-,root,root) 
 %doc README COPYING support-files/*.cnf
@@ -1072,11 +1101,9 @@ rm -rf %{buildroot}
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql/test
 %attr(0755,%{muser},%{muser}) %dir %{_var}/run/mysqld
 %attr(0755,%{muser},%{muser}) %dir %{_var}/log/mysqld
-%dir %{_datadir}/mysql
 %{_datadir}/mysql/mi_test_all
 %{_datadir}/mysql/mi_test_all.res
 %{_datadir}/mysql/*.cnf
-%{_datadir}/mysql/charsets
 %{_datadir}/mysql/fill_help_tables.sql
 %{_datadir}/mysql/mysql_fix_privilege_tables.sql
 %{_datadir}/mysql/mysql_system_tables.sql
@@ -1087,7 +1114,6 @@ rm -rf %{buildroot}
 %{_datadir}/mysql/czech
 %{_datadir}/mysql/danish
 %{_datadir}/mysql/dutch
-%{_datadir}/mysql/english
 %{_datadir}/mysql/estonian
 %{_datadir}/mysql/french
 %{_datadir}/mysql/german

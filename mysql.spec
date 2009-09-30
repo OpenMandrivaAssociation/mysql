@@ -52,7 +52,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.1.39
-Release:	%mkrel 3
+Release:	%mkrel 4
 Group:		System/Servers
 License:	GPL
 URL:		http://www.mysql.com
@@ -94,6 +94,8 @@ Requires(post): mysql-common = %{version}-%{release}
 Requires(preun): mysql-common = %{version}-%{release}
 Requires(post): mysql-client = %{version}-%{release}
 Requires(preun): mysql-client = %{version}-%{release}
+Requires(postun): mysql-common = %{version}-%{release}
+Requires(postun): mysql-client = %{version}-%{release}
 Requires:	mysql-common = %{version}-%{release}
 Requires:	mysql-core = %{version}-%{release}
 Requires:	mysql-client = %{version}-%{release}
@@ -140,6 +142,8 @@ Requires(post): mysql-common = %{version}-%{release}
 Requires(preun): mysql-common = %{version}-%{release}
 Requires(post): mysql-client = %{version}-%{release}
 Requires(preun): mysql-client = %{version}-%{release}
+Requires(postun): mysql-common = %{version}-%{release}
+Requires(postun): mysql-client = %{version}-%{release}
 Requires:	mysql-common = %{version}-%{release}
 Requires:	mysql-client = %{version}-%{release}
 Provides:	msqlormysql MySQL-server mysqlserver mysql MySQL-Max = %{version}-%{release}

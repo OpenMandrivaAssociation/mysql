@@ -52,8 +52,8 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.1.39
-Release:	%mkrel 4
-Group:		System/Servers
+Release:	%mkrel 5
+Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com
 Source0:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz
@@ -133,7 +133,7 @@ Please see the documentation and the manual for more information.
 
 %package	max
 Summary:	MySQL - server with extended functionality
-Group:		System/Servers
+Group:		Databases
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -260,7 +260,7 @@ Common files for the MySQL(TM) database server.
 
 %package	client
 Summary:	MySQL - Client
-Group:		System/Servers
+Group:		Databases
 Requires(post): %{libname} = %{version}-%{release}
 Requires(preun): %{libname} = %{version}-%{release}
 Requires:	%{libname} = %{version}-%{release}

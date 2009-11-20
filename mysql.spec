@@ -46,12 +46,12 @@
 
 # various version info
 %define sphinx_version 0.9.8.1
-%define pbxt_version 1.0.07
+%define pbxt_version 1.0.09
 %define revision_version 0.1
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.1.40
+Version:	5.1.41
 Release:	%mkrel 1
 Group:		Databases
 License:	GPL

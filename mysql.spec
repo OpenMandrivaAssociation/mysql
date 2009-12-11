@@ -45,14 +45,14 @@
 %define muser	mysql
 
 # various version info
-%define sphinx_version 0.9.8.1
+%define sphinx_version 0.9.9
 %define pbxt_version 1.0.09
 %define revision_version 0.1
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.1.41
-Release:	%mkrel 1
+Release:	%mkrel 2
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com
@@ -943,6 +943,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_innodb.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_revision.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_sphinx.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/sphinx.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/libpbxt.so
 %attr(0755,root,root) %{_bindir}/xtstat
 

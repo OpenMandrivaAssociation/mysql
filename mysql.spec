@@ -356,19 +356,6 @@ This package contains the HTML documentation for MySQL.
 
 %setup -q -n mysql-%{version} -a2
 
-# HOWTO pull mysql-5.0.52
-# bkf clone -rmysql-5.0.52 bk://mysql.bkbits.net/mysql-5.0 mysql-5.0.52
-# libtoolize --automake --force; aclocal; autoheader; automake --force --add-missing; autoconf
-# cd innobase; aclocal; autoheader; autoconf; automake
-# cd bdb/dist; sh s_all
-
-if [ -d BK ]; then
-    rm -rf ndb/src/cw/cpcc-win32
-    rm -rf ndb/src/cw/test
-    rm -rf ndb/src/cw/util
-    rm -rf VC++Files
-fi
-
 # put html docs in place
 mv refman-5.1-en.html-chapter Docs/html
 

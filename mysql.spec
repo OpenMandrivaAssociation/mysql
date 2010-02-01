@@ -51,13 +51,13 @@
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.1.42
-Release:	%mkrel 3
+Version:	5.1.43
+Release:	%mkrel 1
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com
 Source0:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz
-#Source1:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz.asc
+Source1:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz.asc
 Source2:	http://downloads.mysql.com/docs/refman-5.1-en.html-chapter.tar.gz
 Source3:	mysqld.sysconfig
 Source4:	mysqld-ndbd.init

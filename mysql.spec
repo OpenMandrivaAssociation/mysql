@@ -436,12 +436,6 @@ perl -pi -e "s|/usr/lib/|%{_libdir}/|g" Mandriva/my.cnf
 #export WANT_AUTOCONF_2_5=1
 libtoolize --automake --copy --force; aclocal -I config/ac-macros; autoheader; automake --foreign --add-missing --copy; autoconf
 
-if [ -d BK ]; then
-    pushd innobase
-	libtoolize --automake --copy  --force; aclocal; autoheader; autoconf; automake
-    popd
-fi
-
 %serverbuild
 export CFLAGS="${CFLAGS:-%{optflags}}"
 export CXXFLAGS="${CXXFLAGS:-%{optflags}}"

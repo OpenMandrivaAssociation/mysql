@@ -645,6 +645,11 @@ if [ "$1" = "0" ]; then
     fi
 fi
 
+%pre common-core
+# enable plugins
+perl -pi -e "s|^#plugin-load|plugin-load|g" %{_sysconfdir}/my.cnf
+perl -pi -e "s|^#federated|federated|g" %{_sysconfdir}/my.cnf
+
 %if %mdkversion < 200900
 %post -n %{libname} -p /sbin/ldconfig
 %endif

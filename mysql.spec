@@ -140,7 +140,8 @@ Please see the documentation and the manual for more information.
 %package	core
 Summary:	MySQL - server core binary
 Group:		System/Servers
-Conflicts:	MySQL < 5.1.39-3
+Conflicts:	mysql < 5.1.39-3
+Conflicts:	mysql-max < 5.1.43
 Requires:	mysql-common-core = %{version}-%{release}
 
 %description	core
@@ -150,7 +151,7 @@ package 'mysql'.
 %package	common-core
 Summary:	MySQL - common files required by core binary
 Group:		System/Servers
-Conflicts:	MySQL-common < 5.1.39-3
+Conflicts:	mysql-common < 5.1.43-1
 
 %description	common-core
 Common files minimally required by mysqld server binary.
@@ -588,10 +589,10 @@ by MySQL AB. This means the following changes:
    mysql_upgrade
 
 The cluster functionalities (ndb) has been deactivated and will be removed in
-future releases. A new product named mysql-cluster has been added (in contrib)
-that replaces the cluster functionalities.
+future mysql versions. A new product named mysql-cluster has been added (in
+contrib) that replaces the cluster functionalities.
 
-The MySQL-common package now ships with a default /etc/my.cnf file that is 
+The mysql-common-core package ships with a default /etc/my.cnf file that is 
 based on the my-medium.cnf file that comes with the source code.
 
 Starting from mysql-5.1.43-2 the storage engines is built as dynamically
@@ -664,7 +665,6 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_archive.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_blackhole.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_innodb_plugin.so
-%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_innodb.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_revision.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_sphinx.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/sphinx.so
@@ -720,9 +720,11 @@ rm -rf %{buildroot}
 %files core
 %defattr(-,root,root) 
 %attr(0755,root,root) %{_sbindir}/mysqld
+%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_innodb.so
 
 %files common-core
 %defattr(-,root,root)
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/my.cnf
 %dir %{_datadir}/mysql
 %{_datadir}/mysql/english
 %{_datadir}/mysql/charsets
@@ -731,7 +733,6 @@ rm -rf %{buildroot}
 %defattr(-,root,root) 
 %doc README COPYING support-files/*.cnf
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/my.cnf
 %ghost %attr(0640,%{muser},%{muser}) %config(noreplace,missingok) %{_sysconfdir}/mysqlmanager.passwd
 %attr(0755,root,root) %{_bindir}/innochecksum
 %attr(0755,root,root) %{_bindir}/myisamchk

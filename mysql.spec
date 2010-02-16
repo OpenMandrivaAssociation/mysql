@@ -760,24 +760,6 @@ if [ "$1" = "0" ]; then
     fi
 fi
 
-%triggerin -n %{name} -- MySQL < 4.1.10
-if [ -f /var/lock/subsys/mysql ]; then
-    pidname="/var/lib/mysql/`/bin/hostname`.pid"
-    if [ -f ${pidname} ]; then
-	kill `cat ${pidname}`
-	%{_initrddir}/mysqld start
-    fi
-fi
-
-%triggerin -n %{name}-max -- MySQL-Max < 4.1.10
-if [ -f /var/lock/subsys/mysql-max ]; then
-    pidname="/var/lib/mysql/`/bin/hostname`.pid"
-    if [ -f ${pidname} ]; then
-	kill `cat ${pidname}`
-	%{_initrddir}/mysqld-max start
-    fi
-fi
-
 %if %mdkversion < 200900
 %post -n %{libname} -p /sbin/ldconfig
 %endif

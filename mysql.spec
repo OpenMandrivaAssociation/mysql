@@ -45,7 +45,7 @@
 
 # various version info
 %define sphinx_version 0.9.9
-%define pbxt_version 1.0.09
+%define pbxt_version 1.0.10
 %define revision_version 0.1
 
 Summary:	MySQL: a very fast and reliable SQL database engine

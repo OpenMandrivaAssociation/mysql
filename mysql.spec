@@ -577,7 +577,7 @@ perl -pi -e 's/status mysqld\b/status mysqld-max/g;s,(/var/lock/subsys/mysqld\b)
 
 # mysqld-max needs special treatment running under the instance manager...
 perl -pi -e "s|--default-mysqld-path=%{_sbindir}/mysqld|--default-mysqld-path=%{_sbindir}/mysqld-max|g" %{buildroot}%{_initrddir}/mysqld-max
-perl -pi -e "s|--mysqld=%{_sbindir}/mysqld|--mysqld=%{_sbindir}/mysqld-max|g" %{buildroot}%{_initrddir}/mysqld-max
+perl -pi -e "s|--mysqld=mysqld|--mysqld=mysqld-max|g" %{buildroot}%{_initrddir}/mysqld-max
 
 # install configuration files
 install -m0644 Mandriva/mysqld.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld

@@ -727,8 +727,8 @@ fi
 
 %postun
 if [ "$1" = "0" ]; then
-    if [ -f /var/lock/subsys/mysqld -o -f /var/lock/subsys/mysqlmanager ]; then
-        %{_initrddir}/mysqld restart 1>&2
+    if [ -f /var/lock/subsys/mysqld ]; then
+        %{_initrddir}/mysqld restart > /dev/null 2>/dev/null || :
     fi
 fi
 
@@ -756,8 +756,8 @@ fi
 
 %postun max
 if [ "$1" = "0" ]; then
-    if [ -f /var/lock/subsys/mysqld-max -o -f /var/lock/subsys/mysqlmanager ]; then
-        %{_initrddir}/mysqld-max restart 1>&2
+    if [ -f /var/lock/subsys/mysqld-max ]; then
+        %{_initrddir}/mysqld-max restart > /dev/null 2>/dev/null || :
     fi
 fi
 
@@ -872,7 +872,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_bindir}/mysql_fix_privilege_tables
 %attr(0755,root,root) %{_bindir}/mysqlhotcopy
 %attr(0755,root,root) %{_bindir}/mysql_install_db
-%attr(0755,root,root) %{_bindir}/mysql_secure_installation 
+%attr(0755,root,root) %{_bindir}/mysql_secure_installation
 %attr(0755,root,root) %{_bindir}/mysql_setpermission
 %attr(0755,root,root) %{_bindir}/mysqltest
 %attr(0755,root,root) %{_bindir}/mysql_tzinfo_to_sql

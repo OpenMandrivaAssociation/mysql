@@ -644,12 +644,6 @@ cat > README.urpmi <<EOF
 The initscript used to start mysql has been reverted to use the one shipped
 by MySQL AB. This means the following changes:
 
- * The MYSQLD_OPTIONS="--skip-networking" option in the /etc/sysconfig/mysqld
-   file has been removed, this is now set in the /etc/my.cnf file.
-
- * The MySQL Instance Manager is used by default, set use_mysqld_safe="1" in
-   the /etc/sysconfig/mysqld file to use the old mysqld_safe script.
-
  * The generation of the initial system mysql database is now done when mysql
    is started from the initscript and only if the /var/lib/mysql/mysql
    directory is empty (mysql_install_db). Previousely this was quite hidden and
@@ -667,16 +661,6 @@ that replaces the cluster functionalities.
 
 The MySQL-common package now ships with a default /etc/my.cnf file that is 
 based on the my-medium.cnf file that comes with the source code.
-
-To connect to the Instance Manager you need to pass the correct command line 
-options like in the following examples:
-
-  * mysql -u root --password=my_password --port=2273 --protocol=TCP
-  * mysql -u root --password=my_password --socket=/var/lib/mysql/mysqlmanager.sock
-
-Please note you also need to add a user in the /etc/mysqlmanager.passwd file and 
-make sure the file is owned by the user under which the Instance Manager service 
-is running under.
 
 Starting from mysql-max-5.1.38-1 the storage engines is built as dynamically
 loadable modules for the mysql-max version. You can either load the engines using

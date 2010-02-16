@@ -60,7 +60,6 @@ Source1:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz.a
 Source2:	http://downloads.mysql.com/docs/refman-5.1-en.html-chapter.tar.gz
 Source3:	mysqld.sysconfig
 Source4:	my.cnf
-Patch1:		mysql-install_script_mysqld_safe.diff
 Patch2:		mysql-lib64.diff
 Patch3:		mysql-5.0.15-noproc.diff
 Patch4:		mysql-mysqldumpslow_no_basedir.diff
@@ -110,8 +109,9 @@ BuildRequires:	multiarch-utils >= 1.0.3
 BuildRequires:	xfs-devel
 BuildConflicts:	edit-devel
 Provides:	msqlormysql MySQL-server mysqlserver MySQL = %{version}-%{release}
+Provides:	mysql-max = %{version}-%{release}
 Obsoletes:	MySQL MySQL-devel <= 3.23.39
-Conflicts:	MySQL-Max > 4.0.11
+Obsoletes:	mysql-max < 5.1.43
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
@@ -121,31 +121,7 @@ is intended for mission-critical, heavy-load production systems as well
 as for embedding into mass-deployed software. MySQL is a trademark of
 MySQL AB.
 
-Please see the documentation and the manual for more information.
-
-%package	max
-Summary:	MySQL - server with extended functionality
-Group:		Databases
-Requires(post): rpm-helper
-Requires(preun): rpm-helper
-Requires(pre): rpm-helper
-Requires(postun): rpm-helper
-Requires(post): mysql-common = %{version}-%{release}
-Requires(preun): mysql-common = %{version}-%{release}
-Requires(post): mysql-client = %{version}-%{release}
-Requires(preun): mysql-client = %{version}-%{release}
-Requires(postun): mysql-common = %{version}-%{release}
-Requires(postun): mysql-client = %{version}-%{release}
-Requires:	mysql-common = %{version}-%{release}
-Requires:	mysql-client = %{version}-%{release}
-Provides:	msqlormysql MySQL-server mysqlserver mysql MySQL-Max = %{version}-%{release}
-Obsoletes:	MySQL-Max
-Conflicts:	MySQL > 4.0.11
-
-%description	max 
-Optional MySQL server binary that supports features like transactional tables
-and more. You can use it as an alternate to MySQL basic server. The mysql-max
-server is compiled with the following storage engines:
+The mysql server is compiled with the following storage engines:
 
  - Archive Storage Engine
  - CSV Storage Engine
@@ -158,6 +134,8 @@ Addon storage engines (use with care):
  - Sphinx storage engine %{sphinx_version}
  - PBXT Storage Engine %{pbxt_version}
  - Revision Storage Engine %{revision_version}
+
+Please see the documentation and the manual for more information.
 
 %package	core
 Summary:	MySQL - server core binary
@@ -313,7 +291,6 @@ done
 # strip away annoying ^M
 find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2unix -U
 
-%patch1 -p0
 %patch2 -p1
 %patch3 -p0 -b .noproc
 %patch4 -p0 -b .mysqldumpslow_no_basedir
@@ -410,7 +387,8 @@ export CHECK_PID='/bin/kill -0 $$PID'
 
 # The --enable-assembler simply does nothing on systems that does not
 # support assembler speedups.
-MYSQL_COMMON_CONFIGURE_LINE="--prefix=/ \
+%configure2_5x \
+    --prefix=/ \
     --exec-prefix=%{_prefix} \
     --libexecdir=%{_sbindir} \
     --libdir=%{_libdir} \
@@ -437,49 +415,14 @@ MYSQL_COMMON_CONFIGURE_LINE="--prefix=/ \
     --without-debug \
 %endif
     --with-mysqld-user=%{muser} \
-    --with-unix-socket-path=/var/lib/mysql/mysql.sock"
-
-################################################################################
-# make the plain mysqld server
-%configure2_5x $MYSQL_COMMON_CONFIGURE_LINE \
-    --disable-shared \
-    --enable-static \
-    --with-comment='Mandriva Linux - MySQL Standard Edition (GPL)' \
-    --without-embedded-server \
-    --with-plugin-archive \
-    --with-plugin-innobase \
-    --without-plugin-daemon_example \
-    --without-plugin-example \
-    --without-plugin-ftexample \
-    --without-plugin-blackhole \
-    --without-plugin-federated \
-    --without-plugin-innodb_plugin \
-    --without-plugin-ndbcluster \
-    --without-plugin-partition \
-    --without-plugin-revision \
-    --without-plugin-sphinx
-
-# benchdir does not fit in above model. Maybe a separate bench distribution
-%make benchdir_root=%{buildroot}%{_datadir}
-
-# tuck away various built files
-make DESTDIR=`pwd`/STD benchdir_root=%{_datadir} testdir=%{_datadir}/mysql-test install
-
-################################################################################
-# cleanup
-make clean
-
-################################################################################
-# make the mysqld-max server
-%configure2_5x $MYSQL_COMMON_CONFIGURE_LINE \
+    --with-unix-socket-path=/var/lib/mysql/mysql.sock \
     --enable-shared \
     --enable-static \
-    --with-comment='Mandriva Linux - MySQL Max Edition (GPL)' \
+    --with-comment='Mandriva Linux - MySQL Edition (GPL)' \
     --with-embedded-server \
     --with-plugin-federated \
     --with-big-tables \
-    --without-plugin-ndbcluster \
-    --with-server-suffix="-Max"
+    --without-plugin-ndbcluster
 
 %make benchdir_root=%{buildroot}%{_datadir}
 
@@ -565,19 +508,8 @@ mv %{buildroot}%{_libdir}/mysql/ha_* %{buildroot}%{_libdir}/mysql/plugin/
 # nuke one useless plugin
 rm -f %{buildroot}%{_libdir}/mysql/plugin/ha_example*
 
-mv %{buildroot}%{_sbindir}/mysqld %{buildroot}%{_sbindir}/mysqld-max
-install -m0755 STD/usr/sbin/mysqld %{buildroot}%{_sbindir}/mysqld
-
 # install init scripts
 install -m0755 support-files/mysql.server %{buildroot}%{_initrddir}/mysqld
-install -m0755 support-files/mysql.server %{buildroot}%{_initrddir}/mysqld-max
-
-# fix status and subsys
-perl -pi -e 's/status mysqld\b/status mysqld-max/g;s,(/var/lock/subsys/mysqld\b),${1}-max,' %{buildroot}%{_initrddir}/mysqld-max
-
-# mysqld-max needs special treatment running under the instance manager...
-perl -pi -e "s|--default-mysqld-path=%{_sbindir}/mysqld|--default-mysqld-path=%{_sbindir}/mysqld-max|g" %{buildroot}%{_initrddir}/mysqld-max
-perl -pi -e "s|--mysqld=mysqld|--mysqld=mysqld-max|g" %{buildroot}%{_initrddir}/mysqld-max
 
 # install configuration files
 install -m0644 Mandriva/mysqld.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld
@@ -662,10 +594,10 @@ that replaces the cluster functionalities.
 The MySQL-common package now ships with a default /etc/my.cnf file that is 
 based on the my-medium.cnf file that comes with the source code.
 
-Starting from mysql-max-5.1.38-1 the storage engines is built as dynamically
-loadable modules for the mysql-max version. You can either load the engines using
-the  /etc/my.cnf file or at runtime. Please look at these lines in the /etc/my.cnf
-file to enable additional engines or disable one or more of the default ones:
+Starting from mysql-5.1.43-2 the storage engines is built as dynamically
+loadable modules. You can either load the engines using the /etc/my.cnf file or
+at runtime. Please look at these lines in the /etc/my.cnf file to enable
+additional engines or disable one or more of the default ones:
 
 plugin_dir=%{_libdir}/mysql/plugin
 plugin-load=ha_archive.so;ha_blackhole.so;ha_innodb.so;ha_revision.so;ha_sphinx.so;libpbxt.so
@@ -673,9 +605,9 @@ plugin-load=ha_archive.so;ha_blackhole.so;ha_innodb.so;ha_revision.so;ha_sphinx.
 EOF
 
 %pre
-# disable plugins
-perl -pi -e "s|^plugin-load|#plugin-load|g" %{_sysconfdir}/my.cnf
-perl -pi -e "s|^federated|#federated|g" %{_sysconfdir}/my.cnf
+# enable plugins
+perl -pi -e "s|^#plugin-load|plugin-load|g" %{_sysconfdir}/my.cnf
+perl -pi -e "s|^#federated|federated|g" %{_sysconfdir}/my.cnf
 
 %pre common
 # delete the mysql group if no mysql user is found, before adding the user
@@ -703,45 +635,12 @@ chmod 711 /var/lib/mysql
 %_post_service mysqld
 
 %preun
-if [ -x %{_sbindir}/mysqld-max -o -x %{_initrddir}/mysqld-max ]; then
-    chkconfig --del mysqld-max
-else
-    %_preun_service mysqld
-fi
+%_preun_service mysqld
 
 %postun
 if [ "$1" = "0" ]; then
     if [ -f /var/lock/subsys/mysqld ]; then
         %{_initrddir}/mysqld restart > /dev/null 2>/dev/null || :
-    fi
-fi
-
-%pre max
-# enable plugins
-perl -pi -e "s|^#plugin-load|plugin-load|g" %{_sysconfdir}/my.cnf
-perl -pi -e "s|^#federated|federated|g" %{_sysconfdir}/my.cnf
-
-%post max
-# Change permissions so that the user that will run the MySQL daemon
-# owns all needed files.
-chown -R %{muser}:%{muser} /var/lib/mysql /var/run/mysqld /var/log/mysqld
-
-# make sure the /var/lib/mysql directory can be accessed
-chmod 711 /var/lib/mysql
-
-%_post_service mysqld-max
-
-%preun max
-if [ -x %{_sbindir}/mysqld -o -x %{_initrddir}/mysqld ]; then
-    chkconfig --del mysqld
-else
-    %_preun_service mysqld-max
-fi
-
-%postun max
-if [ "$1" = "0" ]; then
-    if [ -f /var/lock/subsys/mysqld-max ]; then
-        %{_initrddir}/mysqld-max restart > /dev/null 2>/dev/null || :
     fi
 fi
 
@@ -759,15 +658,8 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root)
 %doc README.urpmi
-%attr(0755,root,root) %{_initrddir}/mysqld
-%dir %{_libdir}/mysql/plugin
-
-%files max
-%defattr(-,root,root)
-%doc README.urpmi
 %doc *.pbxt *.revision
-%attr(0755,root,root) %{_initrddir}/mysqld-max
-%attr(0755,root,root) %{_sbindir}/mysqld-max
+%attr(0755,root,root) %{_initrddir}/mysqld
 %dir %{_libdir}/mysql/plugin
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_archive.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_blackhole.so

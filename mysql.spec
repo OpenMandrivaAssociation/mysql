@@ -1,5 +1,4 @@
 %define Werror_cflags %nil
-
 %define _disable_ld_no_undefined 1
 
 #(ie. use with rpm --rebuild):
@@ -60,14 +59,7 @@ Source0:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz
 Source1:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz.asc
 Source2:	http://downloads.mysql.com/docs/refman-5.1-en.html-chapter.tar.gz
 Source3:	mysqld.sysconfig
-Source4:	mysqld-ndbd.init
-Source5:	mysqld-ndb.sysconfig
-Source6:	mysqld-ndb_cpcd.init
-Source7:	mysqld-ndb_cpcd.sysconfig
-Source8:	mysqld-ndb_mgmd.init
-Source9:	mysqld-ndb_mgmd.sysconfig
-Source10:	config.ini
-Source11:	my.cnf
+Source4:	my.cnf
 Patch1:		mysql-install_script_mysqld_safe.diff
 Patch2:		mysql-lib64.diff
 Patch3:		mysql-5.0.15-noproc.diff
@@ -148,7 +140,6 @@ Requires:	mysql-common = %{version}-%{release}
 Requires:	mysql-client = %{version}-%{release}
 Provides:	msqlormysql MySQL-server mysqlserver mysql MySQL-Max = %{version}-%{release}
 Obsoletes:	MySQL-Max
-Obsoletes:	MySQL-NDB
 Conflicts:	MySQL > 4.0.11
 
 %description	max 
@@ -156,7 +147,6 @@ Optional MySQL server binary that supports features like transactional tables
 and more. You can use it as an alternate to MySQL basic server. The mysql-max
 server is compiled with the following storage engines:
 
- - Ndbcluster Storage Engine interface
  - Archive Storage Engine
  - CSV Storage Engine
  - Federated Storage Engine
@@ -168,57 +158,6 @@ Addon storage engines (use with care):
  - Sphinx storage engine %{sphinx_version}
  - PBXT Storage Engine %{pbxt_version}
  - Revision Storage Engine %{revision_version}
-
-%package	ndb-storage
-Summary:	MySQL - ndbcluster storage engine
-Group:		System/Servers
-Requires(post): rpm-helper
-Requires(preun): rpm-helper
-Provides:	MySQL-ndb-storage = %{version}-%{release}
-Obsoletes:	MySQL-ndb-storage
-
-%description	ndb-storage
-This package contains the ndbcluster storage engine. It is necessary to have
-this package installed on all computers that should store ndbcluster table
-data. Note that this storage engine can only be used in conjunction with the
-MySQL Max server.
-
-%package	ndb-management
-Summary:	MySQL - ndbcluster storage engine management
-Group:		System/Servers
-Requires(post): rpm-helper
-Requires(preun): rpm-helper
-Requires(post): mysql-common = %{version}-%{release}
-Requires(preun): mysql-common = %{version}-%{release}
-Requires(post): mysql-client = %{version}-%{release}
-Requires(preun): mysql-client = %{version}-%{release}
-Requires:	mysql-common = %{version}-%{release}
-Requires:	mysql-client = %{version}-%{release}
-Provides:	MySQL-ndb-management = %{version}-%{release}
-Obsoletes:	MySQL-ndb-management
-
-%description	ndb-management
-This package contains ndbcluster storage engine management. It is necessary to
-have this package installed on at least one computer in the cluster.
-
-%package	ndb-tools
-Summary:	MySQL - ndbcluster storage engine basic tools
-Group:		System/Servers
-Provides:	MySQL-ndb-tools = %{version}-%{release}
-Obsoletes:	MySQL-ndb-tools
-
-%description	ndb-tools
-This package contains ndbcluster storage engine basic tools.
-
-%package	ndb-extra
-Summary:	MySQL - ndbcluster storage engine extra tools
-Group:		System/Servers
-Provides:	MySQL-ndb-extra = %{version}-%{release}
-Obsoletes:	MySQL-ndb-extra
-
-%description	ndb-extra
-This package contains some extra ndbcluster storage engine tools for the
-advanced user. They should be used with caution.
 
 %package	core
 Summary:	MySQL - server core binary
@@ -417,14 +356,7 @@ perl -pi -e "s|^MAX_CXX_OPTIMIZE.*|MAX_CXX_OPTIMIZE=\"\"|g" configure*
 
 mkdir -p Mandriva
 cp %{SOURCE3} Mandriva/mysqld.sysconfig
-cp %{SOURCE4} Mandriva/mysqld-ndbd.init
-cp %{SOURCE5} Mandriva/mysqld-ndb.sysconfig
-cp %{SOURCE6} Mandriva/mysqld-ndb_cpcd.init
-cp %{SOURCE7} Mandriva/mysqld-ndb_cpcd.sysconfig
-cp %{SOURCE8} Mandriva/mysqld-ndb_mgmd.init
-cp %{SOURCE9} Mandriva/mysqld-ndb_mgmd.sysconfig
-cp %{SOURCE10} Mandriva/config.ini
-cp %{SOURCE11} Mandriva/my.cnf
+cp %{SOURCE4} Mandriva/my.cnf
 
 # lib64 fix
 perl -pi -e "s|/usr/lib/|%{_libdir}/|g" Mandriva/my.cnf
@@ -544,11 +476,9 @@ make clean
     --enable-static \
     --with-comment='Mandriva Linux - MySQL Max Edition (GPL)' \
     --with-embedded-server \
-    --with-plugins=ndbcluster \
     --with-plugin-federated \
     --with-big-tables \
-    --with-ndbcluster \
-    --with-ndb-shm \
+    --without-plugin-ndbcluster \
     --with-server-suffix="-Max"
 
 %make benchdir_root=%{buildroot}%{_datadir}
@@ -619,10 +549,9 @@ export DONT_STRIP=1
 
 install -d %{buildroot}%{_sysconfdir}/sysconfig
 install -d %{buildroot}%{_initrddir}
-install -d %{buildroot}%{_var}/run/{mysqld,ndb_cpcd}
+install -d %{buildroot}%{_var}/run/mysqld
 install -d %{buildroot}%{_var}/log/mysqld
 install -d %{buildroot}/var/lib/mysql/{mysql,test}
-install -d %{buildroot}/var/lib/mysql-cluster
 
 %makeinstall_std benchdir_root=%{_datadir} testdir=%{_datadir}/mysql-test
 
@@ -642,9 +571,6 @@ install -m0755 STD/usr/sbin/mysqld %{buildroot}%{_sbindir}/mysqld
 # install init scripts
 install -m0755 support-files/mysql.server %{buildroot}%{_initrddir}/mysqld
 install -m0755 support-files/mysql.server %{buildroot}%{_initrddir}/mysqld-max
-install -m0755 Mandriva/mysqld-ndbd.init %{buildroot}%{_initrddir}/mysqld-ndbd
-install -m0755 Mandriva/mysqld-ndb_cpcd.init %{buildroot}%{_initrddir}/mysqld-ndb_cpcd
-install -m0755 Mandriva/mysqld-ndb_mgmd.init %{buildroot}%{_initrddir}/mysqld-ndb_mgmd
 
 # fix status and subsys
 perl -pi -e 's/status mysqld\b/status mysqld-max/g;s,(/var/lock/subsys/mysqld\b),${1}-max,' %{buildroot}%{_initrddir}/mysqld-max
@@ -654,11 +580,7 @@ perl -pi -e "s|--default-mysqld-path=%{_sbindir}/mysqld|--default-mysqld-path=%{
 
 # install configuration files
 install -m0644 Mandriva/mysqld.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld
-install -m0644 Mandriva/mysqld-ndb.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld-ndbd
-install -m0644 Mandriva/mysqld-ndb_cpcd.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld-ndb_cpcd
-install -m0644 Mandriva/mysqld-ndb_mgmd.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld-ndb_mgmd
 install -m0644 Mandriva/my.cnf %{buildroot}%{_sysconfdir}/my.cnf
-install -m0644 Mandriva/config.ini %{buildroot}/var/lib/mysql-cluster/config.ini
 
 # Install docs
 install -m0644 Docs/mysql.info %{buildroot}%{_infodir}/mysql.info
@@ -666,7 +588,6 @@ install -m0644 Docs/mysql.info %{buildroot}%{_infodir}/mysql.info
 # Fix libraries
 mv %{buildroot}%{_libdir}/mysql/libmysqlclient.* %{buildroot}%{_libdir}/
 mv %{buildroot}%{_libdir}/mysql/libmysqlclient_r.* %{buildroot}%{_libdir}/
-mv %{buildroot}%{_libdir}/mysql/libndbclient.* %{buildroot}%{_libdir}/
 perl -pi -e "s|%{_libdir}/mysql|%{_libdir}|" %{buildroot}%{_libdir}/*.la
 
 pushd %{buildroot}%{_bindir}
@@ -677,8 +598,6 @@ popd
 
 # touch some files
 touch %{buildroot}%{_sysconfdir}/mysqlmanager.passwd
-echo "#" > %{buildroot}%{_sysconfdir}/ndb_cpcd.conf
-echo "#" > %{buildroot}/var/lib/mysql/Ndb.cfg
 
 install -m0755 convert_engine.pl %{buildroot}%{_bindir}/mysql_convert_engine
 
@@ -741,11 +660,9 @@ by MySQL AB. This means the following changes:
    TMPDIR=/var/tmp mysql_install_db
    mysql_upgrade
 
-The extra MySQL-NDB server package has been merged into the MySQL-Max package 
-and ndb related pieces has been split into different sub packages as done by
-MySQL AB. The MySQL libraries and the MySQL-common sub package uses the
-MySQL-Max build so that no functionality required by for example the NDB
-parts are lost.
+The cluster functionalities (ndb) has been deactivated and will be removed in
+future releases. A new product named mysql-cluster has been added (in contrib)
+that replaces the cluster functionalities.
 
 The MySQL-common package now ships with a default /etc/my.cnf file that is 
 based on the my-medium.cnf file that comes with the source code.
@@ -843,39 +760,6 @@ if [ "$1" = "0" ]; then
     fi
 fi
 
-%post ndb-storage
-%_post_service mysqld-ndbd
-
-%preun ndb-storage
-%_preun_service mysqld-ndbd
-
-%postun ndb-storage
-if [ "$1" = "0" ]; then
-    if [ -f /var/lock/subsys/mysqld-ndbd ]; then
-        %{_initrddir}/mysqld-ndbd restart 1>&2
-    fi
-fi
-
-%post ndb-management
-%create_ghostfile %{_sysconfdir}/ndb_cpcd.conf root root 0644
-%create_ghostfile /var/lib/mysql/Ndb.cfg root root 0644
-%_post_service mysqld-ndb_cpcd
-%_post_service mysqld-ndb_mgmd
-
-%preun ndb-management
-%_preun_service mysqld-ndb_cpcd
-%_preun_service mysqld-ndb_mgmd
-
-%postun ndb-management
-if [ "$1" = "0" ]; then
-    if [ -f /var/lock/subsys/mysqld-ndb_cpcd ]; then
-        %{_initrddir}/mysqld-ndb_cpcd restart 1>&2
-    fi
-    if [ -f /var/lock/subsys/mysqld-ndb_mgmd ]; then
-        %{_initrddir}/mysqld-ndb_mgmd restart 1>&2
-    fi
-fi
-
 %triggerin -n %{name} -- MySQL < 4.1.10
 if [ -f /var/lock/subsys/mysql ]; then
     pidname="/var/lib/mysql/`/bin/hostname`.pid"
@@ -927,70 +811,6 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/mysql/plugin/sphinx.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/libpbxt.so
 %attr(0755,root,root) %{_bindir}/xtstat
-
-%files ndb-storage
-%defattr(-,root,root)
-%attr(0755,root,root) %{_initrddir}/mysqld-ndbd
-%attr(0644,root,root) %config(noreplace,missingok) %{_sysconfdir}/sysconfig/mysqld-ndbd
-%attr(0755,root,root) %{_sbindir}/ndbd
-%attr(0644,root,root) %{_mandir}/man8/ndbd.8*
-%attr(0644,root,root) %{_mandir}/man8/ndbmtd.8*
-
-%files ndb-management
-%defattr(-,root,root)
-%ghost %attr(0644,root,root) %config(noreplace,missingok) %{_sysconfdir}/ndb_cpcd.conf
-%ghost %attr(0644,root,root) %config(noreplace,missingok) /var/lib/mysql/Ndb.cfg
-%attr(0644,root,root) %config(noreplace,missingok) /var/lib/mysql-cluster/config.ini
-%attr(0644,root,root) %config(noreplace,missingok) %{_sysconfdir}/sysconfig/mysqld-ndb_cpcd
-%attr(0644,root,root) %config(noreplace,missingok) %{_sysconfdir}/sysconfig/mysqld-ndb_mgmd
-%attr(0755,root,root) %{_initrddir}/mysqld-ndb_cpcd
-%attr(0755,root,root) %{_initrddir}/mysqld-ndb_mgmd
-%attr(0755,root,root) %{_sbindir}/ndb_mgmd
-%attr(0755,root,root) %{_sbindir}/ndb_cpcd
-%attr(0755,root,root) %{_bindir}/ndb_mgm
-%attr(0755,%{muser},%{muser}) %dir %{_var}/run/ndb_cpcd
-%attr(0644,root,root) %{_mandir}/man1/ndb_cpcd.1*
-%attr(0644,root,root) %{_mandir}/man8/ndb_mgmd.8*
-
-%files ndb-tools
-%defattr(-,root,root)
-%attr(0755,root,root) %{_bindir}/ndb_print_schema_file
-%attr(0755,root,root) %{_bindir}/ndb_print_sys_file
-%attr(0755,root,root) %{_bindir}/ndb_config
-%attr(0755,root,root) %{_bindir}/ndb_desc
-%attr(0755,root,root) %{_bindir}/ndb_error_reporter
-%attr(0755,root,root) %{_bindir}/ndb_mgm
-%attr(0755,root,root) %{_bindir}/ndb_print_backup_file
-%attr(0755,root,root) %{_bindir}/ndb_restore
-%attr(0755,root,root) %{_bindir}/ndb_select_all
-%attr(0755,root,root) %{_bindir}/ndb_select_count
-%attr(0755,root,root) %{_bindir}/ndb_show_tables
-%attr(0755,root,root) %{_bindir}/ndb_size.pl
-%attr(0755,root,root) %{_bindir}/ndb_test_platform
-%attr(0755,root,root) %{_bindir}/ndb_waiter
-%attr(0644,root,root) %{_mandir}/man1/ndb_config.1*
-%attr(0644,root,root) %{_mandir}/man1/ndb_desc.1*
-%attr(0644,root,root) %{_mandir}/man1/ndbd_redo_log_reader.1*
-%attr(0644,root,root) %{_mandir}/man1/ndb_error_reporter.1*
-%attr(0644,root,root) %{_mandir}/man1/ndb_mgm.1*
-%attr(0644,root,root) %{_mandir}/man1/ndb_print_backup_file.1*
-%attr(0644,root,root) %{_mandir}/man1/ndb_print_schema_file.1*
-%attr(0644,root,root) %{_mandir}/man1/ndb_print_sys_file.1*
-%attr(0644,root,root) %{_mandir}/man1/ndb_restore.1*
-%attr(0644,root,root) %{_mandir}/man1/ndb_select_all.1*
-%attr(0644,root,root) %{_mandir}/man1/ndb_select_count.1*
-%attr(0644,root,root) %{_mandir}/man1/ndb_show_tables.1*
-%attr(0644,root,root) %{_mandir}/man1/ndb_size.pl.1*
-%attr(0644,root,root) %{_mandir}/man1/ndb_waiter.1*
-
-%files ndb-extra
-%defattr(-,root,root)
-%attr(0755,root,root) %{_bindir}/ndb_drop_index
-%attr(0755,root,root) %{_bindir}/ndb_drop_table
-%attr(0755,root,root) %{_bindir}/ndb_delete_all
-%attr(0644,root,root) %{_mandir}/man1/ndb_delete_all.1*
-%attr(0644,root,root) %{_mandir}/man1/ndb_drop_index.1*
-%attr(0644,root,root) %{_mandir}/man1/ndb_drop_table.1*
 
 %files client
 %defattr(-,root,root)
@@ -1081,7 +901,6 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_bindir}/resolve_stack_dump
 %attr(0755,root,root) %{_sbindir}/mysqlmanager
 %{_infodir}/mysql.info*
-%attr(0711,%{muser},%{muser}) %dir /var/lib/mysql-cluster
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql/mysql
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql/test
@@ -1161,13 +980,7 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %{_libdir}/mysql/plugin/*.la
 %attr(0755,root,root) %{_libdir}/*.so
 %dir %{_includedir}/mysql
-%dir %{_includedir}/mysql/storage/ndb
-%dir %{_includedir}/mysql/storage/ndb/mgmapi
-%dir %{_includedir}/mysql/storage/ndb/ndbapi
 %attr(0644,root,root) %{_includedir}/mysql/*.h
-%attr(0644,root,root) %{_includedir}/mysql/storage/ndb/*.h
-%attr(0644,root,root) %{_includedir}/mysql/storage/ndb/mgmapi/*.h
-%attr(0644,root,root) %{_includedir}/mysql/storage/ndb/ndbapi/*.h*
 %multiarch %{multiarch_includedir}/mysql/my_config.h
 %attr(0644,root,root) %{_mandir}/man1/comp_err.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_config.1*

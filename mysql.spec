@@ -51,7 +51,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.1.44
-Release:	%mkrel 1
+Release:	%mkrel 2
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com
@@ -60,14 +60,25 @@ Source1:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz.a
 Source2:	http://downloads.mysql.com/docs/refman-5.1-en.html-chapter.tar.gz
 Source3:	mysqld.sysconfig
 Source4:	my.cnf
-Patch2:		mysql-lib64.diff
-Patch3:		mysql-5.0.15-noproc.diff
-Patch4:		mysql-mysqldumpslow_no_basedir.diff
-Patch6:		mysql-errno.patch
-Patch11:	mysql-logrotate.diff
-Patch12:	mysql-initscript.diff
-Patch13:	mysql-instance-manager.diff
-Patch14:	mysql-5.1.30-use_-avoid-version_for_plugins.diff
+Patch0:		mysql-lib64.diff
+Patch1:		mysql-5.0.15-noproc.diff
+Patch2:		mysql-mysqldumpslow_no_basedir.diff
+Patch3:		mysql-errno.patch
+Patch4:		mysql-logrotate.diff
+Patch5:		mysql-initscript.diff
+Patch6:		mysql-instance-manager.diff
+Patch7:		mysql-5.1.30-federated-workaround.patch
+Patch8:		mysql-enable-plugins.patch
+Patch9:		mysql_upgrade-exit-status.patch
+Patch10:	mysql-5.1.23-vpath.patch
+Patch11:	mysql-5.1.31-shebang.patch
+Patch12:	mysql-5.1.33-safe-process-in-bin.patch
+Patch13:	mysql-5.1.33-scripts-paths.patch
+Patch14:	mysql-5.1.35-test-variables-big.patch
+Patch15:	mysql-5.1.36-bmove512.patch
+Patch16:	mysql-5.1.36-hotcopy.patch
+Patch17:	mysql-5.1.42-myslq-test.patch
+Patch18:	mysql-install_db-quiet.patch
 # addons
 Source99:	http://patg.net/downloads/convert_engine.pl
 Source100:	http://www.sphinxsearch.com/downloads/sphinx-%{sphinx_version}.tar.gz
@@ -77,6 +88,8 @@ Source300:	http://www.primebase.org/download/pbxt-%{pbxt_version}-rc.tar.gz
 Patch300:	pbxt-1.0.06-beta-avoid-version_fix.diff
 Source400:	http://www.ddengine.org/dl/revision/files/revisionv01.tar.gz
 Patch400:	revision-0.1-build_fix.diff
+Patch500:	mysql-5.1.30-use_-avoid-version_for_plugins.diff
+Patch1000:	mysql-5.1.44-CVE-2008-7247.diff
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -279,26 +292,25 @@ mv refman-5.1-en.html-chapter Docs/html
 
 cp %{SOURCE99} convert_engine.pl
 
-find . -type d -perm 0700 -exec chmod 755 {} \;
-find . -type f -perm 0555 -exec chmod 755 {} \;
-find . -type f -perm 0554 -exec chmod 755 {} \;
-find . -type f -perm 0444 -exec chmod 644 {} \;
-find . -type f -perm 0440 -exec chmod 644 {} \;
-
-for i in `find . -type d -name CVS` `find . -type f -name .cvs\*` `find . -type f -name .#\*`; do
-    if [ -e "$i" ]; then rm -rf $i; fi >&/dev/null
-done
-
-# strip away annoying ^M
-find -type f | grep -v "\.gif" | grep -v "\.png" | grep -v "\.jpg" | xargs dos2unix -U
-
-%patch2 -p1
-%patch3 -p0 -b .noproc
-%patch4 -p0 -b .mysqldumpslow_no_basedir
-%patch6 -p0 -b .errno_as_defines
-%patch11 -p0 -b .logrotate
-%patch12 -p0 -b .initscript
-%patch13 -p0 -b .instance-manager
+%patch0 -p1 -b .lib64
+%patch1 -p0 -b .noproc
+%patch2 -p0 -b .mysqldumpslow_no_basedir
+%patch3 -p0 -b .errno_as_defines
+%patch4 -p0 -b .logrotate
+%patch5 -p0 -b .initscript
+%patch6 -p0 -b .instance-manager
+%patch7 -p0 -b .federated
+%patch8 -p1 -b .enable-plugins
+%patch9 -p0 -b .mysql_upgrade-exit-status
+%patch10 -p0 -b .vpath
+%patch11 -p1 -b .shebang
+%patch12 -p0 -b .safe-process-in-bin
+%patch13 -p0 -b .scripts-paths
+%patch14 -p0 -b .test-variables-big
+%patch15 -p0 -b .bmove512
+%patch16 -p0 -b .hotcopy
+%patch17 -p0 -b .myslq-test
+%patch18 -p0 -b .install_db-quiet
 
 # Sphinx storage engine
 tar -zxf %{SOURCE100}
@@ -325,7 +337,9 @@ cp -p src/* .
 popd
 cp -rp revision-%{revision_version} storage/revision
 
-%patch14 -p1 -b .use_-avoid-version_for_plugins
+%patch500 -p1 -b .use_-avoid-version_for_plugins
+
+%patch1000 -p0 -b .CVE-2008-7247
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
@@ -419,9 +433,8 @@ export CHECK_PID='/bin/kill -0 $$PID'
     --with-unix-socket-path=/var/lib/mysql/mysql.sock \
     --enable-shared \
     --enable-static \
-    --with-comment='Mandriva Linux - MySQL Edition (GPL)' \
+    --with-comment='Mandriva Linux - MySQL Community Edition (GPL)' \
     --with-embedded-server \
-    --with-plugin-federated \
     --with-big-tables \
     --without-plugin-ndbcluster
 
@@ -442,44 +455,22 @@ popd
 ################################################################################
 # run the tests
 %if %{build_test}
+%check
 # disable failing tests
-#echo "mysql_client_test : Unstable test case, bug#12258" >> mysql-test/t/disabled.def
-#echo "openssl_1 : Unstable test case" >> mysql-test/t/disabled.def
-#echo "rpl_openssl : Unstable test case" >> mysql-test/t/disabled.def
 echo "rpl_trigger : Unstable test case" >> mysql-test/t/disabled.def
 echo "type_enum : Unstable test case" >> mysql-test/t/disabled.def
 echo "windows : For MS Windows only" >> mysql-test/t/disabled.def
-echo "ndb_restore_different_endian_data : does not pass" >> mysql-test/t/disabled.def
-# set some test env, should be free high random ports...
-#export MYSQL_TEST_MANAGER_PORT=9305
-#export MYSQL_TEST_MASTER_PORT=9306
-#export MYSQL_TEST_SLAVE_PORT=9308
-#export MYSQL_TEST_NDB_PORT=9350
-make check
-#make test
-#%ifnarch s390x
-#pushd mysql-test
-#    ./mysql-test-run.pl \
-#    --force \
-#    --timer \
-#    --master_port=$MYSQL_TEST_MASTER_PORT \
-#    --slave_port=$MYSQL_TEST_SLAVE_PORT \
-#    --ndbcluster_port=$MYSQL_TEST_NDB_PORT \
-#    --testcase-timeout=60 \
-#    --suite-timeout=120 || false
-#popd
-#%endif
-
 pushd mysql-test
 export LANG=C
 export LC_ALL=C
 export LANGUAGE=C
     perl ./mysql-test-run.pl \
+    --mtr-build-thread="$((${RANDOM} % 100))" \
+    --skip-ndb \
     --timer \
     --testcase-timeout=60 \
     --suite-timeout=120 || false
 popd
-
 %endif
 
 %install 
@@ -674,11 +665,12 @@ rm -rf %{buildroot}
 %dir %{_libdir}/mysql/plugin
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_archive.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_blackhole.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_federated.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_innodb_plugin.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_revision.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_sphinx.so
-%attr(0755,root,root) %{_libdir}/mysql/plugin/sphinx.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/libpbxt.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/sphinx.so
 %attr(0755,root,root) %{_bindir}/xtstat
 
 %files client

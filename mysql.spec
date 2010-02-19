@@ -50,8 +50,8 @@
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.1.43
-Release:	%mkrel 2
+Version:	5.1.44
+Release:	%mkrel 1
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com
@@ -438,6 +438,7 @@ autoreconf -fis
 %make
 popd
 
+
 ################################################################################
 # run the tests
 %if %{build_test}
@@ -607,8 +608,10 @@ EOF
 
 %pre
 # enable plugins
-perl -pi -e "s|^#plugin-load|plugin-load|g" %{_sysconfdir}/my.cnf
-perl -pi -e "s|^#federated|federated|g" %{_sysconfdir}/my.cnf
+if [ -f %{_sysconfdir}/my.cnf ]; then
+    perl -pi -e "s|^#plugin-load|plugin-load|g" %{_sysconfdir}/my.cnf
+    perl -pi -e "s|^#federated|federated|g" %{_sysconfdir}/my.cnf
+fi
 
 %pre common
 # delete the mysql group if no mysql user is found, before adding the user
@@ -647,8 +650,10 @@ fi
 
 %pre common-core
 # enable plugins
-perl -pi -e "s|^#plugin-load|plugin-load|g" %{_sysconfdir}/my.cnf
-perl -pi -e "s|^#federated|federated|g" %{_sysconfdir}/my.cnf
+if [ -f %{_sysconfdir}/my.cnf ]; then
+    perl -pi -e "s|^#plugin-load|plugin-load|g" %{_sysconfdir}/my.cnf
+    perl -pi -e "s|^#federated|federated|g" %{_sysconfdir}/my.cnf
+fi
 
 %if %mdkversion < 200900
 %post -n %{libname} -p /sbin/ldconfig

@@ -47,14 +47,16 @@
 %define sphinx_version 0.9.9
 %define pbxt_version 1.0.10
 %define revision_version 0.1
+%define pinba_version 0.0.5
+%define spider_version 2.13
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.1.44
-Release:	%mkrel 2
+Release:	%mkrel 3
 Group:		Databases
 License:	GPL
-URL:		http://www.mysql.com
+URL:		http://www.mysql.com/
 Source0:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz
 Source1:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz.asc
 Source2:	http://downloads.mysql.com/docs/refman-5.1-en.html-chapter.tar.gz
@@ -88,8 +90,11 @@ Source300:	http://www.primebase.org/download/pbxt-%{pbxt_version}-rc.tar.gz
 Patch300:	pbxt-1.0.06-beta-avoid-version_fix.diff
 Source400:	http://www.ddengine.org/dl/revision/files/revisionv01.tar.gz
 Patch400:	revision-0.1-build_fix.diff
-Patch500:	mysql-5.1.30-use_-avoid-version_for_plugins.diff
-Patch1000:	mysql-5.1.44-CVE-2008-7247.diff
+Source600:	http://pinba.org/files/pinba_engine-%{pinba_version}.tar.gz
+Source700:	http://launchpad.net/spiderformysql/spider-2.x/2.13-for-5.1.39/+download/spider-src-2.13-for-5.1.39.tgz
+Patch700:	mysql-5.1.44-spider-2.13.diff
+Patch1000:	mysql-5.1.30-use_-avoid-version_for_plugins.diff
+Patch2000:	mysql-5.1.44-CVE-2008-7247.diff
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -136,6 +141,7 @@ MySQL AB.
 
 The mysql server is compiled with the following storage engines:
 
+ - InnoDB Storage Engine
  - Archive Storage Engine
  - CSV Storage Engine
  - Federated Storage Engine
@@ -143,16 +149,109 @@ The mysql server is compiled with the following storage engines:
  - Blackhole Storage Engine
  - Partition Storage Engine
 
-Addon storage engines (use with care):
- - Sphinx storage engine %{sphinx_version}
- - PBXT Storage Engine %{pbxt_version}
- - Revision Storage Engine %{revision_version}
+Third party storage engines packaged separately:
+ - Sphinx storage engine %{sphinx_version} (urpmi mysql-plugin_sphinx)
+ - PBXT Storage Engine %{pbxt_version} (urpmi mysql-plugin_pbxt)
+ - Revision Storage Engine %{revision_version} (urpmi mysql-plugin_revision)
+ - Pinba Storage Engine %{pinba_version} (urpmi mysql-plugin_pinba)
+ - Spider Storage Engine %{spider_version} (urpmi mysql-plugin_spider)
 
 Please see the documentation and the manual for more information.
+
+%package	plugin_sphinx
+Summary:	MySQL - The Sphinx Storage Engine
+Group:		Databases
+URL:		http://www.sphinxsearch.com/
+Conflicts:	mysql < 5.1.44-2
+Requires:	mysql = %{version}-%{release}
+Suggests:	sphinx >= %{sphinx_version}
+
+%description	plugin_sphinx
+Sphinx is a full-text search engine. Generally, it's a standalone search
+engine, meant to provide fast, size-efficient and relevant fulltext search
+functions to other applications. Sphinx was specially designed to integrate
+well with SQL databases and scripting languages. Currently built-in data
+sources support fetching data either via direct connection to MySQL or
+PostgreSQL, or using XML pipe mechanism (a pipe to indexer in special XML-based
+format which Sphinx recognizes). 
+
+This package provides the Sphinx Storage Engine %{sphinx_version}
+
+%package	plugin_pbxt
+Summary:	MySQL - The PBXT Storage Engine
+Group:		Databases
+URL:		http://www.primebase.org/
+Conflicts:	mysql < 5.1.44-2
+Requires:	mysql = %{version}-%{release}
+
+%description	plugin_pbxt
+PrimeBase XT (PBXT) is a transactional storage engine for MySQL. As illustrated
+below, a MySQL storage engine responsible for the caching, indexing and storage
+management of MySQL table data.
+
+On Creation of a table in MySQL, the storage engine may be specified. This
+determines the basic characteristics of the table. For example, the default
+storage engine is MyISAM, which can be used for non-transactional data that
+requires fast read access. A table which uses the MEMORY storage engine is held
+completely in RAM.
+
+Tables that use the PBXT Storage engine have the following features:
+
+ * MVCC: Multi-version concurrency control, enables reading without locking.
+ * Transactional: support for BEGIN, COMMIT and ROLLBACK and recovery on startup.
+ * ACID compliant: Atomic, Consistent, Isolated, Durable (once committed changes cannot be lost).
+ * Row-level locking: updates use row-level locking allowing for maximum concurrency.
+ * Deadlock detection: immediate notification if client processes are deadlocked.
+ * Referential Integrity: foreign key support.
+ * Write-once: PBXT avoids double-writes by using a log-based architecture.
+ * BLOB streaming: In combination with the BLOB Streaming engine.
+
+This package provides the PBXT Storage Engine %{pbxt_version}
+
+%package	plugin_revision
+Summary:	MySQL - The Revision Storage Engine
+Group:		Databases
+URL:		http://www.ddengine.org/
+Conflicts:	mysql < 5.1.44-2
+Requires:	mysql = %{version}-%{release}
+
+%description	plugin_revision
+This package provides the Revision Storage Engine %{revision_version}
+
+%package	plugin_pinba
+Summary:	MySQL - The Pinba Storage Engine
+Group:		Databases
+URL:		http://pinba.org/
+Conflicts:	mysql < 5.1.44-2
+Requires:	mysql = %{version}-%{release}
+BuildRequires:	judy-devel
+BuildRequires:	libevent-devel
+BuildRequires:	protobuf-devel
+
+%description	plugin_pinba
+Pinba is a statistics server for PHP using MySQL as a read-only interface.
+
+This package provides the Pinba Storage Engine %{pinba_version}
+
+%package	plugin_spider
+Summary:	MySQL - The Spider Storage Engine
+Group:		Databases
+URL:		http://launchpad.net/spiderformysql/
+Conflicts:	mysql < 5.1.44-2
+Requires:	mysql = %{version}-%{release}
+
+%description	plugin_spider
+The spider storage engine enables tables of different MySQL instances to be
+treated like a table of a same instance. Because xa transaction and
+partitioning is supported, it can do decentralized arrangement to two or more
+servers of data of same table.
+
+This package provides the Spider Storage Engine %{spider_version}
 
 %package	core
 Summary:	MySQL - server core binary
 Group:		System/Servers
+URL:		http://www.mysql.com/
 Conflicts:	mysql < 5.1.39-3
 Conflicts:	mysql-max < 5.1.43
 Requires:	mysql-common-core = %{version}-%{release}
@@ -164,6 +263,7 @@ package 'mysql'.
 %package	common-core
 Summary:	MySQL - common files required by core binary
 Group:		System/Servers
+URL:		http://www.mysql.com/
 Conflicts:	mysql-common < 5.1.43-1
 
 %description	common-core
@@ -172,6 +272,7 @@ Common files minimally required by mysqld server binary.
 %package	common
 Summary:	MySQL - common files
 Group:		System/Servers
+URL:		http://www.mysql.com/
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -192,6 +293,7 @@ Common files for the MySQL(TM) database server.
 %package	client
 Summary:	MySQL - Client
 Group:		Databases
+URL:		http://www.mysql.com/
 Requires(post): %{libname} = %{version}-%{release}
 Requires(preun): %{libname} = %{version}-%{release}
 Requires:	%{libname} = %{version}-%{release}
@@ -206,6 +308,7 @@ This package contains the standard MySQL clients.
 %package	bench
 Summary:	MySQL - Benchmarks and test system
 Group:		System/Servers
+URL:		http://www.mysql.com/
 Requires(post): mysql-client = %{version}-%{release}
 Requires(preun): mysql-client = %{version}-%{release}
 Requires:	mysql-client = %{version}-%{release}
@@ -219,6 +322,7 @@ This package contains MySQL benchmark scripts and data.
 %package -n	%{libname}
 Summary:	MySQL - Shared libraries
 Group:		System/Libraries
+URL:		http://www.mysql.com/
 Obsoletes:	MySQL-shared-libs MySQL-shared
 Provides:	MySQL-shared-libs = %{version}-%{release} mysql-shared-libs = %{version}-%{release}
 Provides:	MySQL-shared = %{version}-%{release} mysql-shared = %{version}-%{release}
@@ -230,6 +334,7 @@ applications need to dynamically load and use MySQL.
 %package -n	%{develname}
 Summary:	MySQL - Development header files and libraries
 Group:		Development/Other
+URL:		http://www.mysql.com/
 Requires(post): %{libname} = %{version}-%{release}
 Requires(preun): %{libname} = %{version}-%{release}
 Requires(post): mysql-common = %{version}-%{release}
@@ -265,6 +370,7 @@ version.
 %package -n	%{staticdevelname}
 Summary:	MySQL - Static development libraries
 Group:		Development/Other
+URL:		http://www.mysql.com/
 Requires:	mysql-devel = %{version}-%{release}
 Conflicts:	MySQL-devel < 5.0.16-5mdk
 Provides:	MySQL-static-devel = %{version}-%{release}
@@ -279,6 +385,7 @@ This package contains the static development libraries.
 %package	doc
 Summary:	Documentation for MySQL
 Group:		Books/Other
+URL:		http://www.mysql.com/
 
 %description	doc
 This package contains the HTML documentation for MySQL.
@@ -337,9 +444,17 @@ cp -p src/* .
 popd
 cp -rp revision-%{revision_version} storage/revision
 
-%patch500 -p1 -b .use_-avoid-version_for_plugins
+# pinba storage engine
+tar -zxf %{SOURCE600}
 
-%patch1000 -p0 -b .CVE-2008-7247
+# spider storage engine
+tar -zxf %{SOURCE700}
+%patch700 -p1
+mv spider storage/
+
+%patch1000 -p1 -b .use_-avoid-version_for_plugins
+
+%patch2000 -p0 -b .CVE-2008-7247
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
@@ -451,6 +566,19 @@ autoreconf -fis
 %make
 popd
 
+pushd pinba_engine-%{pinba_version}*
+# lib64 fix
+perl -pi -e "s|/lib\b|/%{_lib}|g" configure*
+autoreconf -fis
+%configure2_5x \
+    --enable-shared \
+    --enable-static \
+    --with-mysql=../ \
+    --with-protobuf=%{_prefix} \
+    --with-event=%{_prefix} \
+    --with-judy=%{_prefix}
+%make
+popd
 
 ################################################################################
 # run the tests
@@ -495,6 +623,10 @@ pushd pbxt-%{pbxt_version}*
 %makeinstall_std
 popd
 
+pushd pinba_engine-%{pinba_version}*
+%makeinstall_std libdir=%{_libdir}/mysql/plugin
+popd
+
 # antibork...
 mv %{buildroot}%{_libdir}/mysql/ha_* %{buildroot}%{_libdir}/mysql/plugin/
 
@@ -526,18 +658,6 @@ popd
 touch %{buildroot}%{_sysconfdir}/mysqlmanager.passwd
 
 install -m0755 convert_engine.pl %{buildroot}%{_bindir}/mysql_convert_engine
-
-pushd pbxt-%{pbxt_version}*
-    for i in ChangeLog TODO AUTHORS COPYING NEWS README; do
-	cp $i ../${i}.pbxt
-    done
-popd
-
-pushd revision-%{revision_version}
-    for i in AUTHORS ChangeLog COPYING INSTALL README TODO; do
-	cp $i ../${i}.revision
-    done
-popd
 
 # nuke -Wl,--as-needed from the mysql_config file
 perl -pi -e "s|^ldflags=.*|ldflags=\'-rdynamic\'|g" %{buildroot}%{_bindir}/mysql_config
@@ -660,18 +780,47 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root)
 %doc README.urpmi
-%doc *.pbxt *.revision
 %attr(0755,root,root) %{_initrddir}/mysqld
 %dir %{_libdir}/mysql/plugin
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_archive.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_blackhole.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_federated.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_innodb_plugin.so
-%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_revision.so
+
+%files plugin_sphinx
+%defattr(-,root,root)
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_sphinx.so
-%attr(0755,root,root) %{_libdir}/mysql/plugin/libpbxt.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/sphinx.so
+
+%files plugin_pbxt
+%defattr(-,root,root)
+%doc pbxt-%{pbxt_version}*/ChangeLog
+%doc pbxt-%{pbxt_version}*/TODO
+%doc pbxt-%{pbxt_version}*/AUTHORS
+%doc pbxt-%{pbxt_version}*/NEWS
+%doc pbxt-%{pbxt_version}*/README
+%attr(0755,root,root) %{_libdir}/mysql/plugin/libpbxt.so
 %attr(0755,root,root) %{_bindir}/xtstat
+
+%files plugin_revision
+%defattr(-,root,root)
+%doc revision-%{revision_version}/AUTHORS
+%doc revision-%{revision_version}/ChangeLog
+%doc revision-%{revision_version}/README
+%doc revision-%{revision_version}/TODO
+%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_revision.so
+
+%files plugin_pinba
+%defattr(-,root,root)
+%doc pinba_engine-%{pinba_version}/NEWS
+%doc pinba_engine-%{pinba_version}/README
+%doc pinba_engine-%{pinba_version}/TODO
+%doc pinba_engine-%{pinba_version}/default_tables.sql
+%attr(0755,root,root) %{_libdir}/mysql/plugin/libpinba_engine.so
+
+%files plugin_spider
+%defattr(-,root,root)
+%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_spider.so
 
 %files client
 %defattr(-,root,root)

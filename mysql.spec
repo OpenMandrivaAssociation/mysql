@@ -650,7 +650,7 @@ install -m0755 convert_engine.pl %{buildroot}%{_bindir}/mysql_convert_engine
 perl -pi -e "s|^ldflags=.*|ldflags=\'-rdynamic\'|g" %{buildroot}%{_bindir}/mysql_config
 
 # house cleaning
-rm -f %{buildroot}%{_datadir}/info/dir
+rm -rf %{buildroot}%{_datadir}/info
 rm -f %{buildroot}%{_bindir}/make_win_src_distribution
 rm -f %{buildroot}%{_bindir}/make_win_binary_distribution
 rm -f %{buildroot}%{_datadir}/mysql/*.spec

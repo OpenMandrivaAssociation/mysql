@@ -59,9 +59,8 @@ License:	GPL
 URL:		http://www.mysql.com/
 Source0:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz
 Source1:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz.asc
-Source2:	http://downloads.mysql.com/docs/refman-5.1-en.html-chapter.tar.gz
-Source3:	mysqld.sysconfig
-Source4:	my.cnf
+Source2:	mysqld.sysconfig
+Source3:	my.cnf
 Patch0:		mysql-lib64.diff
 Patch1:		mysql-5.0.15-noproc.diff
 Patch2:		mysql-mysqldumpslow_no_basedir.diff
@@ -383,20 +382,9 @@ Obsoletes:	%{libname}-static-devel
 %description -n	%{staticdevelname}
 This package contains the static development libraries.
 
-%package	doc
-Summary:	Documentation for MySQL
-Group:		Books/Other
-URL:		http://www.mysql.com/
-
-%description	doc
-This package contains the HTML documentation for MySQL.
-
 %prep
 
-%setup -q -n mysql-%{version} -a2
-
-# put html docs in place
-mv refman-5.1-en.html-chapter Docs/html
+%setup -q -n mysql-%{version}
 
 cp %{SOURCE99} convert_engine.pl
 
@@ -464,8 +452,8 @@ perl -pi -e "s|^MAX_C_OPTIMIZE.*|MAX_C_OPTIMIZE=\"\"|g" configure*
 perl -pi -e "s|^MAX_CXX_OPTIMIZE.*|MAX_CXX_OPTIMIZE=\"\"|g" configure*
 
 mkdir -p Mandriva
-cp %{SOURCE3} Mandriva/mysqld.sysconfig
-cp %{SOURCE4} Mandriva/my.cnf
+cp %{SOURCE2} Mandriva/mysqld.sysconfig
+cp %{SOURCE3} Mandriva/my.cnf
 
 # lib64 fix
 perl -pi -e "s|/usr/lib/|%{_libdir}/|g" Mandriva/my.cnf
@@ -642,9 +630,6 @@ install -m0755 support-files/mysql.server %{buildroot}%{_initrddir}/mysqld
 install -m0644 Mandriva/mysqld.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld
 install -m0644 Mandriva/my.cnf %{buildroot}%{_sysconfdir}/my.cnf
 
-# Install docs
-install -m0644 Docs/mysql.info %{buildroot}%{_infodir}/mysql.info
-
 # Fix libraries
 mv %{buildroot}%{_libdir}/mysql/libmysqlclient.* %{buildroot}%{_libdir}/
 mv %{buildroot}%{_libdir}/mysql/libmysqlclient_r.* %{buildroot}%{_libdir}/
@@ -735,11 +720,7 @@ fi
 %_pre_useradd %{muser} /var/lib/mysql /bin/bash
 
 %post common
-%_install_info mysql.info
 %create_ghostfile %{_sysconfdir}/mysqlmanager.passwd %{muser} %{muser} 0640
-
-%preun common
-%_remove_install_info mysql.info
 
 %post
 # Change permissions so that the user that will run the MySQL daemon
@@ -913,7 +894,6 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_bindir}/resolveip
 %attr(0755,root,root) %{_bindir}/resolve_stack_dump
 %attr(0755,root,root) %{_sbindir}/mysqlmanager
-%{_infodir}/mysql.info*
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql/mysql
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql/test
@@ -1012,7 +992,3 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %{_libdir}/mysql/libvio.a
 %attr(0644,root,root) %{_libdir}/*.a
 %attr(0755,root,root) %{_libdir}/mysql/plugin/*.a
-
-%files doc
-%defattr(-,root,root)
-%doc Docs/html/*

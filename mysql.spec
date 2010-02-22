@@ -81,6 +81,7 @@ Patch15:	mysql-5.1.36-bmove512.patch
 Patch16:	mysql-5.1.36-hotcopy.patch
 Patch17:	mysql-5.1.42-myslq-test.patch
 Patch18:	mysql-install_db-quiet.patch
+Patch19:	mysql-charset-bug.patch
 # addons
 Source99:	http://patg.net/downloads/convert_engine.pl
 Source100:	http://www.sphinxsearch.com/downloads/sphinx-%{sphinx_version}.tar.gz
@@ -418,6 +419,7 @@ cp %{SOURCE99} convert_engine.pl
 %patch16 -p0 -b .hotcopy
 %patch17 -p0 -b .myslq-test
 %patch18 -p0 -b .install_db-quiet
+%patch19 -p1 -b .charset-bug
 
 # Sphinx storage engine
 tar -zxf %{SOURCE100}

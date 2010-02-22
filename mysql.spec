@@ -470,9 +470,6 @@ export CFLAGS="${CFLAGS:-%{optflags}}"
 export CXXFLAGS="${CXXFLAGS:-%{optflags}}"
 export FFLAGS="${FFLAGS:-%{optflags}}"
 
-# (gb) We shall always have the fully versioned binary
-# FIXME: Please, please, do tell why you need fully qualified version
-GCC_VERSION=`gcc -dumpversion`
 CFLAGS="$CFLAGS -fPIC"
 %ifarch alpha x86_64
 CXXFLAGS="$CXXFLAGS -fPIC"
@@ -485,10 +482,6 @@ CXXFLAGS="$CXXFLAGS"
 export CFLAGS="$CFLAGS -fno-strict-aliasing -fwrapv"
 # extra C++ flags as per recommendations in mysql's INSTALL-SOURCE doc
 export CXXFLAGS="$CFLAGS -felide-constructors -fno-rtti -fno-exceptions"
-
-export MYSQL_BUILD_CC="gcc-$GCC_VERSION"
-export MYSQL_BUILD_CXX="g++-$GCC_VERSION"
-
 export MYSQL_BUILD_CFLAGS="$CFLAGS"
 export MYSQL_BUILD_CXXFLAGS="$CXXFLAGS"
 
@@ -496,10 +489,6 @@ export MYSQL_BUILD_CXXFLAGS="$CXXFLAGS"
 CFLAGS="$CFLAGS -DUNIV_MUST_NOT_INLINE -DEXTRA_DEBUG -DFORCE_INIT_OF_VARS -DSAFEMALLOC -DPEDANTIC_SAFEMALLOC -DSAFE_MUTEX"
 %endif
 
-#
-# Use MYSQL_BUILD_PATH so that we can use a dedicated version of gcc
-#
-export PATH=${MYSQL_BUILD_PATH:-/bin:/usr/bin}
 export PS='/bin/ps'
 export FIND_PROC='/bin/ps p $$PID'
 export KILL='/bin/kill'

@@ -702,6 +702,9 @@ additional engines or disable one or more of the default ones:
 plugin_dir=%{_libdir}/mysql/plugin
 plugin-load=ha_archive.so;ha_blackhole.so;ha_innodb.so;ha_federated.so
 
+Starting from mysql-5.1.44-3 the html documentation and the mysql.info is not
+shipped with the Mandriva packages due to strict licensing.
+
 EOF
 
 %pre

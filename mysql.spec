@@ -700,7 +700,7 @@ at runtime. Please look at these lines in the /etc/my.cnf file to enable
 additional engines or disable one or more of the default ones:
 
 plugin_dir=%{_libdir}/mysql/plugin
-plugin-load=ha_archive.so;ha_blackhole.so;ha_innodb.so;ha_revision.so;ha_sphinx.so;libpbxt.so
+plugin-load=ha_archive.so;ha_blackhole.so;ha_innodb.so;ha_federated.so
 
 EOF
 

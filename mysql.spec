@@ -54,7 +54,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	%{mysql_version}
-Release:	%mkrel 4
+Release:	%mkrel 5
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/

@@ -44,7 +44,7 @@
 %define muser	mysql
 
 # various version info
-%define mysql_version 5.1.44
+%define mysql_version 5.1.45
 %define sphinx_version 0.9.9
 %define pbxt_version 1.0.10
 %define revision_version 0.1
@@ -54,7 +54,7 @@
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	%{mysql_version}
-Release:	%mkrel 7
+Release:	%mkrel 1
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
@@ -72,9 +72,7 @@ Patch6:		mysql-instance-manager.diff
 Patch7:		mysql-5.1.30-federated-workaround.patch
 Patch8:		mysql-enable-plugins.patch
 Patch9:		mysql_upgrade-exit-status.patch
-Patch10:	mysql-5.1.23-vpath.patch
 Patch11:	mysql-5.1.31-shebang.patch
-Patch12:	mysql-5.1.33-safe-process-in-bin.patch
 Patch13:	mysql-5.1.33-scripts-paths.patch
 Patch14:	mysql-5.1.35-test-variables-big.patch
 Patch15:	mysql-5.1.36-bmove512.patch
@@ -412,9 +410,7 @@ cp %{SOURCE99} convert_engine.pl
 %patch7 -p0 -b .federated
 %patch8 -p1 -b .enable-plugins
 %patch9 -p0 -b .mysql_upgrade-exit-status
-%patch10 -p0 -b .vpath
 %patch11 -p1 -b .shebang
-%patch12 -p0 -b .safe-process-in-bin
 %patch13 -p0 -b .scripts-paths
 %patch14 -p0 -b .test-variables-big
 %patch15 -p0 -b .bmove512

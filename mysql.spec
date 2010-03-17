@@ -51,10 +51,14 @@
 %define pinba_version 0.0.5
 %define spider_version 2.13
 
+# various release info
+%define mysql_release %mkrel 1
+%define plugins_release %mkrel 8
+
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
 Version:	%{mysql_version}
-Release:	%mkrel 1
+Release:	%{mysql_release}
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
@@ -98,15 +102,15 @@ Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
 Requires(postun): rpm-helper
-Requires(post): mysql-common = %{mysql_version}-%{release}
-Requires(preun): mysql-common = %{mysql_version}-%{release}
-Requires(post): mysql-client = %{mysql_version}-%{release}
-Requires(preun): mysql-client = %{mysql_version}-%{release}
-Requires(postun): mysql-common = %{mysql_version}-%{release}
-Requires(postun): mysql-client = %{mysql_version}-%{release}
-Requires:	mysql-common = %{mysql_version}-%{release}
-Requires:	mysql-core = %{mysql_version}-%{release}
-Requires:	mysql-client = %{mysql_version}-%{release}
+Requires(post): mysql-common = %{mysql_version}-%{mysql_release}
+Requires(preun): mysql-common = %{mysql_version}-%{mysql_release}
+Requires(post): mysql-client = %{mysql_version}-%{mysql_release}
+Requires(preun): mysql-client = %{mysql_version}-%{mysql_release}
+Requires(postun): mysql-common = %{mysql_version}-%{mysql_release}
+Requires(postun): mysql-client = %{mysql_version}-%{mysql_release}
+Requires:	mysql-common = %{mysql_version}-%{mysql_release}
+Requires:	mysql-core = %{mysql_version}-%{mysql_release}
+Requires:	mysql-client = %{mysql_version}-%{mysql_release}
 BuildRequires:	autoconf2.5
 BuildRequires:	automake1.7
 BuildRequires:	bison
@@ -125,11 +129,11 @@ BuildRequires:	dos2unix
 BuildRequires:	multiarch-utils >= 1.0.3
 BuildRequires:	xfs-devel
 BuildConflicts:	edit-devel
-Provides:	msqlormysql MySQL-server mysqlserver MySQL = %{mysql_version}-%{release}
-Provides:	mysql-max = %{mysql_version}-%{release}
+Provides:	msqlormysql MySQL-server mysqlserver MySQL = %{mysql_version}-%{mysql_release}
+Provides:	mysql-max = %{mysql_version}-%{mysql_release}
 Obsoletes:	MySQL MySQL-devel <= 3.23.39
 Obsoletes:	mysql-max < 5.1.43
-BuildRoot:	%{_tmppath}/%{name}-%{mysql_version}-%{release}-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{mysql_version}-%{mysql_release}-buildroot
 
 %description
 The MySQL(TM) software delivers a very fast, multi-threaded, multi-user,
@@ -161,9 +165,10 @@ Please see the documentation and the manual for more information.
 Summary:	MySQL - The Sphinx Storage Engine
 Group:		Databases
 Version:	%{sphinx_version}
+Release:	%{plugins_release}
 URL:		http://www.sphinxsearch.com/
 Conflicts:	mysql < 5.1.44-2
-Requires:	mysql = %{mysql_version}-%{release}
+Requires:	mysql = %{mysql_version}-%{mysql_release}
 Suggests:	sphinx >= %{sphinx_version}
 
 %description	plugin_sphinx
@@ -181,9 +186,10 @@ This package provides the Sphinx Storage Engine %{sphinx_version}
 Summary:	MySQL - The PBXT Storage Engine
 Group:		Databases
 Version:	%{pbxt_version}
+Release:	%{plugins_release}
 URL:		http://www.primebase.org/
 Conflicts:	mysql < 5.1.44-2
-Requires:	mysql = %{mysql_version}-%{release}
+Requires:	mysql = %{mysql_version}-%{mysql_release}
 
 %description	plugin_pbxt
 PrimeBase XT (PBXT) is a transactional storage engine for MySQL. As illustrated
@@ -213,9 +219,10 @@ This package provides the PBXT Storage Engine %{pbxt_version}
 Summary:	MySQL - The Revision Storage Engine
 Group:		Databases
 Version:	%{revision_version}
+Release:	%{plugins_release}
 URL:		http://www.ddengine.org/
 Conflicts:	mysql < 5.1.44-2
-Requires:	mysql = %{mysql_version}-%{release}
+Requires:	mysql = %{mysql_version}-%{mysql_release}
 
 %description	plugin_revision
 This package provides the Revision Storage Engine %{revision_version}
@@ -224,9 +231,10 @@ This package provides the Revision Storage Engine %{revision_version}
 Summary:	MySQL - The Pinba Storage Engine
 Group:		Databases
 Version:	%{pinba_version}
+Release:	%{plugins_release}
 URL:		http://pinba.org/
 Conflicts:	mysql < 5.1.44-2
-Requires:	mysql = %{mysql_version}-%{release}
+Requires:	mysql = %{mysql_version}-%{mysql_release}
 BuildRequires:	judy-devel
 BuildRequires:	libevent-devel
 BuildRequires:	protobuf-devel
@@ -240,9 +248,10 @@ This package provides the Pinba Storage Engine %{pinba_version}
 Summary:	MySQL - The Spider Storage Engine
 Group:		Databases
 Version:	%{spider_version}
+Release:	%{plugins_release}
 URL:		http://launchpad.net/spiderformysql/
 Conflicts:	mysql < 5.1.44-2
-Requires:	mysql = %{mysql_version}-%{release}
+Requires:	mysql = %{mysql_version}-%{mysql_release}
 
 %description	plugin_spider
 The spider storage engine enables tables of different MySQL instances to be
@@ -256,10 +265,11 @@ This package provides the Spider Storage Engine %{spider_version}
 Summary:	MySQL - server core binary
 Group:		System/Servers
 Version:	%{mysql_version}
+Release:	%{mysql_release}
 URL:		http://www.mysql.com/
 Conflicts:	mysql < 5.1.39-3
 Conflicts:	mysql-max < 5.1.43
-Requires:	mysql-common-core = %{mysql_version}-%{release}
+Requires:	mysql-common-core = %{mysql_version}-%{mysql_release}
 
 %description	core
 Core mysqld server binary. For a full MySQL database server, install
@@ -269,6 +279,7 @@ package 'mysql'.
 Summary:	MySQL - common files required by core binary
 Group:		System/Servers
 Version:	%{mysql_version}
+Release:	%{mysql_release}
 URL:		http://www.mysql.com/
 Conflicts:	mysql-common < 5.1.43-1
 
@@ -279,19 +290,20 @@ Common files minimally required by mysqld server binary.
 Summary:	MySQL - common files
 Group:		System/Servers
 Version:	%{mysql_version}
+Release:	%{mysql_release}
 URL:		http://www.mysql.com/
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
 Requires(postun): rpm-helper
-Requires(post): mysql-client = %{mysql_version}-%{release}
-Requires(preun): mysql-client = %{mysql_version}-%{release}
+Requires(post): mysql-client = %{mysql_version}-%{mysql_release}
+Requires(preun): mysql-client = %{mysql_version}-%{mysql_release}
 Requires(post): perl-DBD-mysql
 Requires(preun): perl-DBD-mysql
-Requires:	mysql-client = %{mysql_version}-%{release}
+Requires:	mysql-client = %{mysql_version}-%{mysql_release}
 Requires:	perl-DBD-mysql
-Requires:	mysql-common-core = %{mysql_version}-%{release}
-Provides:	MySQL-common = %{mysql_version}-%{release}
+Requires:	mysql-common-core = %{mysql_version}-%{mysql_release}
+Provides:	MySQL-common = %{mysql_version}-%{mysql_release}
 Obsoletes:      MySQL-common
 
 %description	common
@@ -301,11 +313,12 @@ Common files for the MySQL(TM) database server.
 Summary:	MySQL - Client
 Group:		Databases
 Version:	%{mysql_version}
+Release:	%{mysql_release}
 URL:		http://www.mysql.com/
-Requires(post): %{libname} = %{mysql_version}-%{release}
-Requires(preun): %{libname} = %{mysql_version}-%{release}
-Requires:	%{libname} = %{mysql_version}-%{release}
-Provides:       MySQL-client = %{mysql_version}-%{release}
+Requires(post): %{libname} = %{mysql_version}-%{mysql_release}
+Requires(preun): %{libname} = %{mysql_version}-%{mysql_release}
+Requires:	%{libname} = %{mysql_version}-%{mysql_release}
+Provides:       MySQL-client = %{mysql_version}-%{mysql_release}
 Obsoletes:      MySQL-client
 # note to self: add a conflict here because files moved from -client (v4.0.x) to -common (v5.0.x) #19789
 Conflicts:	MySQL-common < 5.0
@@ -317,12 +330,13 @@ This package contains the standard MySQL clients.
 Summary:	MySQL - Benchmarks and test system
 Group:		System/Servers
 Version:	%{mysql_version}
+Release:	%{mysql_release}
 URL:		http://www.mysql.com/
-Requires(post): mysql-client = %{mysql_version}-%{release}
-Requires(preun): mysql-client = %{mysql_version}-%{release}
-Requires:	mysql-client = %{mysql_version}-%{release}
+Requires(post): mysql-client = %{mysql_version}-%{mysql_release}
+Requires(preun): mysql-client = %{mysql_version}-%{mysql_release}
+Requires:	mysql-client = %{mysql_version}-%{mysql_release}
 Requires:	perl
-Provides:       MySQL-bench = %{mysql_version}-%{release}
+Provides:       MySQL-bench = %{mysql_version}-%{mysql_release}
 Obsoletes:      MySQL-bench
 
 %description	bench
@@ -332,10 +346,11 @@ This package contains MySQL benchmark scripts and data.
 Summary:	MySQL - Shared libraries
 Group:		System/Libraries
 Version:	%{mysql_version}
+Release:	%{mysql_release}
 URL:		http://www.mysql.com/
 Obsoletes:	MySQL-shared-libs MySQL-shared
-Provides:	MySQL-shared-libs = %{mysql_version}-%{release} mysql-shared-libs = %{mysql_version}-%{release}
-Provides:	MySQL-shared = %{mysql_version}-%{release} mysql-shared = %{mysql_version}-%{release}
+Provides:	MySQL-shared-libs = %{mysql_version}-%{mysql_release} mysql-shared-libs = %{mysql_version}-%{mysql_release}
+Provides:	MySQL-shared = %{mysql_version}-%{mysql_release} mysql-shared = %{mysql_version}-%{mysql_release}
 
 %description -n	%{libname}
 This package contains the shared libraries (*.so*) which certain languages and
@@ -345,21 +360,22 @@ applications need to dynamically load and use MySQL.
 Summary:	MySQL - Development header files and libraries
 Group:		Development/Other
 Version:	%{mysql_version}
+Release:	%{mysql_release}
 URL:		http://www.mysql.com/
-Requires(post): %{libname} = %{mysql_version}-%{release}
-Requires(preun): %{libname} = %{mysql_version}-%{release}
-Requires(post): mysql-common = %{mysql_version}-%{release}
-Requires(preun): mysql-common = %{mysql_version}-%{release}
-Requires(post): mysql-client = %{mysql_version}-%{release}
-Requires(preun): mysql-client = %{mysql_version}-%{release}
-Requires:	%{libname} = %{mysql_version}-%{release}
-Requires:	mysql-common = %{mysql_version}-%{release}
-Requires:	mysql-client = %{mysql_version}-%{release}
-Provides:	MySQL-devel = %{mysql_version}-%{release}
-Provides:	mysql-devel = %{mysql_version}-%{release}
+Requires(post): %{libname} = %{mysql_version}-%{mysql_release}
+Requires(preun): %{libname} = %{mysql_version}-%{mysql_release}
+Requires(post): mysql-common = %{mysql_version}-%{mysql_release}
+Requires(preun): mysql-common = %{mysql_version}-%{mysql_release}
+Requires(post): mysql-client = %{mysql_version}-%{mysql_release}
+Requires(preun): mysql-client = %{mysql_version}-%{mysql_release}
+Requires:	%{libname} = %{mysql_version}-%{mysql_release}
+Requires:	mysql-common = %{mysql_version}-%{mysql_release}
+Requires:	mysql-client = %{mysql_version}-%{mysql_release}
+Provides:	MySQL-devel = %{mysql_version}-%{mysql_release}
+Provides:	mysql-devel = %{mysql_version}-%{mysql_release}
 Obsoletes:	MySQL-devel
 Obsoletes:	mysql-devel
-Provides:	%{libname}-devel = %{mysql_version}-%{release}
+Provides:	%{libname}-devel = %{mysql_version}-%{mysql_release}
 Obsoletes:	%{libname}-devel
 Conflicts:	%{mklibname mysql 12 -d}
 Conflicts:	%{mklibname mysql 14 -d}
@@ -382,13 +398,14 @@ version.
 Summary:	MySQL - Static development libraries
 Group:		Development/Other
 Version:	%{mysql_version}
+Release:	%{mysql_release}
 URL:		http://www.mysql.com/
-Requires:	mysql-devel = %{mysql_version}-%{release}
+Requires:	mysql-devel = %{mysql_version}-%{mysql_release}
 Conflicts:	MySQL-devel < 5.0.16-5mdk
-Provides:	MySQL-static-devel = %{mysql_version}-%{release}
-Provides:	mysql-static-devel = %{mysql_version}-%{release}
+Provides:	MySQL-static-devel = %{mysql_version}-%{mysql_release}
+Provides:	mysql-static-devel = %{mysql_version}-%{mysql_release}
 Obsoletes:	mysql-static-devel
-Provides:	%{libname}-static-devel = %{mysql_version}-%{release}
+Provides:	%{libname}-static-devel = %{mysql_version}-%{mysql_release}
 Obsoletes:	%{libname}-static-devel
 
 %description -n	%{staticdevelname}

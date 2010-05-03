@@ -52,8 +52,8 @@
 %define spider_version 2.13
 
 # various release info
-%define mysql_release %mkrel 1
-%define plugins_release %mkrel 10
+%define mysql_release %mkrel 2
+%define plugins_release %mkrel 11
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql

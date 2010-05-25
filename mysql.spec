@@ -52,8 +52,8 @@
 %define spider_version 2.13
 
 # various release info
-%define mysql_release %mkrel 3
-%define plugins_release %mkrel 12
+%define mysql_release %mkrel 4
+%define plugins_release %mkrel 13
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
@@ -97,6 +97,9 @@ Source700:	http://launchpad.net/spiderformysql/spider-2.x/2.13-for-5.1.39/+downl
 Patch700:	mysql-5.1.44-spider-2.13.diff
 Patch1000:	mysql-5.1.30-use_-avoid-version_for_plugins.diff
 Patch2000:	mysql-5.1.44-CVE-2008-7247.diff
+Patch2001:	mysql-5.1.46-CVE-2010-1850.diff
+Patch2002:	mysql-5.1.46-CVE-2010-1848.diff
+Patch2003:	mysql-5.1.46-CVE-2010-1849.diff
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -470,6 +473,9 @@ mv spider storage/
 %patch1000 -p1 -b .use_-avoid-version_for_plugins
 
 %patch2000 -p0 -b .CVE-2008-7247
+%patch2001 -p0 -b .CVE-2010-1850
+%patch2002 -p1 -b .CVE-2010-1848
+%patch2003 -p1 -b .CVE-2010-1849
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*

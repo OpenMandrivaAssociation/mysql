@@ -52,7 +52,7 @@
 %define spider_version 2.13
 
 # various release info
-%define mysql_release %mkrel 4
+%define mysql_release %mkrel 5
 %define plugins_release %mkrel 13
 
 Summary:	MySQL: a very fast and reliable SQL database engine
@@ -100,6 +100,7 @@ Patch2000:	mysql-5.1.44-CVE-2008-7247.diff
 Patch2001:	mysql-5.1.46-CVE-2010-1850.diff
 Patch2002:	mysql-5.1.46-CVE-2010-1848.diff
 Patch2003:	mysql-5.1.46-CVE-2010-1849.diff
+Requires(post): ccp
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -752,6 +753,9 @@ chown -R %{muser}:%{muser} /var/lib/mysql /var/run/mysqld /var/log/mysqld
 
 # make sure the /var/lib/mysql directory can be accessed
 chmod 711 /var/lib/mysql
+
+# merge config
+ccp --set AllowOrphans -d -o %{_sysconfdir}/my.cnf -n %{_sysconfdir}/my.cnf.rpmnew -i
 
 %_post_service mysqld
 

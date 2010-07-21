@@ -52,7 +52,7 @@
 %define spider_version 2.13
 
 # various release info
-%define mysql_release %mkrel 5
+%define mysql_release %mkrel 6
 %define plugins_release %mkrel 13
 
 Summary:	MySQL: a very fast and reliable SQL database engine
@@ -300,10 +300,7 @@ Requires(pre): rpm-helper
 Requires(postun): rpm-helper
 Requires(post): mysql-client = %{mysql_version}-%{mysql_release}
 Requires(preun): mysql-client = %{mysql_version}-%{mysql_release}
-Requires(post): perl-DBD-mysql
-Requires(preun): perl-DBD-mysql
 Requires:	mysql-client = %{mysql_version}-%{mysql_release}
-Requires:	perl-DBD-mysql
 Requires:	mysql-common-core = %{mysql_version}-%{mysql_release}
 Provides:	MySQL-common = %{mysql_version}-%{mysql_release}
 Obsoletes:      MySQL-common

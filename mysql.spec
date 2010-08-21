@@ -52,8 +52,8 @@
 %define spider_version 2.13
 
 # various release info
-%define mysql_release %mkrel 6
-%define plugins_release %mkrel 13
+%define mysql_release %mkrel 7
+%define plugins_release %mkrel 14
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
@@ -100,6 +100,14 @@ Patch2000:	mysql-5.1.44-CVE-2008-7247.diff
 Patch2001:	mysql-5.1.46-CVE-2010-1850.diff
 Patch2002:	mysql-5.1.46-CVE-2010-1848.diff
 Patch2003:	mysql-5.1.46-CVE-2010-1849.diff
+Patch2004:	mysql-5.1.46-bug52512.diff
+Patch2005:	mysql-5.1.46-bug52711.diff
+Patch2006:	mysql-5.1.46-bug54007.diff
+Patch2007:	mysql-5.1.46-bug54393.diff
+Patch2008:	mysql-5.1.46-bug54477.diff
+Patch2009:	mysql-5.1.46-bug54575.diff
+Patch2010:	mysql-5.1.46-bug54044.diff
+Patch2011:	mysql-5.1.46-CVE-2010-2008.diff
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -473,6 +481,14 @@ mv spider storage/
 %patch2001 -p0 -b .CVE-2010-1850
 %patch2002 -p1 -b .CVE-2010-1848
 %patch2003 -p1 -b .CVE-2010-1849
+%patch2004 -p1 -b .bug52512
+%patch2005 -p1 -b .bug52711
+%patch2006 -p1 -b .bug54007
+%patch2007 -p1 -b .bug54393
+%patch2008 -p1 -b .bug54477
+%patch2009 -p1 -b .bug54575
+%patch2010 -p1 -b .bug54044
+%patch2011 -p1 -b .CVE-2010-2008
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*

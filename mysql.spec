@@ -44,16 +44,15 @@
 %define muser	mysql
 
 # various version info
-%define mysql_version 5.1.46
+%define mysql_version 5.1.50
 %define sphinx_version 0.9.9
-%define pbxt_version 1.0.10
+%define pbxt_version 1.0.11
 %define revision_version 0.1
 %define pinba_version 0.0.5
-%define spider_version 2.13
 
 # various release info
-%define mysql_release %mkrel 7
-%define plugins_release %mkrel 14
+%define mysql_release %mkrel 1
+%define plugins_release %mkrel 15
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
@@ -88,26 +87,13 @@ Source99:	http://patg.net/downloads/convert_engine.pl
 Source100:	http://www.sphinxsearch.com/downloads/sphinx-%{sphinx_version}.tar.gz
 Patch100:	sphinx-plugindir_fix.diff
 Patch101:	sphinx-0.9.8.1-no_-DENGINE_fix.diff
-Source300:	http://www.primebase.org/download/pbxt-%{pbxt_version}-rc.tar.gz
+Source300:	http://www.primebase.org/download/pbxt-%{pbxt_version}-6-pre-ga.tar.gz
 Patch300:	pbxt-1.0.06-beta-avoid-version_fix.diff
 Source400:	http://www.ddengine.org/dl/revision/files/revisionv01.tar.gz
 Patch400:	revision-0.1-build_fix.diff
 Source600:	http://pinba.org/files/pinba_engine-%{pinba_version}.tar.gz
-Source700:	http://launchpad.net/spiderformysql/spider-2.x/2.13-for-5.1.39/+download/spider-src-2.13-for-5.1.39.tgz
-Patch700:	mysql-5.1.44-spider-2.13.diff
 Patch1000:	mysql-5.1.30-use_-avoid-version_for_plugins.diff
 Patch2000:	mysql-5.1.44-CVE-2008-7247.diff
-Patch2001:	mysql-5.1.46-CVE-2010-1850.diff
-Patch2002:	mysql-5.1.46-CVE-2010-1848.diff
-Patch2003:	mysql-5.1.46-CVE-2010-1849.diff
-Patch2004:	mysql-5.1.46-bug52512.diff
-Patch2005:	mysql-5.1.46-bug52711.diff
-Patch2006:	mysql-5.1.46-bug54007.diff
-Patch2007:	mysql-5.1.46-bug54393.diff
-Patch2008:	mysql-5.1.46-bug54477.diff
-Patch2009:	mysql-5.1.46-bug54575.diff
-Patch2010:	mysql-5.1.46-bug54044.diff
-Patch2011:	mysql-5.1.46-CVE-2010-2008.diff
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -167,7 +153,6 @@ Third party storage engines packaged separately:
  - PBXT Storage Engine %{pbxt_version} (urpmi mysql-plugin_pbxt)
  - Revision Storage Engine %{revision_version} (urpmi mysql-plugin_revision)
  - Pinba Storage Engine %{pinba_version} (urpmi mysql-plugin_pinba)
- - Spider Storage Engine %{spider_version} (urpmi mysql-plugin_spider)
 
 Please see the documentation and the manual for more information.
 
@@ -253,23 +238,6 @@ BuildRequires:	protobuf-devel
 Pinba is a statistics server for PHP using MySQL as a read-only interface.
 
 This package provides the Pinba Storage Engine %{pinba_version}
-
-%package	plugin_spider
-Summary:	MySQL - The Spider Storage Engine
-Group:		Databases
-Version:	%{spider_version}
-Release:	%{plugins_release}
-URL:		http://launchpad.net/spiderformysql/
-Conflicts:	mysql < 5.1.44-2
-Requires:	mysql = %{mysql_version}-%{mysql_release}
-
-%description	plugin_spider
-The spider storage engine enables tables of different MySQL instances to be
-treated like a table of a same instance. Because xa transaction and
-partitioning is supported, it can do decentralized arrangement to two or more
-servers of data of same table.
-
-This package provides the Spider Storage Engine %{spider_version}
 
 %package	core
 Summary:	MySQL - server core binary
@@ -470,25 +438,9 @@ cp -rp revision-%{revision_version} storage/revision
 # pinba storage engine
 tar -zxf %{SOURCE600}
 
-# spider storage engine
-tar -zxf %{SOURCE700}
-%patch700 -p1
-mv spider storage/
-
 %patch1000 -p1 -b .use_-avoid-version_for_plugins
 
 %patch2000 -p0 -b .CVE-2008-7247
-%patch2001 -p0 -b .CVE-2010-1850
-%patch2002 -p1 -b .CVE-2010-1848
-%patch2003 -p1 -b .CVE-2010-1849
-%patch2004 -p1 -b .bug52512
-%patch2005 -p1 -b .bug52711
-%patch2006 -p1 -b .bug54007
-%patch2007 -p1 -b .bug54393
-%patch2008 -p1 -b .bug54477
-%patch2009 -p1 -b .bug54575
-%patch2010 -p1 -b .bug54044
-%patch2011 -p1 -b .CVE-2010-2008
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
@@ -836,10 +788,6 @@ rm -rf %{buildroot}
 %doc pinba_engine-%{pinba_version}/TODO
 %doc pinba_engine-%{pinba_version}/default_tables.sql
 %attr(0755,root,root) %{_libdir}/mysql/plugin/libpinba_engine.so
-
-%files plugin_spider
-%defattr(-,root,root)
-%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_spider.so
 
 %files client
 %defattr(-,root,root)

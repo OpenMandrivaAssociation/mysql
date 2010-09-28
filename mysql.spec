@@ -44,7 +44,7 @@
 %define muser	mysql
 
 # various version info
-%define mysql_version 5.1.50
+%define mysql_version 5.1.51
 %define sphinx_version 0.9.9
 %define pbxt_version 1.0.11
 %define revision_version 0.1
@@ -52,7 +52,7 @@
 
 # various release info
 %define mysql_release %mkrel 1
-%define plugins_release %mkrel 15
+%define plugins_release %mkrel 16
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
@@ -407,7 +407,7 @@ cp %{SOURCE99} convert_engine.pl
 %patch14 -p0 -b .test-variables-big
 %patch15 -p0 -b .bmove512
 %patch16 -p0 -b .hotcopy
-%patch17 -p0 -b .myslq-test
+%patch17 -p1 -b .myslq-test
 %patch18 -p0 -b .install_db-quiet
 
 # Sphinx storage engine

@@ -44,7 +44,7 @@
 %define muser	mysql
 
 # various version info
-%define mysql_version 5.1.51
+%define mysql_version 5.1.52
 %define sphinx_version 0.9.9
 %define pbxt_version 1.0.11
 %define revision_version 0.1
@@ -52,7 +52,7 @@
 
 # various release info
 %define mysql_release %mkrel 1
-%define plugins_release %mkrel 16
+%define plugins_release %mkrel 17
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql

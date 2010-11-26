@@ -44,7 +44,7 @@
 %define muser	mysql
 
 # various version info
-%define mysql_version 5.1.52
+%define mysql_version 5.1.53
 %define sphinx_version 0.9.9
 %define pbxt_version 1.0.11
 %define revision_version 0.1
@@ -52,7 +52,7 @@
 
 # various release info
 %define mysql_release %mkrel 1
-%define plugins_release %mkrel 17
+%define plugins_release %mkrel 18
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
@@ -91,6 +91,7 @@ Source300:	http://www.primebase.org/download/pbxt-%{pbxt_version}-6-pre-ga.tar.g
 Patch300:	pbxt-1.0.06-beta-avoid-version_fix.diff
 Source400:	http://www.ddengine.org/dl/revision/files/revisionv01.tar.gz
 Patch400:	revision-0.1-build_fix.diff
+Patch401:	mysql-5.1.53-revision-0.1_fix.diff
 Source600:	http://pinba.org/files/pinba_engine-%{pinba_version}.tar.gz
 Patch1000:	mysql-5.1.30-use_-avoid-version_for_plugins.diff
 Patch2000:	mysql-5.1.44-CVE-2008-7247.diff
@@ -431,6 +432,7 @@ mkdir -p revision-%{revision_version}
 tar -zxf %{SOURCE400} -C revision-%{revision_version}
 pushd revision-%{revision_version}
 %patch400 -p0
+%patch401 -p0
 cp -p src/* .
 popd
 cp -rp revision-%{revision_version} storage/revision

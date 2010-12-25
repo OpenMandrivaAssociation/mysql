@@ -44,7 +44,7 @@
 %define muser	mysql
 
 # various version info
-%define mysql_version 5.1.53
+%define mysql_version 5.1.54
 %define sphinx_version 0.9.9
 %define pbxt_version 1.0.11
 %define revision_version 0.1
@@ -52,7 +52,7 @@
 
 # various release info
 %define mysql_release %mkrel 1
-%define plugins_release %mkrel 18
+%define plugins_release %mkrel 19
 
 Summary:	MySQL: a very fast and reliable SQL database engine
 Name: 		mysql
@@ -528,7 +528,8 @@ export CHECK_PID='/bin/kill -0 $$PID'
     --with-comment='Mandriva Linux - MySQL Community Edition (GPL)' \
     --with-embedded-server \
     --with-big-tables \
-    --without-plugin-ndbcluster
+    --without-plugin-ndbcluster \
+    --with-plugin-partition
 
 %make benchdir_root=%{buildroot}%{_datadir}
 
@@ -952,7 +953,7 @@ rm -rf %{buildroot}
 
 %files -n %{develname}
 %defattr(-,root,root)
-%doc INSTALL-SOURCE EXCEPTIONS-CLIENT
+%doc INSTALL-SOURCE
 %multiarch %{multiarch_bindir}/mysql_config
 %attr(0755,root,root) %{_bindir}/mysql_config
 %attr(0644,root,root) %{_libdir}/*.la

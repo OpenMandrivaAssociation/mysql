@@ -43,101 +43,67 @@
 
 %define muser	mysql
 
-# various version info
-%define mysql_version 5.1.54
-%define sphinx_version 0.9.9
-%define pbxt_version 1.0.11
-%define revision_version 0.1
-%define pinba_version 0.0.5
-
-# various release info
-%define mysql_release %mkrel 1
-%define plugins_release %mkrel 19
-
-Summary:	MySQL: a very fast and reliable SQL database engine
+Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
-Version:	%{mysql_version}
-Release:	%{mysql_release}
+Version:	5.5.8
+Release:	%mkrel 0
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
-Source0:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{mysql_version}.tar.gz
-Source1:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{mysql_version}.tar.gz.asc
+Source0:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz
+Source1:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz.asc
 Source2:	mysqld.sysconfig
 Source3:	my.cnf
-Patch0:		mysql-lib64.diff
-Patch1:		mysql-5.0.15-noproc.diff
-Patch2:		mysql-mysqldumpslow_no_basedir.diff
-Patch3:		mysql-errno.patch
-Patch4:		mysql-logrotate.diff
-Patch5:		mysql-initscript.diff
-Patch6:		mysql-instance-manager.diff
-Patch7:		mysql-5.1.30-federated-workaround.patch
-Patch8:		mysql-enable-plugins.patch
-Patch9:		mysql_upgrade-exit-status.patch
-Patch11:	mysql-5.1.31-shebang.patch
-Patch13:	mysql-5.1.33-scripts-paths.patch
-Patch14:	mysql-5.1.35-test-variables-big.patch
-Patch15:	mysql-5.1.36-bmove512.patch
-Patch16:	mysql-5.1.36-hotcopy.patch
-Patch17:	mysql-5.1.42-myslq-test.patch
-Patch18:	mysql-install_db-quiet.patch
-# addons
-Source99:	http://patg.net/downloads/convert_engine.pl
-Source100:	http://www.sphinxsearch.com/downloads/sphinx-%{sphinx_version}.tar.gz
-Patch100:	sphinx-plugindir_fix.diff
-Patch101:	sphinx-0.9.8.1-no_-DENGINE_fix.diff
-Source300:	http://www.primebase.org/download/pbxt-%{pbxt_version}-6-pre-ga.tar.gz
-Patch300:	pbxt-1.0.06-beta-avoid-version_fix.diff
-Source400:	http://www.ddengine.org/dl/revision/files/revisionv01.tar.gz
-Patch400:	revision-0.1-build_fix.diff
-Patch401:	mysql-5.1.53-revision-0.1_fix.diff
-Source600:	http://pinba.org/files/pinba_engine-%{pinba_version}.tar.gz
-Patch1000:	mysql-5.1.30-use_-avoid-version_for_plugins.diff
-Patch2000:	mysql-5.1.44-CVE-2008-7247.diff
+Patch0:		mysql-mysqldumpslow_no_basedir.diff
+Patch1:		mysql-errno.patch
+Patch2:		mysql-logrotate.diff
+Patch3:		mysql-initscript.diff
+Patch4:		mysql_upgrade-exit-status.patch
+Patch5:		mysql-5.1.31-shebang.patch
+Patch6:		mysql-5.1.35-test-variables-big.patch
+Patch7:		mysql-5.1.36-hotcopy.patch
+Patch8:		mysql-install_db-quiet.patch
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
 Requires(postun): rpm-helper
-Requires(post): mysql-common = %{mysql_version}-%{mysql_release}
-Requires(preun): mysql-common = %{mysql_version}-%{mysql_release}
-Requires(post): mysql-client = %{mysql_version}-%{mysql_release}
-Requires(preun): mysql-client = %{mysql_version}-%{mysql_release}
-Requires(postun): mysql-common = %{mysql_version}-%{mysql_release}
-Requires(postun): mysql-client = %{mysql_version}-%{mysql_release}
-Requires:	mysql-common = %{mysql_version}-%{mysql_release}
-Requires:	mysql-core = %{mysql_version}-%{mysql_release}
-Requires:	mysql-client = %{mysql_version}-%{mysql_release}
-BuildRequires:	autoconf2.5
-BuildRequires:	automake1.7
+Requires(post): mysql-common = %{version}-%{release}
+Requires(preun): mysql-common = %{version}-%{release}
+Requires(post): mysql-client = %{version}-%{release}
+Requires(preun): mysql-client = %{version}-%{release}
+Requires(postun): mysql-common = %{version}-%{release}
+Requires(postun): mysql-client = %{version}-%{release}
+Requires:	mysql-common = %{version}-%{release}
+Requires:	mysql-core = %{version}-%{release}
+Requires:	mysql-client = %{version}-%{release}
 BuildRequires:	bison
+BuildRequires:	cmake
+BuildRequires:	dos2unix
 BuildRequires:	doxygen
 BuildRequires:	glibc-devel
+BuildRequires:	libaio-devel
 BuildRequires:	libstdc++-devel
 BuildRequires:	libtermcap-devel
+BuildRequires:	multiarch-utils >= 1.0.3
 BuildRequires:	ncurses-devel
 BuildRequires:	openssl-devel
 BuildRequires:	python
 BuildRequires:	readline-devel
 BuildRequires:	tetex
 BuildRequires:	texinfo
-BuildRequires:	zlib-devel
-BuildRequires:	dos2unix
-BuildRequires:	multiarch-utils >= 1.0.3
 BuildRequires:	xfs-devel
+BuildRequires:	zlib-devel
 BuildConflicts:	edit-devel
-Provides:	msqlormysql MySQL-server mysqlserver MySQL = %{mysql_version}-%{mysql_release}
-Provides:	mysql-max = %{mysql_version}-%{mysql_release}
-Obsoletes:	MySQL MySQL-devel <= 3.23.39
+Provides:	msqlormysql mysqlserver
+Provides:	mysql-max = %{version}-%{release}
 Obsoletes:	mysql-max < 5.1.43
-BuildRoot:	%{_tmppath}/%{name}-%{mysql_version}-%{mysql_release}-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
-The MySQL(TM) software delivers a very fast, multi-threaded, multi-user,
-and robust SQL (Structured Query Language) database server. MySQL Server
-is intended for mission-critical, heavy-load production systems as well
-as for embedding into mass-deployed software. MySQL is a trademark of
-MySQL AB.
+The MySQL(TM) software delivers a very fast, multi-threaded, multi-user, and
+robust SQL (Structured Query Language) database server. MySQL Server is
+intended for mission-critical, heavy-load production systems as well as for
+embedding into mass-deployed software. MySQL is a trademark of MySQL AB.
 
 The mysql server is compiled with the following storage engines:
 
@@ -149,209 +115,85 @@ The mysql server is compiled with the following storage engines:
  - Blackhole Storage Engine
  - Partition Storage Engine
 
-Third party storage engines packaged separately:
- - Sphinx storage engine %{sphinx_version} (urpmi mysql-plugin_sphinx)
- - PBXT Storage Engine %{pbxt_version} (urpmi mysql-plugin_pbxt)
- - Revision Storage Engine %{revision_version} (urpmi mysql-plugin_revision)
- - Pinba Storage Engine %{pinba_version} (urpmi mysql-plugin_pinba)
-
-Please see the documentation and the manual for more information.
-
-%package	plugin_sphinx
-Summary:	MySQL - The Sphinx Storage Engine
-Group:		Databases
-Version:	%{sphinx_version}
-Release:	%{plugins_release}
-URL:		http://www.sphinxsearch.com/
-Conflicts:	mysql < 5.1.44-2
-Requires:	mysql = %{mysql_version}-%{mysql_release}
-Suggests:	sphinx >= %{sphinx_version}
-
-%description	plugin_sphinx
-Sphinx is a full-text search engine. Generally, it's a standalone search
-engine, meant to provide fast, size-efficient and relevant fulltext search
-functions to other applications. Sphinx was specially designed to integrate
-well with SQL databases and scripting languages. Currently built-in data
-sources support fetching data either via direct connection to MySQL or
-PostgreSQL, or using XML pipe mechanism (a pipe to indexer in special XML-based
-format which Sphinx recognizes). 
-
-This package provides the Sphinx Storage Engine %{sphinx_version}
-
-%package	plugin_pbxt
-Summary:	MySQL - The PBXT Storage Engine
-Group:		Databases
-Version:	%{pbxt_version}
-Release:	%{plugins_release}
-URL:		http://www.primebase.org/
-Conflicts:	mysql < 5.1.44-2
-Requires:	mysql = %{mysql_version}-%{mysql_release}
-
-%description	plugin_pbxt
-PrimeBase XT (PBXT) is a transactional storage engine for MySQL. As illustrated
-below, a MySQL storage engine responsible for the caching, indexing and storage
-management of MySQL table data.
-
-On Creation of a table in MySQL, the storage engine may be specified. This
-determines the basic characteristics of the table. For example, the default
-storage engine is MyISAM, which can be used for non-transactional data that
-requires fast read access. A table which uses the MEMORY storage engine is held
-completely in RAM.
-
-Tables that use the PBXT Storage engine have the following features:
-
- * MVCC: Multi-version concurrency control, enables reading without locking.
- * Transactional: support for BEGIN, COMMIT and ROLLBACK and recovery on startup.
- * ACID compliant: Atomic, Consistent, Isolated, Durable (once committed changes cannot be lost).
- * Row-level locking: updates use row-level locking allowing for maximum concurrency.
- * Deadlock detection: immediate notification if client processes are deadlocked.
- * Referential Integrity: foreign key support.
- * Write-once: PBXT avoids double-writes by using a log-based architecture.
- * BLOB streaming: In combination with the BLOB Streaming engine.
-
-This package provides the PBXT Storage Engine %{pbxt_version}
-
-%package	plugin_revision
-Summary:	MySQL - The Revision Storage Engine
-Group:		Databases
-Version:	%{revision_version}
-Release:	%{plugins_release}
-URL:		http://www.ddengine.org/
-Conflicts:	mysql < 5.1.44-2
-Requires:	mysql = %{mysql_version}-%{mysql_release}
-
-%description	plugin_revision
-This package provides the Revision Storage Engine %{revision_version}
-
-%package	plugin_pinba
-Summary:	MySQL - The Pinba Storage Engine
-Group:		Databases
-Version:	%{pinba_version}
-Release:	%{plugins_release}
-URL:		http://pinba.org/
-Conflicts:	mysql < 5.1.44-2
-Requires:	mysql = %{mysql_version}-%{mysql_release}
-BuildRequires:	judy-devel
-BuildRequires:	libevent-devel
-BuildRequires:	protobuf-devel
-
-%description	plugin_pinba
-Pinba is a statistics server for PHP using MySQL as a read-only interface.
-
-This package provides the Pinba Storage Engine %{pinba_version}
-
 %package	core
-Summary:	MySQL - server core binary
+Summary:	Server core binary
 Group:		System/Servers
-Version:	%{mysql_version}
-Release:	%{mysql_release}
-URL:		http://www.mysql.com/
 Conflicts:	mysql < 5.1.39-3
 Conflicts:	mysql-max < 5.1.43
-Requires:	mysql-common-core = %{mysql_version}-%{mysql_release}
+Requires:	mysql-common-core >= %{version}-%{release}
 
 %description	core
 Core mysqld server binary. For a full MySQL database server, install
 package 'mysql'.
 
 %package	common-core
-Summary:	MySQL - common files required by core binary
+Summary:	Common files required by core binary
 Group:		System/Servers
-Version:	%{mysql_version}
-Release:	%{mysql_release}
-URL:		http://www.mysql.com/
 Conflicts:	mysql-common < 5.1.43-1
 
 %description	common-core
 Common files minimally required by mysqld server binary.
 
 %package	common
-Summary:	MySQL - common files
+Summary:	Common files
 Group:		System/Servers
-Version:	%{mysql_version}
-Release:	%{mysql_release}
-URL:		http://www.mysql.com/
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
 Requires(postun): rpm-helper
-Requires(post): mysql-client = %{mysql_version}-%{mysql_release}
-Requires(preun): mysql-client = %{mysql_version}-%{mysql_release}
-Requires:	mysql-client = %{mysql_version}-%{mysql_release}
-Requires:	mysql-common-core = %{mysql_version}-%{mysql_release}
-Provides:	MySQL-common = %{mysql_version}-%{mysql_release}
-Obsoletes:      MySQL-common
+Requires(post): mysql-client >= %{version}-%{release}
+Requires(preun): mysql-client >= %{version}-%{release}
+Requires:	mysql-client >= %{version}-%{release}
+Requires:	mysql-common-core >= %{version}-%{release}
 
 %description	common
 Common files for the MySQL(TM) database server.
 
 %package	client
-Summary:	MySQL - Client
+Summary:	Client
 Group:		Databases
-Version:	%{mysql_version}
-Release:	%{mysql_release}
-URL:		http://www.mysql.com/
-Requires(post): %{libname} = %{mysql_version}-%{mysql_release}
-Requires(preun): %{libname} = %{mysql_version}-%{mysql_release}
-Requires:	%{libname} = %{mysql_version}-%{mysql_release}
-Provides:       MySQL-client = %{mysql_version}-%{mysql_release}
-Obsoletes:      MySQL-client
-# note to self: add a conflict here because files moved from -client (v4.0.x) to -common (v5.0.x) #19789
-Conflicts:	MySQL-common < 5.0
+Requires(post): %{libname} >= %{version}-%{release}
+Requires(preun): %{libname} >= %{version}-%{release}
+Requires:	%{libname} >= %{version}-%{release}
 
 %description	client
 This package contains the standard MySQL clients.
 
 %package	bench
-Summary:	MySQL - Benchmarks and test system
+Summary:	Benchmarks and test system
 Group:		System/Servers
-Version:	%{mysql_version}
-Release:	%{mysql_release}
-URL:		http://www.mysql.com/
-Requires(post): mysql-client = %{mysql_version}-%{mysql_release}
-Requires(preun): mysql-client = %{mysql_version}-%{mysql_release}
-Requires:	mysql-client = %{mysql_version}-%{mysql_release}
+Requires(post): mysql-client >= %{version}-%{release}
+Requires(preun): mysql-client >= %{version}-%{release}
+Requires:	mysql-client >= %{version}-%{release}
 Requires:	perl
-Provides:       MySQL-bench = %{mysql_version}-%{mysql_release}
-Obsoletes:      MySQL-bench
 
 %description	bench
 This package contains MySQL benchmark scripts and data.
 
 %package -n	%{libname}
-Summary:	MySQL - Shared libraries
+Summary:	Shared libraries
 Group:		System/Libraries
-Version:	%{mysql_version}
-Release:	%{mysql_release}
-URL:		http://www.mysql.com/
-Obsoletes:	MySQL-shared-libs MySQL-shared
-Provides:	MySQL-shared-libs = %{mysql_version}-%{mysql_release} mysql-shared-libs = %{mysql_version}-%{mysql_release}
-Provides:	MySQL-shared = %{mysql_version}-%{mysql_release} mysql-shared = %{mysql_version}-%{mysql_release}
+Provides:	mysql-shared-libs = %{version}-%{release}
+Provides:	mysql-shared = %{version}-%{release}
 
 %description -n	%{libname}
 This package contains the shared libraries (*.so*) which certain languages and
 applications need to dynamically load and use MySQL.
 
 %package -n	%{develname}
-Summary:	MySQL - Development header files and libraries
+Summary:	Development header files and libraries
 Group:		Development/Other
-Version:	%{mysql_version}
-Release:	%{mysql_release}
-URL:		http://www.mysql.com/
-Requires(post): %{libname} = %{mysql_version}-%{mysql_release}
-Requires(preun): %{libname} = %{mysql_version}-%{mysql_release}
-Requires(post): mysql-common = %{mysql_version}-%{mysql_release}
-Requires(preun): mysql-common = %{mysql_version}-%{mysql_release}
-Requires(post): mysql-client = %{mysql_version}-%{mysql_release}
-Requires(preun): mysql-client = %{mysql_version}-%{mysql_release}
-Requires:	%{libname} = %{mysql_version}-%{mysql_release}
-Requires:	mysql-common = %{mysql_version}-%{mysql_release}
-Requires:	mysql-client = %{mysql_version}-%{mysql_release}
-Provides:	MySQL-devel = %{mysql_version}-%{mysql_release}
-Provides:	mysql-devel = %{mysql_version}-%{mysql_release}
-Obsoletes:	MySQL-devel
-Obsoletes:	mysql-devel
-Provides:	%{libname}-devel = %{mysql_version}-%{mysql_release}
+Requires(post): %{libname} >= %{version}-%{release}
+Requires(preun): %{libname} >= %{version}-%{release}
+Requires(post): mysql-common >= %{version}-%{release}
+Requires(preun): mysql-common >= %{version}-%{release}
+Requires(post): mysql-client >= %{version}-%{release}
+Requires(preun): mysql-client >= %{version}-%{release}
+Requires:	%{libname} = %{version}-%{release}
+Requires:	mysql-common >= %{version}-%{release}
+Requires:	mysql-client >= %{version}-%{release}
+Provides:	mysql-devel = %{version}-%{release}
+Provides:	%{libname}-devel = %{version}-%{release}
 Obsoletes:	%{libname}-devel
 Conflicts:	%{mklibname mysql 12 -d}
 Conflicts:	%{mklibname mysql 14 -d}
@@ -371,17 +213,11 @@ The API is identical for the embedded MySQL version and the client/server
 version.
 
 %package -n	%{staticdevelname}
-Summary:	MySQL - Static development libraries
+Summary:	Static development libraries
 Group:		Development/Other
-Version:	%{mysql_version}
-Release:	%{mysql_release}
-URL:		http://www.mysql.com/
-Requires:	mysql-devel = %{mysql_version}-%{mysql_release}
-Conflicts:	MySQL-devel < 5.0.16-5mdk
-Provides:	MySQL-static-devel = %{mysql_version}-%{mysql_release}
-Provides:	mysql-static-devel = %{mysql_version}-%{mysql_release}
-Obsoletes:	mysql-static-devel
-Provides:	%{libname}-static-devel = %{mysql_version}-%{mysql_release}
+Requires:	mysql-devel >= %{version}-%{release}
+Provides:	mysql-static-devel = %{version}-%{release}
+Provides:	%{libname}-static-devel = %{version}-%{release}
 Obsoletes:	%{libname}-static-devel
 
 %description -n	%{staticdevelname}
@@ -389,65 +225,17 @@ This package contains the static development libraries.
 
 %prep
 
-%setup -q -n mysql-%{mysql_version}
+%setup -q -n mysql-%{version}
 
-cp %{SOURCE99} convert_engine.pl
-
-%patch0 -p1 -b .lib64
-%patch1 -p0 -b .noproc
-%patch2 -p0 -b .mysqldumpslow_no_basedir
-%patch3 -p0 -b .errno_as_defines
-%patch4 -p0 -b .logrotate
-%patch5 -p0 -b .initscript
-%patch6 -p0 -b .instance-manager
-%patch7 -p0 -b .federated
-%patch8 -p1 -b .enable-plugins
-%patch9 -p0 -b .mysql_upgrade-exit-status
-%patch11 -p1 -b .shebang
-%patch13 -p0 -b .scripts-paths
-%patch14 -p0 -b .test-variables-big
-%patch15 -p0 -b .bmove512
-%patch16 -p0 -b .hotcopy
-%patch17 -p1 -b .myslq-test
-%patch18 -p0 -b .install_db-quiet
-
-# Sphinx storage engine
-tar -zxf %{SOURCE100}
-pushd sphinx-%{sphinx_version}
-%patch100 -p0
-%patch101 -p0
-# use a more unique name for the sphinx search daemon
-perl -pi -e "s|searchd|sphinx-searchd|g" mysqlse/*
-popd
-cp -rp sphinx-%{sphinx_version}/mysqlse storage/sphinx
-
-# pbxt storage engine
-tar -zxf %{SOURCE300}
-pushd pbxt-%{pbxt_version}*
-%patch300 -p0
-popd
-
-# revision storage engine
-mkdir -p revision-%{revision_version}
-tar -zxf %{SOURCE400} -C revision-%{revision_version}
-pushd revision-%{revision_version}
-%patch400 -p0
-%patch401 -p0
-cp -p src/* .
-popd
-cp -rp revision-%{revision_version} storage/revision
-
-# pinba storage engine
-tar -zxf %{SOURCE600}
-
-%patch1000 -p1 -b .use_-avoid-version_for_plugins
-
-%patch2000 -p0 -b .CVE-2008-7247
-
-# fix annoyances
-perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
-perl -pi -e "s|^MAX_C_OPTIMIZE.*|MAX_C_OPTIMIZE=\"\"|g" configure*
-perl -pi -e "s|^MAX_CXX_OPTIMIZE.*|MAX_CXX_OPTIMIZE=\"\"|g" configure*
+%patch0 -p0 -b .mysqldumpslow_no_basedir
+%patch1 -p0 -b .errno_as_defines
+%patch2 -p0 -b .logrotate
+%patch3 -p0 -b .initscript
+%patch4 -p1 -b .mysql_upgrade-exit-status
+%patch5 -p1 -b .shebang
+%patch6 -p0 -b .test-variables-big
+%patch7 -p0 -b .hotcopy
+%patch8 -p0 -b .install_db-quiet
 
 mkdir -p Mandriva
 cp %{SOURCE2} Mandriva/mysqld.sysconfig
@@ -456,107 +244,59 @@ cp %{SOURCE3} Mandriva/my.cnf
 # lib64 fix
 perl -pi -e "s|/usr/lib/|%{_libdir}/|g" Mandriva/my.cnf
 
-%build
-# Run aclocal in order to get an updated libtool.m4 in generated
-# configure script for "new" architectures (aka. x86_64, mips)
-#autoreconf --install --force
-#export WANT_AUTOCONF_2_5=1
-libtoolize --automake --copy --force; aclocal -I config/ac-macros; autoheader; automake --foreign --add-missing --copy; autoconf
+# antiborker
+perl -pi -e "s|\@bindir\@|%{_bindir}|g" support-files/* scripts/*
+perl -pi -e "s|\@sbindir\@|%{_sbindir}|g" support-files/* scripts/*
+perl -pi -e "s|\@libexecdir\@|%{_sbindir}|g" support-files/* scripts/*
+perl -pi -e "s|\@localstatedir\@|/var/lib/mysql|g" support-files/* scripts/*
+perl -pi -e "s|^basedir=.*|basedir=%{_prefix}|g" support-files/* scripts/mysql_install_db
 
+%build
 %serverbuild
 export CFLAGS="${CFLAGS:-%{optflags}}"
 export CXXFLAGS="${CXXFLAGS:-%{optflags}}"
 export FFLAGS="${FFLAGS:-%{optflags}}"
 
-CFLAGS="$CFLAGS -fPIC"
-%ifarch alpha x86_64
-CXXFLAGS="$CXXFLAGS -fPIC"
-%else
-CXXFLAGS="$CXXFLAGS"
-%endif
-
-# MySQL 4.1.10 definitely doesn't work under strict aliasing; also,
-# gcc 4.1 breaks MySQL 5.0.16 without -fwrapv
-export CFLAGS="$CFLAGS -fno-strict-aliasing -fwrapv"
-# extra C++ flags as per recommendations in mysql's INSTALL-SOURCE doc
-export CXXFLAGS="$CFLAGS -felide-constructors -fno-rtti -fno-exceptions"
-export MYSQL_BUILD_CFLAGS="$CFLAGS"
-export MYSQL_BUILD_CXXFLAGS="$CXXFLAGS"
-
+%cmake \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DCMAKE_INSTALL_PREFIX=%{_prefix} \
+    -DINSTALL_SBINDIR=sbin \
+    -DMYSQL_DATADIR=/var/lib/mysql \
+    -DSYSCONFDIR=%{_sysconfdir} \
+    -DINSTALL_PLUGINDIR=%{_lib}/mysql/plugin \
+    -DINSTALL_MANDIR=share/man \
+    -DINSTALL_SHAREDIR=share/mysql \
+    -DINSTALL_LIBDIR=%{_lib} \
+    -DINSTALL_INCLUDEDIR=include/mysql \
+    -DINSTALL_INFODIR=share/info \
+    -DINSTALL_MYSQLDATADIR=/var/lib/mysql \
+    -DINSTALL_MYSQLTESTDIR=share/mysql/mysql-test \
+    -DINSTALL_SQLBENCHDIR=share/mysql \
+    -DINSTALL_SUPPORTFILESDIR=share/mysql \
+    -DINSTALL_MYSQLSHAREDIR=share/mysql \
+    -DMYSQL_UNIX_ADDR=/var/lib/mysql/mysql.sock \
+    -DWITH_READLINE=0 \
+    -DWITH_LIBEDIT=0 \
+    -DWITH_LIBWRAP=1 \
+    -DWITH_SSL=system \
+    -DWITH_ZLIB=system \
+    -DWITH_PIC=1 \
+    -DMYSQL_TCP_PORT=3306 \
+    -DEXTRA_CHARSETS=all \
+    -DWITH_EMBEDDED_SERVER=1 \
+    -DMYSQL_USER=%{muser} \
 %if %{build_debug}
-CFLAGS="$CFLAGS -DUNIV_MUST_NOT_INLINE -DEXTRA_DEBUG -DFORCE_INIT_OF_VARS -DSAFEMALLOC -DPEDANTIC_SAFEMALLOC -DSAFE_MUTEX"
-%endif
-
-export PS='/bin/ps'
-export FIND_PROC='/bin/ps p $$PID'
-export KILL='/bin/kill'
-export CHECK_PID='/bin/kill -0 $$PID'
-
-# The --enable-assembler simply does nothing on systems that does not
-# support assembler speedups.
-%configure2_5x \
-    --prefix=/ \
-    --exec-prefix=%{_prefix} \
-    --libexecdir=%{_sbindir} \
-    --libdir=%{_libdir} \
-    --sysconfdir=%{_sysconfdir} \
-    --datadir=%{_datadir} \
-    --localstatedir=/var/lib/mysql \
-    --infodir=%{_infodir} \
-    --includedir=%{_includedir} \
-    --mandir=%{_mandir} \
-    --with-pic \
-    --with-extra-charsets=all \
-    --enable-assembler \
-    --enable-local-infile \
-    --enable-largefile=yes \
-    --without-readline \
-    --without-libwrap \
-    --with-ssl=%{_libdir} \
-    --with-big-tables \
-    --enable-thread-safe-client \
-    --with-fast-mutexes \
-%if %{build_debug}
-    --with-debug=full \
+    -DWITH_DEBUG=1 \
 %else
-    --without-debug \
+    -DWITH_DEBUG=0 \
 %endif
-    --with-mysqld-user=%{muser} \
-    --with-unix-socket-path=/var/lib/mysql/mysql.sock \
-    --enable-shared \
-    --enable-static \
-    --with-comment='Mandriva Linux - MySQL Community Edition (GPL)' \
-    --with-embedded-server \
-    --with-big-tables \
-    --without-plugin-ndbcluster \
-    --with-plugin-partition
+    -DWITHOUT_EXAMPLE_STORAGE_ENGINE=1 \
+    -DWITHOUT_NDBCLUSTER_STORAGE_ENGINE=1 \
+    -DWITHOUT_DAEMON_EXAMPLE=1 \
+    -DFEATURE_SET="community" \
+    -DCOMPILATION_COMMENT="Mandriva Linux - MySQL Community Edition (GPL)"
 
-%make benchdir_root=%{buildroot}%{_datadir}
-
-# this one is built dynamically..., heh... 
-pushd pbxt-%{pbxt_version}*
-autoreconf -fis
-%configure2_5x \
-    --enable-shared \
-    --enable-static \
-    --with-mysql=../ \
-    --with-plugindir=%{_libdir}/mysql/plugin
 %make
-popd
-
-pushd pinba_engine-%{pinba_version}*
-# lib64 fix
-perl -pi -e "s|/lib\b|/%{_lib}|g" configure*
-autoreconf -fis
-%configure2_5x \
-    --enable-shared \
-    --enable-static \
-    --with-mysql=../ \
-    --with-protobuf=%{_prefix} \
-    --with-event=%{_prefix} \
-    --with-judy=%{_prefix}
-%make
-popd
 
 ################################################################################
 # run the tests
@@ -566,7 +306,7 @@ popd
 echo "rpl_trigger : Unstable test case" >> mysql-test/t/disabled.def
 echo "type_enum : Unstable test case" >> mysql-test/t/disabled.def
 echo "windows : For MS Windows only" >> mysql-test/t/disabled.def
-pushd mysql-test
+pushd build/mysql-test
 export LANG=C
 export LC_ALL=C
 export LANGUAGE=C
@@ -595,33 +335,20 @@ install -d %{buildroot}%{_var}/run/mysqld
 install -d %{buildroot}%{_var}/log/mysqld
 install -d %{buildroot}/var/lib/mysql/{mysql,test}
 
-%makeinstall_std benchdir_root=%{_datadir} testdir=%{_datadir}/mysql-test
-
-pushd pbxt-%{pbxt_version}*
-%makeinstall_std
-popd
-
-pushd pinba_engine-%{pinba_version}*
-%makeinstall_std libdir=%{_libdir}/mysql/plugin
-popd
-
-# antibork...
-mv %{buildroot}%{_libdir}/mysql/ha_* %{buildroot}%{_libdir}/mysql/plugin/
-
-# nuke one useless plugin
-rm -f %{buildroot}%{_libdir}/mysql/plugin/ha_example*
+%makeinstall_std -C build
 
 # install init scripts
-install -m0755 support-files/mysql.server %{buildroot}%{_initrddir}/mysqld
+install -m0755 build/support-files/mysql.server %{buildroot}%{_initrddir}/mysqld
 
 # install configuration files
 install -m0644 Mandriva/mysqld.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mysqld
 install -m0644 Mandriva/my.cnf %{buildroot}%{_sysconfdir}/my.cnf
 
-# Fix libraries
-mv %{buildroot}%{_libdir}/mysql/libmysqlclient.* %{buildroot}%{_libdir}/
-mv %{buildroot}%{_libdir}/mysql/libmysqlclient_r.* %{buildroot}%{_libdir}/
-perl -pi -e "s|%{_libdir}/mysql|%{_libdir}|" %{buildroot}%{_libdir}/*.la
+# bork
+mv %{buildroot}%{_bindir}/mysqlaccess.conf %{buildroot}%{_sysconfdir}/
+chmod 644 %{buildroot}%{_sysconfdir}/mysqlaccess.conf
+mv %{buildroot}%{_prefix}/scripts/mysql_install_db %{buildroot}%{_bindir}/
+mv %{buildroot}%{_datadir}/mysql/aclocal %{buildroot}%{_datadir}/aclocal
 
 pushd %{buildroot}%{_bindir}
     ln -sf mysqlcheck mysqlrepair
@@ -629,32 +356,36 @@ pushd %{buildroot}%{_bindir}
     ln -sf mysqlcheck mysqloptimize
 popd
 
-# touch some files
-touch %{buildroot}%{_sysconfdir}/mysqlmanager.passwd
-
-install -m0755 convert_engine.pl %{buildroot}%{_bindir}/mysql_convert_engine
-
 # nuke -Wl,--as-needed from the mysql_config file
 perl -pi -e "s|^ldflags=.*|ldflags=\'-rdynamic\'|g" %{buildroot}%{_bindir}/mysql_config
 
 # house cleaning
 rm -rf %{buildroot}%{_datadir}/info
-rm -f %{buildroot}%{_bindir}/make_win_src_distribution
-rm -f %{buildroot}%{_bindir}/make_win_binary_distribution
-rm -f %{buildroot}%{_datadir}/mysql/*.spec
-rm -f %{buildroot}%{_datadir}/mysql/postinstall
-rm -f %{buildroot}%{_datadir}/mysql/preinstall
-rm -f %{buildroot}%{_datadir}/mysql/mysql-log-rotate
-rm -f %{buildroot}%{_datadir}/mysql/mysql.server
-rm -f %{buildroot}%{_datadir}/mysql/mysqld_multi.server
-rm -f %{buildroot}%{_bindir}/client_test
 #rm -f %{buildroot}%{_bindir}/mysql_client_test*
 rm -f %{buildroot}%{_bindir}/mysqltest_embedded
+rm -f %{buildroot}%{_bindir}/client_test
+rm -f %{buildroot}%{_bindir}/make_win_binary_distribution
+rm -f %{buildroot}%{_bindir}/make_win_src_distribution
+rm -f %{buildroot}%{_datadir}/mysql/binary-configure
+rm -f %{buildroot}%{_datadir}/mysql/config.huge.ini
+rm -f %{buildroot}%{_datadir}/mysql/config.medium.ini
+rm -f %{buildroot}%{_datadir}/mysql/config.small.ini
+rm -f %{buildroot}%{_datadir}/mysql/mysqld_multi.server
+rm -f %{buildroot}%{_datadir}/mysql/mysql-log-rotate
+rm -f %{buildroot}%{_datadir}/mysql/mysql.server
+rm -f %{buildroot}%{_datadir}/mysql/ndb-config-2-node.ini
 rm -f %{buildroot}%{_datadir}/mysql/binary-configure
 rm -f %{buildroot}%{_mandir}/man1/make_win_bin_dist.1*
 rm -f %{buildroot}%{_mandir}/man1/make_win_src_distribution.1*
-rm -f %{buildroot}%{_datadir}/mysql/ChangeLog
-rm -f %{buildroot}/mysql-test/lib/My/SafeProcess/my_safe_process
+rm -f %{buildroot}%{_datadir}/mysql/mysql-test/lib/My/SafeProcess/my_safe_process
+
+# no idea how to fix this
+rm -rf %{buildroot}%{_prefix}/data
+rm -rf %{buildroot}%{_prefix}/docs
+rm -rf %{buildroot}%{_prefix}/scripts
+rm -f %{buildroot}%{_prefix}/COPYING
+rm -f %{buildroot}%{_prefix}/INSTALL-BINARY
+rm -f %{buildroot}%{_prefix}/README
 
 %multiarch_binaries %{buildroot}%{_bindir}/mysql_config
 %multiarch_includes %{buildroot}%{_includedir}/mysql/my_config.h
@@ -688,7 +419,7 @@ at runtime. Please look at these lines in the /etc/my.cnf file to enable
 additional engines or disable one or more of the default ones:
 
 plugin_dir=%{_libdir}/mysql/plugin
-plugin-load=ha_archive.so;ha_blackhole.so;ha_innodb.so;ha_federated.so
+plugin-load=ha_archive.so;ha_blackhole.so;ha_federated.so
 
 Starting from mysql-5.1.44-3 the html documentation and the mysql.info is not
 shipped with the Mandriva packages due to strict licensing.
@@ -711,7 +442,6 @@ fi
 %_pre_useradd %{muser} /var/lib/mysql /bin/bash
 
 %post common
-%create_ghostfile %{_sysconfdir}/mysqlmanager.passwd %{muser} %{muser} 0640
 
 %post
 # Change permissions so that the user that will run the MySQL daemon
@@ -756,44 +486,23 @@ rm -rf %{buildroot}
 %doc README.urpmi
 %attr(0755,root,root) %{_initrddir}/mysqld
 %dir %{_libdir}/mysql/plugin
+%attr(0755,root,root) %{_libdir}/mysql/plugin/adt_null.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/auth.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/auth_socket.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/auth_test_plugin.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_archive.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_blackhole.so
 %attr(0755,root,root) %{_libdir}/mysql/plugin/ha_federated.so
-%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_innodb_plugin.so
-
-%files plugin_sphinx
-%defattr(-,root,root)
-%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_sphinx.so
-%attr(0755,root,root) %{_libdir}/mysql/plugin/sphinx.so
-
-%files plugin_pbxt
-%defattr(-,root,root)
-%doc pbxt-%{pbxt_version}*/ChangeLog
-%doc pbxt-%{pbxt_version}*/TODO
-%doc pbxt-%{pbxt_version}*/AUTHORS
-%doc pbxt-%{pbxt_version}*/NEWS
-%doc pbxt-%{pbxt_version}*/README
-%attr(0755,root,root) %{_libdir}/mysql/plugin/libpbxt.so
-%attr(0755,root,root) %{_bindir}/xtstat
-
-%files plugin_revision
-%defattr(-,root,root)
-%doc revision-%{revision_version}/AUTHORS
-%doc revision-%{revision_version}/ChangeLog
-%doc revision-%{revision_version}/README
-%doc revision-%{revision_version}/TODO
-%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_revision.so
-
-%files plugin_pinba
-%defattr(-,root,root)
-%doc pinba_engine-%{pinba_version}/NEWS
-%doc pinba_engine-%{pinba_version}/README
-%doc pinba_engine-%{pinba_version}/TODO
-%doc pinba_engine-%{pinba_version}/default_tables.sql
-%attr(0755,root,root) %{_libdir}/mysql/plugin/libpinba_engine.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/mypluglib.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/qa_auth_client.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/qa_auth_interface.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/qa_auth_server.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/semisync_master.so
+%attr(0755,root,root) %{_libdir}/mysql/plugin/semisync_slave.so
 
 %files client
 %defattr(-,root,root)
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/mysqlaccess.conf
 %attr(0755,root,root) %{_bindir}/msql2mysql
 %attr(0755,root,root) %{_bindir}/mysql
 %attr(0755,root,root) %{_bindir}/mysqlaccess
@@ -826,11 +535,11 @@ rm -rf %{buildroot}
 
 %files bench
 %defattr(-,root,root)
-%doc sql-bench/README
+%doc build/sql-bench/README
 %attr(0755,root,root) %{_bindir}/mysql_client_test
 %attr(0755,root,root) %{_bindir}/mysql_client_test_embedded
-%{_datadir}/sql-bench
-%attr(-,mysql,mysql) %{_datadir}/mysql-test
+%{_datadir}/mysql/sql-bench
+%attr(-,mysql,mysql) %{_datadir}/mysql/mysql-test
 %attr(0644,root,root) %{_mandir}/man1/mysql-stress-test.pl.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql-test-run.pl.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_client_test.1*
@@ -841,7 +550,6 @@ rm -rf %{buildroot}
 %files core
 %defattr(-,root,root) 
 %attr(0755,root,root) %{_sbindir}/mysqld
-%attr(0755,root,root) %{_libdir}/mysql/plugin/ha_innodb.so
 
 %files common-core
 %defattr(-,root,root)
@@ -852,9 +560,8 @@ rm -rf %{buildroot}
 
 %files common
 %defattr(-,root,root) 
-%doc README COPYING support-files/*.cnf
+%doc README COPYING
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/sysconfig/mysqld
-%ghost %attr(0640,%{muser},%{muser}) %config(noreplace,missingok) %{_sysconfdir}/mysqlmanager.passwd
 %attr(0755,root,root) %{_bindir}/innochecksum
 %attr(0755,root,root) %{_bindir}/myisamchk
 %attr(0755,root,root) %{_bindir}/myisam_ftdump
@@ -862,12 +569,10 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_bindir}/myisampack
 %attr(0755,root,root) %{_bindir}/my_print_defaults
 %attr(0755,root,root) %{_bindir}/mysqlbug
-%attr(0755,root,root) %{_bindir}/mysql_convert_engine
 %attr(0755,root,root) %{_bindir}/mysql_convert_table_format
 %attr(0755,root,root) %{_bindir}/mysqld_multi
 %attr(0755,root,root) %{_bindir}/mysqld_safe
 %attr(0755,root,root) %{_bindir}/mysql_fix_extensions 
-%attr(0755,root,root) %{_bindir}/mysql_fix_privilege_tables
 %attr(0755,root,root) %{_bindir}/mysqlhotcopy
 %attr(0755,root,root) %{_bindir}/mysql_install_db
 %attr(0755,root,root) %{_bindir}/mysql_secure_installation
@@ -880,22 +585,18 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_bindir}/replace
 %attr(0755,root,root) %{_bindir}/resolveip
 %attr(0755,root,root) %{_bindir}/resolve_stack_dump
-%attr(0755,root,root) %{_sbindir}/mysqlmanager
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql/mysql
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql/test
 %attr(0755,%{muser},%{muser}) %dir %{_var}/run/mysqld
 %attr(0755,%{muser},%{muser}) %dir %{_var}/log/mysqld
-%{_datadir}/mysql/mi_test_all
-%{_datadir}/mysql/mi_test_all.res
+%{_datadir}/mysql/magic
 %{_datadir}/mysql/*.cnf
 %{_datadir}/mysql/fill_help_tables.sql
-%{_datadir}/mysql/mysql_fix_privilege_tables.sql
 %{_datadir}/mysql/mysql_system_tables.sql
 %{_datadir}/mysql/mysql_system_tables_data.sql
 %{_datadir}/mysql/mysql_test_data_timezone.sql
-%{_datadir}/mysql/*.ini
-%{_datadir}/mysql/errmsg.txt
+%{_datadir}/mysql/errmsg-utf8.txt
 %{_datadir}/mysql/czech
 %{_datadir}/mysql/danish
 %{_datadir}/mysql/dutch
@@ -928,7 +629,6 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %{_mandir}/man1/mysqld_multi.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqld_safe.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_fix_extensions.1*
-%attr(0644,root,root) %{_mandir}/man1/mysql_fix_privilege_tables.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqlhotcopy.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_install_db.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqlman.1*
@@ -944,23 +644,26 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %{_mandir}/man1/resolveip.1*
 %attr(0644,root,root) %{_mandir}/man1/resolve_stack_dump.1*
 %attr(0644,root,root) %{_mandir}/man8/mysqld.8*
-%attr(0644,root,root) %{_mandir}/man8/mysqlmanager.8*
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc ChangeLog
-%attr(0755,root,root) %{_libdir}/*.so.*
+%doc Docs/ChangeLog
+%attr(0755,root,root) %{_libdir}/libmysqlclient_r.so.%{major}*
+%attr(0755,root,root) %{_libdir}/libmysqlclient.so.%{major}*
+# not sure about this one...
+%attr(0755,root,root) %{_libdir}/libmysqlservices.so
 
 %files -n %{develname}
 %defattr(-,root,root)
 %doc INSTALL-SOURCE
 %multiarch %{multiarch_bindir}/mysql_config
 %attr(0755,root,root) %{_bindir}/mysql_config
-%attr(0644,root,root) %{_libdir}/*.la
-%attr(0644,root,root) %{_libdir}/mysql/plugin/*.la
-%attr(0755,root,root) %{_libdir}/*.so
+%attr(0755,root,root) %{_libdir}/libmysqlclient_r.so
+%attr(0755,root,root) %{_libdir}/libmysqlclient.so
 %dir %{_includedir}/mysql
+%dir %{_includedir}/mysql/psi
 %attr(0644,root,root) %{_includedir}/mysql/*.h
+%attr(0644,root,root) %{_includedir}/mysql/psi/*.h
 %multiarch %{multiarch_includedir}/mysql/my_config.h
 %attr(0644,root,root) %{_mandir}/man1/comp_err.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_config.1*
@@ -968,14 +671,4 @@ rm -rf %{buildroot}
 
 %files -n %{staticdevelname}
 %defattr(-,root,root)
-%dir %{_libdir}/mysql
-%attr(0644,root,root) %{_libdir}/mysql/libdbug.a
-%attr(0644,root,root) %{_libdir}/mysql/libheap.a
-%attr(0644,root,root) %{_libdir}/mysql/libmyisam.a
-%attr(0644,root,root) %{_libdir}/mysql/libmyisammrg.a
-%attr(0644,root,root) %{_libdir}/mysql/libmysqld.a
-%attr(0644,root,root) %{_libdir}/mysql/libmystrings.a
-%attr(0644,root,root) %{_libdir}/mysql/libmysys.a
-%attr(0644,root,root) %{_libdir}/mysql/libvio.a
 %attr(0644,root,root) %{_libdir}/*.a
-%attr(0755,root,root) %{_libdir}/mysql/plugin/*.a

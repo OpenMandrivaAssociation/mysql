@@ -378,6 +378,7 @@ rm -f %{buildroot}%{_datadir}/mysql/binary-configure
 rm -f %{buildroot}%{_mandir}/man1/make_win_bin_dist.1*
 rm -f %{buildroot}%{_mandir}/man1/make_win_src_distribution.1*
 rm -f %{buildroot}%{_datadir}/mysql/mysql-test/lib/My/SafeProcess/my_safe_process
+rm -f %{buildroot}%{_datadir}/mysql/magic
 
 # no idea how to fix this
 rm -rf %{buildroot}%{_prefix}/data
@@ -590,7 +591,6 @@ rm -rf %{buildroot}
 %attr(0711,%{muser},%{muser}) %dir /var/lib/mysql/test
 %attr(0755,%{muser},%{muser}) %dir %{_var}/run/mysqld
 %attr(0755,%{muser},%{muser}) %dir %{_var}/log/mysqld
-%{_datadir}/mysql/magic
 %{_datadir}/mysql/*.cnf
 %{_datadir}/mysql/fill_help_tables.sql
 %{_datadir}/mysql/mysql_system_tables.sql

@@ -10,7 +10,7 @@
 #  configure.
 
 %define build_debug 0
-%define build_test 0
+%define build_test 1
 
 # commandline overrides:
 # rpm -ba|--rebuild --with 'xxx'
@@ -46,7 +46,7 @@
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.5.8
-Release:	%mkrel 0
+Release:	%mkrel 1
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
@@ -114,6 +114,7 @@ The mysql server is compiled with the following storage engines:
  - User Defined Functions (UDFs).
  - Blackhole Storage Engine
  - Partition Storage Engine
+ - Perfschema Storage Engine
 
 %package	core
 Summary:	Server core binary

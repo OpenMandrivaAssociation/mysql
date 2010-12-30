@@ -252,6 +252,11 @@ perl -pi -e "s|\@libexecdir\@|%{_sbindir}|g" support-files/* scripts/*
 perl -pi -e "s|\@localstatedir\@|/var/lib/mysql|g" support-files/* scripts/*
 perl -pi -e "s|^basedir=.*|basedir=%{_prefix}|g" support-files/* scripts/mysql_install_db
 
+# this may be part of the problems with mysql-test
+# http://bugs.mysql.com/bug.php?id=52223
+#perl -pi -e "s|basedir/lib\b|basedir/%{_lib}\b|g" mysql-test/mysql-test-run.pl
+#perl -pi -e "s|basedir/lib/|basedir/%{_lib}/|g" mysql-test/mysql-test-run.pl
+
 %build
 %serverbuild
 export CFLAGS="${CFLAGS:-%{optflags}}"

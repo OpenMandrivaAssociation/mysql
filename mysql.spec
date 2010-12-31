@@ -275,7 +275,7 @@ perl -pi -e "s|\@bindir\@|%{_bindir}|g" support-files/* scripts/*
 perl -pi -e "s|\@sbindir\@|%{_sbindir}|g" support-files/* scripts/*
 perl -pi -e "s|\@libexecdir\@|%{_sbindir}|g" support-files/* scripts/*
 perl -pi -e "s|\@localstatedir\@|/var/lib/mysql|g" support-files/* scripts/*
-perl -pi -e "s|^basedir=.*|basedir=%{_prefix}|g" support-files/* scripts/mysql_install_db
+perl -pi -e "s|^basedir=.*|basedir=%{_prefix}|g" support-files/* scripts/mysql_install_db*
 
 # this may be part of the problems with mysql-test
 # http://bugs.mysql.com/bug.php?id=52223

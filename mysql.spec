@@ -46,7 +46,7 @@
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.5.8
-Release:	%mkrel 1
+Release:	%mkrel 2
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
@@ -54,15 +54,27 @@ Source0:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz
 Source1:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz.asc
 Source2:	mysqld.sysconfig
 Source3:	my.cnf
-Patch0:		mysql-mysqldumpslow_no_basedir.diff
-Patch1:		mysql-errno.patch
-Patch2:		mysql-logrotate.diff
-Patch3:		mysql-initscript.diff
-Patch4:		mysql_upgrade-exit-status.patch
-Patch5:		mysql-5.1.31-shebang.patch
-Patch6:		mysql-5.1.35-test-variables-big.patch
-Patch7:		mysql-5.1.36-hotcopy.patch
-Patch8:		mysql-install_db-quiet.patch
+Source4:	libmysql.version
+# fedora patches
+Patch0:		mysql-errno.patch
+Patch1:		mysql-strmov.patch
+Patch2:		mysql-install-test.patch
+Patch3:		mysql-expired-certs.patch
+Patch4:		mysql-stack-guard.patch
+Patch5:		mysql-chain-certs.patch
+Patch6:		mysql-versioning.patch
+Patch7:		mysql-dubious-exports.patch
+Patch8:		mysql-disable-test.patch
+# mandriva patches
+Patch100:	mysql-mysqldumpslow_no_basedir.diff
+Patch101:	mysql-logrotate.diff
+Patch102:	mysql-initscript.diff
+Patch103:	mysql_upgrade-exit-status.patch
+Patch104:	mysql-5.1.31-shebang.patch
+Patch105:	mysql-5.1.35-test-variables-big.patch
+Patch106:	mysql-5.1.36-hotcopy.patch
+Patch107:	mysql-install_db-quiet.patch
+Patch108:	mysql-5.5.8-bug58350.diff
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -89,6 +101,7 @@ BuildRequires:	ncurses-devel
 BuildRequires:	openssl-devel
 BuildRequires:	python
 BuildRequires:	readline-devel
+BuildRequires:	systemtap
 BuildRequires:	tetex
 BuildRequires:	texinfo
 BuildRequires:	xfs-devel
@@ -228,15 +241,27 @@ This package contains the static development libraries.
 
 %setup -q -n mysql-%{version}
 
-%patch0 -p0 -b .mysqldumpslow_no_basedir
-%patch1 -p0 -b .errno_as_defines
-%patch2 -p0 -b .logrotate
-%patch3 -p0 -b .initscript
-%patch4 -p1 -b .mysql_upgrade-exit-status
-%patch5 -p1 -b .shebang
-%patch6 -p0 -b .test-variables-big
-%patch7 -p0 -b .hotcopy
-%patch8 -p0 -b .install_db-quiet
+# fedora patches
+%patch0 -p1 -b .errno
+%patch1 -p1 -b .strmov
+%patch2 -p1 -b .install-test
+%patch3 -p1 -b .expired-certs
+%patch4 -p1 -b .stack-guard
+%patch5 -p1 -b .chain-certs
+%patch6 -p1 -b .versioning
+%patch7 -p1 -b .dubious-exports
+%patch8 -p1 -b .disable-test
+
+# mandriva patches
+%patch100 -p0 -b .mysqldumpslow_no_basedir
+%patch101 -p0 -b .logrotate
+%patch102 -p0 -b .initscript
+%patch103 -p1 -b .mysql_upgrade-exit-status
+%patch104 -p1 -b .shebang
+%patch105 -p0 -b .test-variables-big
+%patch106 -p0 -b .hotcopy
+%patch107 -p0 -b .install_db-quiet
+%patch108 -p1 -b .bug58350
 
 mkdir -p Mandriva
 cp %{SOURCE2} Mandriva/mysqld.sysconfig
@@ -256,6 +281,12 @@ perl -pi -e "s|^basedir=.*|basedir=%{_prefix}|g" support-files/* scripts/mysql_i
 # http://bugs.mysql.com/bug.php?id=52223
 #perl -pi -e "s|basedir/lib\b|basedir/%{_lib}\b|g" mysql-test/mysql-test-run.pl
 #perl -pi -e "s|basedir/lib/|basedir/%{_lib}/|g" mysql-test/mysql-test-run.pl
+
+# workaround for upstream bug #56342
+rm -f mysql-test/t/ssl_8k_key-master.opt
+
+# upstream has fallen down badly on symbol versioning, do it ourselves
+cp %{SOURCE4} libmysql/libmysql.version
 
 %build
 %serverbuild
@@ -289,6 +320,8 @@ export FFLAGS="${FFLAGS:-%{optflags}}"
     -DWITH_PIC=1 \
     -DMYSQL_TCP_PORT=3306 \
     -DEXTRA_CHARSETS=all \
+    -DENABLED_LOCAL_INFILE=1 \
+    -DENABLE_DTRACE=1 \
     -DWITH_EMBEDDED_SERVER=1 \
     -DMYSQL_USER=%{muser} \
 %if %{build_debug}
@@ -302,28 +335,10 @@ export FFLAGS="${FFLAGS:-%{optflags}}"
     -DFEATURE_SET="community" \
     -DCOMPILATION_COMMENT="Mandriva Linux - MySQL Community Edition (GPL)"
 
+cp ../libmysql/libmysql.version libmysql/libmysql.version
+
 %make
 
-################################################################################
-# run the tests
-%if %{build_test}
-%check
-# disable failing tests
-echo "rpl_trigger : Unstable test case" >> mysql-test/t/disabled.def
-echo "type_enum : Unstable test case" >> mysql-test/t/disabled.def
-echo "windows : For MS Windows only" >> mysql-test/t/disabled.def
-pushd build/mysql-test
-export LANG=C
-export LC_ALL=C
-export LANGUAGE=C
-    perl ./mysql-test-run.pl \
-    --mtr-build-thread="$((${RANDOM} % 100))" \
-    --skip-ndb \
-    --timer \
-    --testcase-timeout=60 \
-    --suite-timeout=120 || false
-popd
-%endif
 
 %install 
 rm -rf %{buildroot}
@@ -365,9 +380,29 @@ popd
 # nuke -Wl,--as-needed from the mysql_config file
 perl -pi -e "s|^ldflags=.*|ldflags=\'-rdynamic\'|g" %{buildroot}%{_bindir}/mysql_config
 
+# cmake generates some completely wacko references to -lprobes_mysql when
+# building with dtrace support.  Haven't found where to shut that off,
+# so resort to this blunt instrument.  While at it, let's not reference
+# libmysqlclient_r anymore either.
+sed -e 's/-lprobes_mysql//' -e 's/-lmysqlclient_r/-lmysqlclient/' \
+	%{buildroot}%{_bindir}/mysql_config >mysql_config.tmp
+cp -f mysql_config.tmp %{buildroot}%{_bindir}/mysql_config
+chmod 755 %{buildroot}%{_bindir}/mysql_config
+
+# libmysqlclient_r is no more.  Upstream tries to replace it with symlinks
+# but that really doesn't work (wrong soname in particular).  We'll keep
+# just the devel libmysqlclient_r.so link, so that rebuilding without any
+# source change is enough to get rid of dependency on libmysqlclient_r.
+rm -f %{buildroot}%{_libdir}/libmysqlclient_r.so*
+ln -s libmysqlclient.so %{buildroot}%{_libdir}/libmysqlclient_r.so
+
+# mysql-test includes one executable that doesn't belong under /usr/share,
+# so move it and provide a symlink
+mv %{buildroot}%{_datadir}/mysql/mysql-test/lib/My/SafeProcess/my_safe_process %{buildroot}%{_bindir}
+ln -s %{_bindir}/my_safe_process %{buildroot}%{_datadir}/mysql/mysql-test/lib/My/SafeProcess/my_safe_process
+
 # house cleaning
 rm -rf %{buildroot}%{_datadir}/info
-#rm -f %{buildroot}%{_bindir}/mysql_client_test*
 rm -f %{buildroot}%{_bindir}/mysqltest_embedded
 rm -f %{buildroot}%{_bindir}/client_test
 rm -f %{buildroot}%{_bindir}/make_win_binary_distribution
@@ -383,7 +418,6 @@ rm -f %{buildroot}%{_datadir}/mysql/ndb-config-2-node.ini
 rm -f %{buildroot}%{_datadir}/mysql/binary-configure
 rm -f %{buildroot}%{_mandir}/man1/make_win_bin_dist.1*
 rm -f %{buildroot}%{_mandir}/man1/make_win_src_distribution.1*
-rm -f %{buildroot}%{_datadir}/mysql/mysql-test/lib/My/SafeProcess/my_safe_process
 rm -f %{buildroot}%{_datadir}/mysql/magic
 
 # no idea how to fix this
@@ -432,6 +466,29 @@ Starting from mysql-5.1.44-3 the html documentation and the mysql.info is not
 shipped with the Mandriva packages due to strict licensing.
 
 EOF
+
+################################################################################
+# run the tests
+%if %{build_test}
+# disable failing tests
+echo "rpl_trigger : Unstable test case" >> mysql-test/t/disabled.def
+echo "type_enum : Unstable test case" >> mysql-test/t/disabled.def
+echo "windows : For MS Windows only" >> mysql-test/t/disabled.def
+pushd build/mysql-test
+export LANG=C
+export LC_ALL=C
+export LANGUAGE=C
+    perl ./mysql-test-run.pl \
+    --mtr-build-thread="$((${RANDOM} % 100))" \
+    --skip-ndb \
+    --timer \
+    --retry=0 \
+    --ssl \
+    --mysqld=--binlog-format=mixed \
+    --testcase-timeout=60 \
+    --suite-timeout=120 || false
+popd
+%endif
 
 %pre
 # enable plugins
@@ -543,6 +600,7 @@ rm -rf %{buildroot}
 %files bench
 %defattr(-,root,root)
 %doc build/sql-bench/README
+%attr(0755,root,root) %{_bindir}/my_safe_process
 %attr(0755,root,root) %{_bindir}/mysql_client_test
 %attr(0755,root,root) %{_bindir}/mysql_client_test_embedded
 %{_datadir}/mysql/sql-bench
@@ -654,7 +712,6 @@ rm -rf %{buildroot}
 %files -n %{libname}
 %defattr(-,root,root)
 %doc Docs/ChangeLog
-%attr(0755,root,root) %{_libdir}/libmysqlclient_r.so.%{major}*
 %attr(0755,root,root) %{_libdir}/libmysqlclient.so.%{major}*
 # not sure about this one...
 %attr(0755,root,root) %{_libdir}/libmysqlservices.so

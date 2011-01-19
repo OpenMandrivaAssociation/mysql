@@ -46,7 +46,7 @@
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.5.8
-Release:	%mkrel 4
+Release:	%mkrel 5
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
@@ -65,6 +65,8 @@ Patch5:		mysql-chain-certs.patch
 Patch6:		mysql-versioning.patch
 Patch7:		mysql-dubious-exports.patch
 Patch8:		mysql-disable-test.patch
+Patch9:		mysql-embedded-crash.patch
+Patch10:	mysql-home.patch
 # mandriva patches
 Patch100:	mysql-mysqldumpslow_no_basedir.diff
 Patch101:	mysql-logrotate.diff
@@ -251,6 +253,8 @@ This package contains the static development libraries.
 %patch6 -p1 -b .versioning
 %patch7 -p1 -b .dubious-exports
 %patch8 -p1 -b .disable-test
+%patch9 -p1 -b .embedded-crash
+%patch10 -p1 -b .home
 
 # mandriva patches
 %patch100 -p0 -b .mysqldumpslow_no_basedir

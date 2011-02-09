@@ -45,8 +45,8 @@
 
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.5.8
-Release:	%mkrel 5
+Version:	5.5.9
+Release:	%mkrel 1
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
@@ -76,7 +76,6 @@ Patch104:	mysql-5.1.31-shebang.patch
 Patch105:	mysql-5.1.35-test-variables-big.patch
 Patch106:	mysql-5.1.36-hotcopy.patch
 Patch107:	mysql-install_db-quiet.patch
-Patch108:	mysql-5.5.8-bug58350.diff
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -265,7 +264,6 @@ This package contains the static development libraries.
 %patch105 -p0 -b .test-variables-big
 %patch106 -p0 -b .hotcopy
 %patch107 -p0 -b .install_db-quiet
-%patch108 -p1 -b .bug58350
 
 mkdir -p Mandriva
 cp %{SOURCE2} Mandriva/mysqld.sysconfig

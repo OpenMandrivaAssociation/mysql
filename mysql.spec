@@ -36,7 +36,7 @@
 
 %define _requires_exceptions perl(this)
 
-%define major 16
+%define major 18
 %define libname %mklibname mysql %{major}
 %define develname %mklibname -d mysql
 %define staticdevelname %mklibname -d -s mysql
@@ -45,8 +45,8 @@
 
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.5.9
-Release:	%mkrel 2
+Version:	5.5.10
+Release:	%mkrel 1
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
@@ -214,6 +214,7 @@ Obsoletes:	%{libname}-devel
 Conflicts:	%{mklibname mysql 12 -d}
 Conflicts:	%{mklibname mysql 14 -d}
 Conflicts:	%{mklibname mysql 15 -d}
+Conflicts:	%{mklibname mysql 16 -d}
 
 %description -n	%{develname}
 This package contains the development header files and libraries necessary to

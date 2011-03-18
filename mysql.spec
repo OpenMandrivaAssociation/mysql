@@ -46,7 +46,7 @@
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.5.10
-Release:	%mkrel 2
+Release:	%mkrel 3
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
@@ -362,6 +362,9 @@ install -d %{buildroot}%{_var}/log/mysqld
 install -d %{buildroot}/var/lib/mysql/{mysql,test}
 
 %makeinstall_std -C build
+
+# to be fixed by some cmake guru...
+mv %{buildroot}%{_libdir}/libmysqlservices.so  %{buildroot}%{_libdir}/libmysqlservices.so.6.6.6
 
 # install init scripts
 install -m0755 build/support-files/mysql.server %{buildroot}%{_initrddir}/mysqld
@@ -719,7 +722,7 @@ rm -rf %{buildroot}
 %doc Docs/ChangeLog
 %attr(0755,root,root) %{_libdir}/libmysqlclient.so.%{major}*
 # not sure about this one...
-%attr(0755,root,root) %{_libdir}/libmysqlservices.so
+%attr(0755,root,root) %{_libdir}/libmysqlservices.so.0.0.0
 
 %files -n %{develname}
 %defattr(-,root,root)

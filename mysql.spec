@@ -364,7 +364,7 @@ install -d %{buildroot}/var/lib/mysql/{mysql,test}
 %makeinstall_std -C build
 
 # to be fixed by some cmake guru...
-mv %{buildroot}%{_libdir}/libmysqlservices.so  %{buildroot}%{_libdir}/libmysqlservices.so.6.6.6
+mv %{buildroot}%{_libdir}/libmysqlservices.so  %{buildroot}%{_libdir}/libmysqlservices.so.0.0.0
 
 # install init scripts
 install -m0755 build/support-files/mysql.server %{buildroot}%{_initrddir}/mysqld

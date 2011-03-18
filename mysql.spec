@@ -37,6 +37,8 @@
 %define _requires_exceptions perl(this)
 
 %define major 18
+%define libmysqlservices_major 0
+%define libmysqlservices_minor 0.0
 %define libname %mklibname mysql %{major}
 %define develname %mklibname -d mysql
 %define staticdevelname %mklibname -d -s mysql
@@ -46,7 +48,7 @@
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.5.10
-Release:	%mkrel 3
+Release:	%mkrel 4
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
@@ -77,6 +79,7 @@ Patch105:	mysql-5.1.35-test-variables-big.patch
 Patch106:	mysql-5.1.36-hotcopy.patch
 Patch107:	mysql-install_db-quiet.patch
 Patch108:	mysql-5.5.9-INSTALL_INCLUDEDIR_borkfix.diff
+Patch109:	mysql-libify_libservices.patch
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
@@ -267,6 +270,7 @@ This package contains the static development libraries.
 %patch106 -p0 -b .hotcopy
 %patch107 -p0 -b .install_db-quiet
 %patch108 -p0 -b .INSTALL_INCLUDEDIR_borkfix
+%patch109 -p0 -b .libify_libservices
 
 mkdir -p Mandriva
 cp %{SOURCE2} Mandriva/mysqld.sysconfig
@@ -338,12 +342,13 @@ export FFLAGS="${FFLAGS:-%{optflags}}"
     -DWITHOUT_NDBCLUSTER_STORAGE_ENGINE=1 \
     -DWITHOUT_DAEMON_EXAMPLE=1 \
     -DFEATURE_SET="community" \
-    -DCOMPILATION_COMMENT="Mandriva Linux - MySQL Community Edition (GPL)"
+    -DCOMPILATION_COMMENT="Mandriva Linux - MySQL Community Edition (GPL)" \
+    -DLIBSERVICES_SOVERSION="%{libmysqlservices_major}" \
+    -DLIBSERVICES_VERSION="%{libmysqlservices_major}.%{libmysqlservices_minor}"
 
 cp ../libmysql/libmysql.version libmysql/libmysql.version
 
 %make
-
 
 %install 
 rm -rf %{buildroot}
@@ -718,7 +723,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %doc Docs/ChangeLog
 %attr(0755,root,root) %{_libdir}/libmysqlclient.so.%{major}*
-%attr(0755,root,root) %{_libdir}/libmysqlservices.so.%{major}*
+%attr(0755,root,root) %{_libdir}/libmysqlservices.so.%{libmysqlservices_major}*
 
 %files -n %{develname}
 %defattr(-,root,root)

@@ -363,9 +363,6 @@ install -d %{buildroot}/var/lib/mysql/{mysql,test}
 
 %makeinstall_std -C build
 
-# to be fixed by some cmake guru...
-mv %{buildroot}%{_libdir}/libmysqlservices.so  %{buildroot}%{_libdir}/libmysqlservices.so.0.0.0
-
 # install init scripts
 install -m0755 build/support-files/mysql.server %{buildroot}%{_initrddir}/mysqld
 
@@ -721,8 +718,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %doc Docs/ChangeLog
 %attr(0755,root,root) %{_libdir}/libmysqlclient.so.%{major}*
-# not sure about this one...
-%attr(0755,root,root) %{_libdir}/libmysqlservices.so.0.0.0
+%attr(0755,root,root) %{_libdir}/libmysqlservices.so.%{major}*
 
 %files -n %{develname}
 %defattr(-,root,root)
@@ -731,6 +727,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_bindir}/mysql_config
 %attr(0755,root,root) %{_libdir}/libmysqlclient_r.so
 %attr(0755,root,root) %{_libdir}/libmysqlclient.so
+%attr(0755,root,root) %{_libdir}/libmysqlservices.so
 %dir %{_includedir}/mysql
 %dir %{_includedir}/mysql/psi
 %attr(0644,root,root) %{_includedir}/mysql/*.h

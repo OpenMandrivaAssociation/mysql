@@ -39,16 +39,20 @@
 %define major 18
 %define libmysqlservices_major 0
 %define libmysqlservices_minor 0.0
+%define libmysqld_major 0
+%define libmysqld_minor 0.1
 %define libname %mklibname mysql %{major}
 %define develname %mklibname -d mysql
 %define staticdevelname %mklibname -d -s mysql
+%define libmysqlservices %mklibname mysqlservices %{libmysqlservices_major}
+%define libembedded %mklibname mylsqd %{libmysqld_major}
 
 %define muser	mysql
 
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.5.10
-Release:	%mkrel 4
+Release:	%mkrel 5
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
@@ -199,6 +203,27 @@ Provides:	mysql-shared = %{version}-%{release}
 This package contains the shared libraries (*.so*) which certain languages and
 applications need to dynamically load and use MySQL.
 
+%package -n	%{libmysqlservices}
+Summary:	Shared libraries
+Group:		System/Libraries
+Conflicts:	%{mklibname mysql 16 } <= 5.5.9-2
+Conflicts:	%{mklibname mysql 18 } <= 5.5.10-4
+
+%description -n	%{libmysqlservices}
+The libmysqlservices library provides access to the available services and
+dynamic plugins now must be linked against this library 
+(use the -lmysqlservices flag).
+
+%package -n	%{libembedded}
+Summary:	Shared libraries
+Group:		System/Libraries
+
+%description -n	%{libembedded}
+This package contains the shared libraries (*.so*) of the MySQL server that can
+be embedded into a client application instead of running as a separate process.
+The API is identical for the embedded MySQL version and the client/server
+version.
+
 %package -n	%{develname}
 Summary:	Development header files and libraries
 Group:		Development/Other
@@ -209,6 +234,8 @@ Requires(preun): mysql-common >= %{version}-%{release}
 Requires(post): mysql-client >= %{version}-%{release}
 Requires(preun): mysql-client >= %{version}-%{release}
 Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libembedded} = %{version}-%{release}
+Requires:	%{libmysqlservices} = %{version}-%{release}
 Requires:	mysql-common >= %{version}-%{release}
 Requires:	mysql-client >= %{version}-%{release}
 Provides:	mysql-devel = %{version}-%{release}
@@ -349,6 +376,15 @@ export FFLAGS="${FFLAGS:-%{optflags}}"
 cp ../libmysql/libmysql.version libmysql/libmysql.version
 
 %make
+# regular build will make libmysqld.a but not libmysqld.so :-(
+mkdir libmysqld/work
+cd libmysqld/work
+ar -x ../libmysqld.a
+# these result in missing dependencies: (filed upstream as bug 59104)
+rm -f sql_binlog.cc.o rpl_utility.cc.o
+gcc $CFLAGS $LDFLAGS -shared -Wl,-soname,libmysqld.so.%{libmysqld_major} -o libmysqld.so.%{libmysqld_major}.%{libmysqld_minor} \
+	*.o ../../probes_mysql.o \
+	-lpthread -laio -lcrypt -lssl -lcrypto -lz -lrt -lstdc++ -ldl -lm -lc
 
 %install 
 rm -rf %{buildroot}
@@ -411,9 +447,14 @@ ln -s libmysqlclient.so %{buildroot}%{_libdir}/libmysqlclient_r.so
 mv %{buildroot}%{_datadir}/mysql/mysql-test/lib/My/SafeProcess/my_safe_process %{buildroot}%{_bindir}
 ln -s %{_bindir}/my_safe_process %{buildroot}%{_datadir}/mysql/mysql-test/lib/My/SafeProcess/my_safe_process
 
+# Remove libmysqld.a, install libmysqld.so
+rm -f %{buildroot}%{_libdir}/libmysqld.a
+install -m 0755 build/libmysqld/work/libmysqld.so.%{libmysqld_major}.%{libmysqld_minor} %{buildroot}%{_libdir}/libmysqld.so.%{libmysqld_major}.%{libmysqld_minor}
+ln -s libmysqld.so.%{libmysqld_major}.%{libmysqld_minor} %{buildroot}%{_libdir}/libmysqld.so.%{libmysqld_major}
+ln -s libmysqld.so.%{libmysqld_major} %{buildroot}%{_libdir}/libmysqld.so
+
 # house cleaning
 rm -rf %{buildroot}%{_datadir}/info
-rm -f %{buildroot}%{_bindir}/mysqltest_embedded
 rm -f %{buildroot}%{_bindir}/client_test
 rm -f %{buildroot}%{_bindir}/make_win_binary_distribution
 rm -f %{buildroot}%{_bindir}/make_win_src_distribution
@@ -723,7 +764,14 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %doc Docs/ChangeLog
 %attr(0755,root,root) %{_libdir}/libmysqlclient.so.%{major}*
+
+%files -n %{libmysqlservices}
+%defattr(-,root,root)
 %attr(0755,root,root) %{_libdir}/libmysqlservices.so.%{libmysqlservices_major}*
+
+%files -n %{libembedded}
+%defattr(-,root,root)
+%attr(0755,root,root) %{_libdir}/libmysqld.so.%{libmysqld_major}*
 
 %files -n %{develname}
 %defattr(-,root,root)
@@ -733,6 +781,11 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/libmysqlclient_r.so
 %attr(0755,root,root) %{_libdir}/libmysqlclient.so
 %attr(0755,root,root) %{_libdir}/libmysqlservices.so
+%attr(0755,root,root) %{_libdir}/libmysqld.so
+%attr(0755,root,root) %{_bindir}/mysql_client_test_embedded
+%attr(0755,root,root) %{_bindir}/mysqltest_embedded
+%attr(0755,root,root) %{_mandir}/man1/mysql_client_test_embedded.1*
+%attr(0755,root,root) %{_mandir}/man1/mysqltest_embedded.1*
 %dir %{_includedir}/mysql
 %dir %{_includedir}/mysql/psi
 %attr(0644,root,root) %{_includedir}/mysql/*.h

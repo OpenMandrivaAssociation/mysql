@@ -45,14 +45,14 @@
 %define develname %mklibname -d mysql
 %define staticdevelname %mklibname -d -s mysql
 %define libmysqlservices %mklibname mysqlservices %{libmysqlservices_major}
-%define libembedded %mklibname mylsqd %{libmysqld_major}
+%define libembedded %mklibname mysqld %{libmysqld_major}
 
 %define muser	mysql
 
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.5.11
-Release:	%mkrel 1
+Release:	%mkrel 2
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/

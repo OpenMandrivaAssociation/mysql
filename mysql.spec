@@ -51,8 +51,8 @@
 
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.5.10
-Release:	%mkrel 5
+Version:	5.5.11
+Release:	%mkrel 1
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
@@ -283,7 +283,7 @@ This package contains the static development libraries.
 %patch5 -p1 -b .chain-certs
 %patch6 -p1 -b .versioning
 %patch7 -p1 -b .dubious-exports
-%patch8 -p1 -b .disable-test
+%patch8 -p0 -b .disable-test
 %patch9 -p1 -b .embedded-crash
 %patch10 -p1 -b .home
 

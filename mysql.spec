@@ -480,6 +480,7 @@ rm -f %{buildroot}%{_prefix}/INSTALL-BINARY
 rm -f %{buildroot}%{_prefix}/README
 
 %multiarch_binaries %{buildroot}%{_bindir}/mysql_config
+
 %multiarch_includes %{buildroot}%{_includedir}/mysql/my_config.h
 
 cat > README.urpmi <<EOF

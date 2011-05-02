@@ -52,7 +52,7 @@
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.5.11
-Release:	%mkrel 3
+Release:	%mkrel 4
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
@@ -776,7 +776,7 @@ rm -rf %{buildroot}
 %files -n %{develname}
 %defattr(-,root,root)
 %doc INSTALL-SOURCE
-%multiarch %{multiarch_bindir}/mysql_config
+%{multiarch_bindir}/mysql_config
 %attr(0755,root,root) %{_bindir}/mysql_config
 %attr(0755,root,root) %{_libdir}/libmysqlclient_r.so
 %attr(0755,root,root) %{_libdir}/libmysqlclient.so
@@ -790,7 +790,7 @@ rm -rf %{buildroot}
 %dir %{_includedir}/mysql/psi
 %attr(0644,root,root) %{_includedir}/mysql/*.h
 %attr(0644,root,root) %{_includedir}/mysql/psi/*.h
-%multiarch %{multiarch_includedir}/mysql/my_config.h
+%{multiarch_includedir}/mysql/my_config.h
 %attr(0644,root,root) %{_mandir}/man1/comp_err.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_config.1*
 %attr(0644,root,root) %{_datadir}/aclocal/mysql.m4

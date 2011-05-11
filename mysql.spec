@@ -51,8 +51,8 @@
 
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.5.11
-Release:	%mkrel 4
+Version:	5.5.12
+Release:	%mkrel 1
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
@@ -285,7 +285,7 @@ This package contains the static development libraries.
 %patch7 -p1 -b .dubious-exports
 %patch8 -p0 -b .disable-test
 %patch9 -p1 -b .embedded-crash
-%patch10 -p1 -b .home
+%patch10 -p0 -b .home
 
 # mandriva patches
 %patch100 -p0 -b .mysqldumpslow_no_basedir

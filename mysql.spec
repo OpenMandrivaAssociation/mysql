@@ -51,7 +51,7 @@
 
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.5.13
+Version:	5.5.14
 Release:	%mkrel 1
 Group:		Databases
 License:	GPL

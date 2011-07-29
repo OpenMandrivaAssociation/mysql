@@ -51,13 +51,13 @@
 
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.5.14
+Version:	5.5.15
 Release:	%mkrel 1
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
-Source0:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz
-Source1:	http://mysql.dataphone.se/Downloads/MySQL-5.1/mysql-%{version}.tar.gz.asc
+Source0:	http://ftp.sunet.se/pub/unix/databases/relational/mysql/Downloads/MySQL-5.5/mysql-%{version}.tar.gz
+Source1:	http://ftp.sunet.se/pub/unix/databases/relational/mysql/Downloads/MySQL-5.5/mysql-%{version}.tar.gz.asc
 Source2:	mysqld.sysconfig
 Source3:	my.cnf
 Source4:	libmysql.version
@@ -71,7 +71,6 @@ Patch5:		mysql-chain-certs.patch
 Patch6:		mysql-versioning.patch
 Patch7:		mysql-dubious-exports.patch
 Patch8:		mysql-disable-test.patch
-Patch9:		mysql-embedded-crash.patch
 Patch10:	mysql-home.patch
 # mandriva patches
 Patch100:	mysql-mysqldumpslow_no_basedir.diff
@@ -284,7 +283,6 @@ This package contains the static development libraries.
 %patch6 -p1 -b .versioning
 %patch7 -p1 -b .dubious-exports
 %patch8 -p0 -b .disable-test
-%patch9 -p1 -b .embedded-crash
 %patch10 -p0 -b .home
 
 # mandriva patches

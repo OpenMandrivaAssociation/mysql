@@ -51,7 +51,7 @@
 
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.5.15
+Version:	5.5.16
 Release:	%mkrel 1
 Group:		Databases
 License:	GPL
@@ -468,6 +468,7 @@ rm -f %{buildroot}%{_datadir}/mysql/binary-configure
 rm -f %{buildroot}%{_mandir}/man1/make_win_bin_dist.1*
 rm -f %{buildroot}%{_mandir}/man1/make_win_src_distribution.1*
 rm -f %{buildroot}%{_datadir}/mysql/magic
+rm -f %{buildroot}%{_libdir}/mysql/plugin/daemon_example.ini
 
 # no idea how to fix this
 rm -rf %{buildroot}%{_prefix}/data
@@ -690,6 +691,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_bindir}/mysql_fix_extensions 
 %attr(0755,root,root) %{_bindir}/mysqlhotcopy
 %attr(0755,root,root) %{_bindir}/mysql_install_db
+%attr(0755,root,root) %{_bindir}/mysql_plugin
 %attr(0755,root,root) %{_bindir}/mysql_secure_installation
 %attr(0755,root,root) %{_bindir}/mysql_setpermission
 %attr(0755,root,root) %{_bindir}/mysqltest
@@ -746,6 +748,7 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %{_mandir}/man1/mysqlhotcopy.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_install_db.1*
 %attr(0644,root,root) %{_mandir}/man1/mysqlman.1*
+%attr(0644,root,root) %{_mandir}/man1/mysql_plugin.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_secure_installation.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql.server.1*
 %attr(0644,root,root) %{_mandir}/man1/mysql_setpermission.1*
@@ -771,6 +774,7 @@ rm -rf %{buildroot}
 %files -n %{libembedded}
 %defattr(-,root,root)
 %attr(0755,root,root) %{_libdir}/libmysqld.so.%{libmysqld_major}*
+%attr(0755,root,root) %{_bindir}/mysql_embedded
 
 %files -n %{develname}
 %defattr(-,root,root)

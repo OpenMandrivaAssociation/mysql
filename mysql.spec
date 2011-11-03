@@ -383,7 +383,7 @@ ar -x ../libmysqld.a
 # these result in missing dependencies: (filed upstream as bug 59104)
 rm -f sql_binlog.cc.o rpl_utility.cc.o
 gcc $CFLAGS $LDFLAGS -shared -Wl,-soname,libmysqld.so.%{libmysqld_major} -o libmysqld.so.%{libmysqld_major}.%{libmysqld_minor} \
-	*.o ../../probes_mysql.o \
+	*.o \
 	-lpthread -laio -lcrypt -lssl -lcrypto -lz -lrt -lstdc++ -ldl -lm -lc
 
 %install 

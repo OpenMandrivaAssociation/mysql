@@ -51,7 +51,7 @@
 
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.5.16
+Version:	5.5.17
 Release:	%mkrel 1
 Group:		Databases
 License:	GPL
@@ -87,15 +87,15 @@ Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires(pre): rpm-helper
 Requires(postun): rpm-helper
-Requires(post): mysql-common = %{version}-%{release}
-Requires(preun): mysql-common = %{version}-%{release}
-Requires(post): mysql-client = %{version}-%{release}
-Requires(preun): mysql-client = %{version}-%{release}
-Requires(postun): mysql-common = %{version}-%{release}
-Requires(postun): mysql-client = %{version}-%{release}
-Requires:	mysql-common = %{version}-%{release}
-Requires:	mysql-core = %{version}-%{release}
-Requires:	mysql-client = %{version}-%{release}
+Requires(post): mysql-common >= %{version}-%{release}
+Requires(preun): mysql-common >= %{version}-%{release}
+Requires(post): mysql-client >= %{version}-%{release}
+Requires(preun): mysql-client >= %{version}-%{release}
+Requires(postun): mysql-common >= %{version}-%{release}
+Requires(postun): mysql-client >= %{version}-%{release}
+Requires:	mysql-common >= %{version}-%{release}
+Requires:	mysql-core >= %{version}-%{release}
+Requires:	mysql-client >= %{version}-%{release}
 BuildRequires:	bison
 BuildRequires:	cmake
 BuildRequires:	dos2unix
@@ -205,7 +205,7 @@ applications need to dynamically load and use MySQL.
 %package -n	%{libmysqlservices}
 Summary:	Shared libraries
 Group:		System/Libraries
-Conflicts:	%{mklibname mysql 16 } <= 5.5.9-2
+Conflicts:	%{mklibname mysql 16 } >= 5.5.8-1
 Conflicts:	%{mklibname mysql 18 } <= 5.5.10-4
 
 %description -n	%{libmysqlservices}
@@ -244,6 +244,8 @@ Conflicts:	%{mklibname mysql 12 -d}
 Conflicts:	%{mklibname mysql 14 -d}
 Conflicts:	%{mklibname mysql 15 -d}
 Conflicts:	%{mklibname mysql 16 -d}
+# https://qa.mandriva.com/show_bug.cgi?id=64668
+Requires:	rpm-build
 
 %description -n	%{develname}
 This package contains the development header files and libraries necessary to
@@ -355,7 +357,7 @@ export FFLAGS="${FFLAGS:-%{optflags}}"
     -DMYSQL_TCP_PORT=3306 \
     -DEXTRA_CHARSETS=all \
     -DENABLED_LOCAL_INFILE=1 \
-    -DENABLE_DTRACE=1 \
+    -DENABLE_DTRACE=0 \
     -DWITH_EMBEDDED_SERVER=1 \
     -DMYSQL_USER=%{muser} \
 %if %{build_debug}

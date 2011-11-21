@@ -51,13 +51,13 @@
 
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.5.17
+Version:	5.5.18
 Release:	%mkrel 1
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
-Source0:	http://ftp.sunet.se/pub/unix/databases/relational/mysql/Downloads/MySQL-5.5/mysql-%{version}.tar.gz
-Source1:	http://ftp.sunet.se/pub/unix/databases/relational/mysql/Downloads/MySQL-5.5/mysql-%{version}.tar.gz.asc
+Source0:	ftp://ftp.gwdg.de/pub/misc/mysql/Downloads/MySQL-5.5/mysql-%{version}.tar.gz
+Source1:	ftp://ftp.gwdg.de/pub/misc/mysql/Downloads/MySQL-5.5/mysql-%{version}.tar.gz.asc
 Source2:	mysqld.sysconfig
 Source3:	my.cnf
 Source4:	libmysql.version

@@ -326,9 +326,16 @@ cp %{SOURCE4} libmysql/libmysql.version
 
 %build
 %serverbuild
-export CFLAGS="${CFLAGS:-%{optflags}}"
-export CXXFLAGS="${CXXFLAGS:-%{optflags}}"
-export FFLAGS="${FFLAGS:-%{optflags}}"
+
+# it does not work with -fPIE and someone added that to the serverbuild macro...
+CFLAGS=`echo $CFLAGS|sed -e 's|-fPIE||g'`
+CXXFLAGS=`echo $CXXFLAGS|sed -e 's|-fPIE||g'`
+
+CFLAGS="$CFLAGS -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE"
+# MySQL 4.1.10 definitely doesn't work under strict aliasing; also,
+# gcc 4.1 breaks MySQL 5.0.16 without -fwrapv
+CFLAGS="$CFLAGS -fno-strict-aliasing -fwrapv"
+export CFLAGS CXXFLAGS
 
 %cmake \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \

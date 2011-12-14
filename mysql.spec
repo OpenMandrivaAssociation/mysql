@@ -43,7 +43,7 @@ Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
 Source0:	ftp://ftp.gwdg.de/pub/misc/mysql/Downloads/MySQL-5.5/mysql-%{version}.tar.gz
-Source1:	ftp://ftp.gwdg.de/pub/misc/mysql/Downloads/MySQL-5.5/mysql-%{version}.tar.gz.asc
+Source1:	%{SOURCE0}.asc
 Source2:	mysqld.sysconfig
 Source3:	my.cnf
 Source4:	libmysql.version

@@ -77,7 +77,7 @@ BuildRequires:	doxygen
 BuildRequires:	glibc-devel
 BuildRequires:	libaio-devel
 BuildRequires:	libstdc++-devel
-BuildRequires:	libtermcap-devel
+BuildRequires:	termcap-devel
 BuildRequires:	multiarch-utils >= 1.0.3
 BuildRequires:	ncurses-devel
 BuildRequires:	openssl-devel

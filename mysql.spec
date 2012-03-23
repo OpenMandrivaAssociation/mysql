@@ -85,7 +85,7 @@ BuildRequires:	readline-devel
 BuildRequires:	systemtap
 BuildRequires:	tetex
 BuildRequires:	texinfo
-BuildRequires:	xfs-devel
+BuildRequires:	xfsprogs-devel
 BuildRequires:	zlib-devel
 BuildConflicts:	edit-devel
 

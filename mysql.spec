@@ -1,3 +1,6 @@
+%define _build_pkgcheck_set %{nil}
+%define _build_pkgcheck_srpm %{nil}
+
 %define Werror_cflags %nil
 %define _disable_ld_no_undefined 1
 

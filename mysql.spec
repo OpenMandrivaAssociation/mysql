@@ -40,7 +40,7 @@
 %define muser	mysql
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.5.23
+Version:	5.5.24
 Release:	1
 Group:		Databases
 License:	GPL
@@ -361,8 +361,6 @@ gcc $CFLAGS $LDFLAGS -shared -Wl,-soname,libmysqld.so.%{mysqld_major} -o libmysq
 	-lpthread -laio -lcrypt -lssl -lcrypto -lz -lrt -lstdc++ -ldl -lm -lc
 
 %install 
-rm -rf %{buildroot}
-
 # don't fiddle with the initscript!
 export DONT_GPRINTIFY=1
 
@@ -716,23 +714,23 @@ fi
 %{_datadir}/mysql/ukrainian
 
 %files -n %{libclient}
-%attr(0755,root,root) %{_libdir}/libmysqlclient.so.%{major}*
+%{_libdir}/libmysqlclient.so.%{major}*
 
 %files -n %{libservices}
-%attr(0755,root,root) %{_libdir}/libmysqlservices.so.%{services_major}*
+%{_libdir}/libmysqlservices.so.%{services_major}*
 
 %files -n %{libmysqld}
-%attr(0755,root,root) %{_libdir}/libmysqld.so.%{mysqld_major}*
+%{_libdir}/libmysqld.so.%{mysqld_major}*
 
 %files -n %{develname}
 %doc INSTALL-SOURCE
 %doc Docs/ChangeLog
 %{multiarch_bindir}/mysql_config
-%attr(0755,root,root) %{_bindir}/mysql_config
-%attr(0755,root,root) %{_libdir}/libmysqlclient_r.so
-%attr(0755,root,root) %{_libdir}/libmysqlclient.so
-%attr(0755,root,root) %{_libdir}/libmysqlservices.so
-%attr(0755,root,root) %{_libdir}/libmysqld.so
+%{_bindir}/mysql_config
+%{_libdir}/libmysqlclient_r.so
+%{_libdir}/libmysqlclient.so
+%{_libdir}/libmysqlservices.so
+%{_libdir}/libmysqld.so
 %dir %{_includedir}/mysql
 %dir %{_includedir}/mysql/psi
 %attr(0644,root,root) %{_includedir}/mysql/*.h
@@ -743,5 +741,5 @@ fi
 %attr(0644,root,root) %{_datadir}/aclocal/mysql.m4
 
 %files -n %{staticname}
-%attr(0644,root,root) %{_libdir}/*.a
+%{_libdir}/*.a
 

@@ -4,6 +4,7 @@
 %define Werror_cflags %nil
 %define _disable_ld_no_undefined 1
 
+%define _with_systemd 1
 #(ie. use with rpm --rebuild):
 #
 #	--with debug	Compile with debugging code
@@ -41,7 +42,7 @@
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.5.24
-Release:	1
+Release:	2
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
@@ -50,6 +51,7 @@ Source1:	%{SOURCE0}.asc
 Source2:	mysqld.sysconfig
 Source3:	my.cnf
 Source4:	libmysql.version
+Source5:	mysqld.service
 # fedora patches
 Patch0:		mysql-errno.patch
 Patch1:		mysql-strmov.patch
@@ -86,10 +88,9 @@ BuildRequires:	openssl-devel
 BuildRequires:	python
 BuildRequires:	readline-devel
 BuildRequires:	systemtap
-BuildRequires:	tetex
-BuildRequires:	texinfo
 BuildRequires:	xfsprogs-devel
 BuildRequires:	zlib-devel
+BuildRequires:  systemd-units
 BuildConflicts:	edit-devel
 
 Requires(post): rpm-helper
@@ -457,6 +458,11 @@ rm -f %{buildroot}%{_prefix}/README
 
 %multiarch_includes %{buildroot}%{_includedir}/mysql/my_config.h
 
+%if %{_with_systemd}
+	# systemd
+	mkdir -p %{buildroot}/lib/systemd/system
+	install -m644 %{SOURCE5} %{buildroot}%{_systemunitdir}
+%endif
 cat > README.urpmi <<EOF
 
 The initscript used to start mysql has been reverted to use the one shipped
@@ -532,17 +538,13 @@ chown -R %{muser}:%{muser} /var/lib/mysql /var/run/mysqld /var/log/mysqld
 # make sure the /var/lib/mysql directory can be accessed
 chmod 711 /var/lib/mysql
 
-%_post_service mysqld
+%_post_service mysqld mysqld.service
 
 %preun server
-%_preun_service mysqld
+%_preun_service mysqld mysqld.service
 
 %postun server
-if [ "$1" = "0" ]; then
-    if [ -f /var/lock/subsys/mysqld ]; then
-        %{_initrddir}/mysqld restart > /dev/null 2>/dev/null || :
-    fi
-fi
+%_postun_unit mysqld.service
 
 %pre common
 # enable plugins
@@ -550,6 +552,12 @@ if [ -f %{_sysconfdir}/my.cnf ]; then
     perl -pi -e "s|^#plugin-load|plugin-load|g" %{_sysconfdir}/my.cnf
     perl -pi -e "s|^#federated|federated|g" %{_sysconfdir}/my.cnf
 fi
+
+%triggerun -- %{name} < 5.5.24-1
+%_systemd_migrate_service_pre %{name} %{name}d.service
+
+%triggerpostun -- %{name} < 5.5.24-1
+%_systemd_migrate_service_post %{name} %{name}d.service
 
 %files
 # metapkg
@@ -683,6 +691,7 @@ fi
 %attr(0644,root,root) %{_mandir}/man1/resolveip.1*
 %attr(0644,root,root) %{_mandir}/man1/resolve_stack_dump.1*
 %attr(0644,root,root) %{_mandir}/man8/mysqld.8*
+%{_systemunitdir}/mysqld.service
 
 %files common
 %doc README COPYING

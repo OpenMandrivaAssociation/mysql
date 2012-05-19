@@ -52,6 +52,8 @@ Source2:	mysqld.sysconfig
 Source3:	my.cnf
 Source4:	libmysql.version
 Source5:	mysqld.service
+Source6:	mysqld-prepare-db-dir
+Source7:	mysqld-wait-ready
 # fedora patches
 Patch0:		mysql-errno.patch
 Patch1:		mysql-strmov.patch
@@ -462,6 +464,8 @@ rm -f %{buildroot}%{_prefix}/README
 	# systemd
 	mkdir -p %{buildroot}/lib/systemd/system
 	install -m644 %{SOURCE5} %{buildroot}%{_systemunitdir}
+	install -m 755 %{SOURCE6} %{buildroot}%{_libexecdir}/
+	install -m 755 %{SOURCE7} %{buildroot}%{_libexecdir}/
 %endif
 cat > README.urpmi <<EOF
 
@@ -691,7 +695,10 @@ fi
 %attr(0644,root,root) %{_mandir}/man1/resolveip.1*
 %attr(0644,root,root) %{_mandir}/man1/resolve_stack_dump.1*
 %attr(0644,root,root) %{_mandir}/man8/mysqld.8*
+
 %{_systemunitdir}/mysqld.service
+%{_libexecdir}/mysqld-prepare-db-dir
+%{_libexecdir}/mysqld-wait-ready
 
 %files common
 %doc README COPYING

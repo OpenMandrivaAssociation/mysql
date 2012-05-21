@@ -42,7 +42,7 @@
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.5.24
-Release:	3
+Release:	4
 Group:		Databases
 License:	GPL
 URL:		http://www.mysql.com/
@@ -65,6 +65,7 @@ Patch6:		mysql-versioning.patch
 Patch7:		mysql-dubious-exports.patch
 Patch8:		mysql-disable-test.patch
 Patch10:	mysql-home.patch
+Patch11:	mysqld_safe-nowatch.patch
 # mandriva patches
 Patch100:	mysql-mysqldumpslow_no_basedir.diff
 Patch101:	mysql-logrotate.diff
@@ -256,6 +257,7 @@ This package contains the static development libraries.
 %patch7 -p1 -b .dubious-exports
 %patch8 -p0 -b .disable-test
 %patch10 -p0 -b .home
+%patch11 -p1 -b .nowatch
 
 # mandriva patches
 %patch100 -p0 -b .mysqldumpslow_no_basedir
@@ -697,8 +699,8 @@ fi
 %attr(0644,root,root) %{_mandir}/man8/mysqld.8*
 
 %{_systemunitdir}/mysqld.service
-%{_libexecdir}/mysqld-prepare-db-dir
-%{_libexecdir}/mysqld-wait-ready
+%{_bindir}/mysqld-prepare-db-dir
+%{_bindir}/mysqld-wait-ready
 
 %files common
 %doc README COPYING

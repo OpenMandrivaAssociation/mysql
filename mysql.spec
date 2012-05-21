@@ -466,8 +466,8 @@ rm -f %{buildroot}%{_prefix}/README
 	# systemd
 	mkdir -p %{buildroot}/lib/systemd/system
 	install -m644 %{SOURCE5} %{buildroot}%{_systemunitdir}
-	install -m 755 %{SOURCE6} %{buildroot}%{_libexecdir}/
-	install -m 755 %{SOURCE7} %{buildroot}%{_libexecdir}/
+	install -m 755 %{SOURCE6} %{buildroot}%{_bindir}/
+	install -m 755 %{SOURCE7} %{buildroot}%{_bindir}/
 %endif
 cat > README.urpmi <<EOF
 

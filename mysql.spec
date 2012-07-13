@@ -41,7 +41,7 @@
 %define muser	mysql
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.5.25
+Version:	5.5.25a
 Release:	1
 Group:		Databases
 License:	GPL

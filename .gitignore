@@ -1,0 +1,8 @@
+libmysql.version
+my.cnf
+mysql-5.5.25a.tar.gz
+mysql-5.5.25a.tar.gz.asc
+mysqld-prepare-db-dir
+mysqld.service
+mysqld.sysconfig
+mysqld-wait-ready

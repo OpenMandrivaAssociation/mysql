@@ -1,0 +1,9 @@
+sources:
+  "libmysql.version:"	651606fead095e4c5fea62c1b847a4da026e704e
+  "my.cnf:"	161486df890a1c537054d88bf8ff40606e9b0854
+  "mysql-5.5.25a.tar.gz:"	85dfea413a7d5d2733a40f9dd79cf2320302979f
+  "mysql-5.5.25a.tar.gz.asc:"	5c5e13655371ca897b3296bad9d7f19f28efc060
+  "mysqld-prepare-db-dir:"	cd9477987875cb595c67d906a6968386ecf69297
+  "mysqld.service:"	4065575f4d5608dd70974ba6b2257f70c5948bae
+  "mysqld.sysconfig:"	3324c3ee3838df85f236e755e77c23bea9326b49
+  "mysqld-wait-ready:"	bff4c8b857218a543242b9fe75720dbcb6fd2f59

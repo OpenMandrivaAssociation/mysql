@@ -1,0 +1,4 @@
+# (oe) set TMPDIR and TMP environment variables
+TMPDIR="/var/tmp"
+TMP="${TMPDIR}"
+

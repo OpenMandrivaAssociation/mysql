@@ -1,9 +1,9 @@
---- scripts/mysqlhotcopy.sh	2010-12-03 18:58:26.000000000 +0100
-+++ scripts/mysqlhotcopy.sh.oden	2010-12-27 13:42:50.919921524 +0100
-@@ -790,7 +790,24 @@ sub get_list_of_tables {
+--- scripts/mysqlhotcopy.sh~    2013-01-16 08:35:17.000000000 +0100
++++ scripts/mysqlhotcopy.sh     2013-02-07 20:28:19.814313689 +0100
+@@ -843,7 +843,24 @@
          } || [];
      warn "Unable to retrieve list of tables in $db: $@" if $@;
- 
+
 -    return (map { $_->[0] } @$tables);
 +    my @ignore_tables = ();
 +
@@ -24,5 +24,5 @@
 +
 +    return @res;
  }
- 
- sub quote_names {
+
+ sub get_list_of_views {

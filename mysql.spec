@@ -85,8 +85,7 @@ BuildRequires:	doxygen
 BuildRequires:	glibc-devel
 BuildRequires:	libaio-devel
 BuildRequires:	libstdc++-devel
-BuildRequires:	termcap-devel
-BuildRequires:	ncurses-devel
+BuildRequires:	pkgconfig(ncursesw)
 BuildRequires:	openssl-devel
 BuildRequires:	python
 BuildRequires:	readline-devel

@@ -72,7 +72,7 @@ Patch106:	mysql-5.1.36-hotcopy.patch
 Patch107:	mysql-install_db-quiet.patch
 Patch108:	mysql-5.5.9-INSTALL_INCLUDEDIR_borkfix.diff
 Patch109:	mysql-libify_libservices.patch
-
+Patch110:	mysql-5.6.14-mysqld_link.patch
 BuildRequires:	bison
 BuildRequires:	cmake
 BuildRequires:	dos2unix
@@ -239,6 +239,7 @@ This package contains the static development libraries.
 %patch107 -p0 -b .install_db-quiet
 %patch108 -p0 -b .INSTALL_INCLUDEDIR_borkfix
 %patch109 -p0 -b .libify_libservices
+%patch110 -p1 -b .mysqld_link
 
 mkdir -p Mandriva
 cp %{SOURCE2} Mandriva/mysqld.sysconfig

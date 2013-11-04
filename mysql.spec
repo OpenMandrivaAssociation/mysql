@@ -418,8 +418,8 @@ rm -f %{buildroot}%{_mandir}/man1/make_win_src_distribution.1*
 rm -f %{buildroot}%{_datadir}/mysql/magic
 rm -f %{buildroot}%{_libdir}/mysql/plugin/daemon_example.ini
 rm -f %{buildroot}%{_bindir}/mysql_embedded
-rm -rf %{buildroot}%{_datadir}/bulgarian
-rm -rf %{buildroot}%{_datadir}/solaris
+rm -rf %{buildroot}%{_datadir}/mysql/bulgarian
+rm -rf %{buildroot}%{_datadir}/mysql/solaris
 
 # no idea how to fix this
 rm -rf %{buildroot}%{_prefix}/data
@@ -545,9 +545,6 @@ fi
 %{_libdir}/mysql/plugin/auth.so
 %{_libdir}/mysql/plugin/auth_socket.so
 %{_libdir}/mysql/plugin/auth_test_plugin.so
-%{_libdir}/mysql/plugin/ha_archive.so
-%{_libdir}/mysql/plugin/ha_blackhole.so
-%{_libdir}/mysql/plugin/ha_federated.so
 %{_libdir}/mysql/plugin/mypluglib.so
 %{_libdir}/mysql/plugin/qa_auth_client.so
 %{_libdir}/mysql/plugin/qa_auth_interface.so

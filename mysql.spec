@@ -317,7 +317,7 @@ export CFLAGS CXXFLAGS
     -DWITHOUT_NDBCLUSTER_STORAGE_ENGINE=1 \
     -DWITHOUT_DAEMON_EXAMPLE=1 \
     -DFEATURE_SET="community" \
-    -DCOMPILATION_COMMENT="OpenMandriva Lx - MySQL Community Edition (GPL)" \
+    -DCOMPILATION_COMMENT="%{distribution} - MySQL Community Edition (GPL)" \
     -DLIBSERVICES_SOVERSION="%{services_major}" \
     -DLIBSERVICES_VERSION="%{services_major}.%{services_minor}"
 
@@ -469,7 +469,7 @@ plugin_dir=%{_libdir}/mysql/plugin
 plugin-load=ha_archive.so;ha_blackhole.so;ha_federated.so
 
 Starting from mysql-5.1.44-3 the html documentation and the mysql.info is not
-shipped with the OpenMandriva Lx packages due to strict licensing.
+shipped with the %{distribution} packages due to strict licensing.
 
 EOF
 

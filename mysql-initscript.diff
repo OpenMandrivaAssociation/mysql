@@ -237,8 +237,8 @@
        fi
      else
 @@ -362,13 +438,13 @@
-       mysqld_pid=`pidof $libexecdir/mysqld`
-       if test -z $mysqld_pid ; then 
+         exit 5
+       elif test -z $mysqld_pid ; then 
          if test -f "$lock_file_path" ; then 
 -          log_failure_msg "MySQL is not running, but lock file ($lock_file_path) exists"
 +          log_failure_msg "MySQL is not running, but lock file ($lock_file_path) exists"; echo

@@ -11,7 +11,7 @@ diff -Naurp mysql-5.5.8/client/mysql_upgrade.c mysql-5.5.8.oden/client/mysql_upg
 +    exit(0);
    }
  
-   /*
+   if (opt_version_check && check_version_match())
 diff -Naurp mysql-5.5.8/mysql-test/t/mysql_upgrade.test mysql-5.5.8.oden/mysql-test/t/mysql_upgrade.test
 --- mysql-5.5.8/mysql-test/t/mysql_upgrade.test	2010-12-03 18:58:24.000000000 +0100
 +++ mysql-5.5.8.oden/mysql-test/t/mysql_upgrade.test	2010-12-27 13:39:27.151859381 +0100

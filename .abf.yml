@@ -1,4 +1,4 @@
 removed_sources:
   mysql-5.5.25a.tar.gz: 85dfea413a7d5d2733a40f9dd79cf2320302979f
 sources:
-  mysql-5.5.30.tar.gz: d7e31246d29f6ed4a9c4b966d6896bf920b68351
+  mysql-5.6.14.tar.gz: 7cf44fb2a7733b52559f66c00446122bc79321d2

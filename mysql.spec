@@ -41,7 +41,7 @@
 
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.5.30
+Version:	5.6.14
 Release:	1
 Group:		Databases
 License:	GPLv2
@@ -55,15 +55,10 @@ Source5:	mysqld.service
 Source6:	mysqld-prepare-db-dir
 Source7:	mysqld-wait-ready
 # fedora patches
-Patch0:		mysql-errno.patch
 Patch1:		mysql-strmov.patch
 Patch2:		mysql-install-test.patch
 Patch3:		mysql-expired-certs.patch
-Patch4:		mysql-stack-guard.patch
 Patch5:		mysql-chain-certs.patch
-Patch6:		mysql-versioning.patch
-Patch7:		mysql-dubious-exports.patch
-Patch8:		mysql-disable-test.patch
 Patch10:	mysql-home.patch
 Patch11:	mysqld_safe-nowatch.patch
 # mandriva patches
@@ -77,7 +72,6 @@ Patch106:	mysql-5.1.36-hotcopy.patch
 Patch107:	mysql-install_db-quiet.patch
 Patch108:	mysql-5.5.9-INSTALL_INCLUDEDIR_borkfix.diff
 Patch109:	mysql-libify_libservices.patch
-Patch110:	mysql_valist_fix.patch
 
 BuildRequires:	bison
 BuildRequires:	cmake
@@ -226,15 +220,10 @@ This package contains the static development libraries.
 %setup -q
 
 # fedora patches
-%patch0 -p1 -b .errno
 %patch1 -p1 -b .strmov
 %patch2 -p1 -b .install-test
 %patch3 -p1 -b .expired-certs
-%patch4 -p1 -b .stack-guard
 %patch5 -p1 -b .chain-certs
-%patch6 -p1 -b .versioning
-%patch7 -p1 -b .dubious-exports
-%patch8 -p0 -b .disable-test
 %patch10 -p0 -b .home
 %patch11 -p1 -b .nowatch
 
@@ -249,7 +238,6 @@ This package contains the static development libraries.
 %patch107 -p0 -b .install_db-quiet
 %patch108 -p0 -b .INSTALL_INCLUDEDIR_borkfix
 %patch109 -p0 -b .libify_libservices
-%patch110 -p1 -b .arm_va
 
 mkdir -p Mandriva
 cp %{SOURCE2} Mandriva/mysqld.sysconfig
@@ -429,6 +417,8 @@ rm -f %{buildroot}%{_mandir}/man1/make_win_src_distribution.1*
 rm -f %{buildroot}%{_datadir}/mysql/magic
 rm -f %{buildroot}%{_libdir}/mysql/plugin/daemon_example.ini
 rm -f %{buildroot}%{_bindir}/mysql_embedded
+rm -rf %{buildroot}%{_datadir}/bulgarian
+rm -rf %{buildroot}%{_datadir}/solaris
 
 # no idea how to fix this
 rm -rf %{buildroot}%{_prefix}/data
@@ -563,6 +553,7 @@ fi
 %{_libdir}/mysql/plugin/qa_auth_server.so
 %{_libdir}/mysql/plugin/semisync_master.so
 %{_libdir}/mysql/plugin/semisync_slave.so
+%{_libdir}/mysql/plugin/validate_password.so
 
 %files client
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/mysqlaccess.conf
@@ -573,6 +564,7 @@ fi
 %{_bindir}/mysqlanalyze
 %{_bindir}/mysqlbinlog
 %{_bindir}/mysqlcheck
+%{_bindir}/mysql_config_editor
 %{_bindir}/mysqldump
 %{_bindir}/mysqldumpslow
 %{_bindir}/mysql_find_rows
@@ -597,6 +589,7 @@ fi
 %{_mandir}/man1/mysqlshow.1*
 %{_mandir}/man1/mysql_waitpid.1*
 %{_mandir}/man1/my_print_defaults.1*
+%{_mandir}/man1/mysql_config_editor.1*
 
 %files bench
 %doc build/sql-bench/README
@@ -652,6 +645,9 @@ fi
 %{_datadir}/mysql/mysql_system_tables_data.sql
 %{_datadir}/mysql/mysql_test_data_timezone.sql
 %{_datadir}/mysql/errmsg-utf8.txt
+%{_datadir}/mysql/dictionary.txt
+%{_datadir}/mysql/mysql_security_commands.sql
+%{_datadir}/mysql/innodb_memcached_config.sql
 %{_mandir}/man1/innochecksum.1*
 %{_mandir}/man1/myisamchk.1*
 %{_mandir}/man1/myisamlog.1*
@@ -732,6 +728,7 @@ fi
 %dir %{_includedir}/mysql
 %dir %{_includedir}/mysql/psi
 %{_includedir}/mysql/*.h
+%{_includedir}/mysql/*.h.pp
 %{_includedir}/mysql/psi/*.h
 %{multiarch_includedir}/mysql/my_config.h
 %{_mandir}/man1/comp_err.1*

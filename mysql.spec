@@ -324,12 +324,10 @@ export CFLAGS CXXFLAGS
 cp ../libmysql/libmysql.version libmysql/libmysql.version
 
 %make
-# regular build will make libmysqld.a but not libmysqld.so :-(
+# Upstream bug: http://bugs.mysql.com/68559
 mkdir libmysqld/work
-cd libmysqld/work
+pushd libmysqld/work
 ar -x ../libmysqld.a
-# these result in missing dependencies: (filed upstream as bug 59104)
-rm -f sql_binlog.cc.o rpl_utility.cc.o
 gcc $CFLAGS $LDFLAGS -shared -Wl,-soname,libmysqld.so.%{mysqld_major} -o libmysqld.so.%{mysqld_major}.%{mysqld_minor} \
 	*.o \
 	-lpthread -laio -lcrypt -lssl -lcrypto -lz -lrt -lstdc++ -ldl -lm -lc

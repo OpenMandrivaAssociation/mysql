@@ -317,7 +317,7 @@ export CFLAGS CXXFLAGS
     -DWITHOUT_NDBCLUSTER_STORAGE_ENGINE=1 \
     -DWITHOUT_DAEMON_EXAMPLE=1 \
     -DFEATURE_SET="community" \
-    -DCOMPILATION_COMMENT="Mandriva Linux - MySQL Community Edition (GPL)" \
+    -DCOMPILATION_COMMENT="OpenMandriva Lx - MySQL Community Edition (GPL)" \
     -DLIBSERVICES_SOVERSION="%{services_major}" \
     -DLIBSERVICES_VERSION="%{services_major}.%{services_minor}"
 
@@ -328,7 +328,7 @@ cp ../libmysql/libmysql.version libmysql/libmysql.version
 mkdir libmysqld/work
 pushd libmysqld/work
 ar -x ../libmysqld.a
-gcc $CFLAGS $LDFLAGS -shared -Wl,-soname,libmysqld.so.%{mysqld_major} -o libmysqld.so.%{mysqld_major}.%{mysqld_minor} \
+gcc $CFLAGS $LDFLAGS -DEMBEDDED_LIBRARY -shared -Wl,-soname,libmysqld.so.%{mysqld_major} -o libmysqld.so.%{mysqld_major}.%{mysqld_minor} \
 	*.o \
 	-lpthread -laio -lcrypt -lssl -lcrypto -lz -lrt -lstdc++ -ldl -lm -lc
 
@@ -416,7 +416,6 @@ rm -f %{buildroot}%{_mandir}/man1/make_win_src_distribution.1*
 rm -f %{buildroot}%{_datadir}/mysql/magic
 rm -f %{buildroot}%{_libdir}/mysql/plugin/daemon_example.ini
 rm -f %{buildroot}%{_bindir}/mysql_embedded
-rm -rf %{buildroot}%{_datadir}/mysql/bulgarian
 rm -rf %{buildroot}%{_datadir}/mysql/solaris
 
 # no idea how to fix this
@@ -470,7 +469,7 @@ plugin_dir=%{_libdir}/mysql/plugin
 plugin-load=ha_archive.so;ha_blackhole.so;ha_federated.so
 
 Starting from mysql-5.1.44-3 the html documentation and the mysql.info is not
-shipped with the Mandriva packages due to strict licensing.
+shipped with the OpenMandriva Lx packages due to strict licensing.
 
 EOF
 
@@ -679,6 +678,7 @@ fi
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/my.cnf
 %dir %{_datadir}/mysql
 %{_datadir}/mysql/english
+%{_datadir}/mysql/bulgarian
 %{_datadir}/mysql/charsets
 %{_datadir}/mysql/czech
 %{_datadir}/mysql/danish

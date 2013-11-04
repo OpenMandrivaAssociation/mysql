@@ -87,6 +87,7 @@ BuildRequires:	xfsprogs-devel
 BuildRequires:	pkgconfig(ncursesw)
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(zlib)
+BuildRequires:  wrap-devel
 BuildConflicts:	edit-devel
 Requires(post,preun,pre,postun):	rpm-helper
 # This basically turns into a metapkg

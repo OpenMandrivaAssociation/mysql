@@ -27,7 +27,7 @@ Type=forking
 User=mysql
 Group=mysql
 
-ExecStartPre=/usr/bin/mysqld-prepare-db-dir
+ExecStartPre=/usr/bin/mysqld-prepare-db-dir --basedir=/usr
 ExecStart=/usr/bin/mysqld_safe --nowatch --basedir=/usr
 ExecStartPost=/usr/bin/mysqld-wait-ready $MAINPID
 

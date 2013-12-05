@@ -42,7 +42,7 @@
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.6.14
-Release:	2
+Release:	3
 Group:		Databases
 License:	GPLv2
 Url:		http://www.mysql.com/
@@ -280,6 +280,8 @@ CFLAGS="$CFLAGS -fno-strict-aliasing -fwrapv"
 export CFLAGS CXXFLAGS
 
 %cmake \
+    -DBUILD_CONFIG=mysql_release \
+    -DINSTALL_LAYOUT=RPM \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_INSTALL_PREFIX=%{_prefix} \
     -DINSTALL_SBINDIR=sbin \
@@ -359,7 +361,6 @@ install -m0644 Mandriva/my.cnf %{buildroot}%{_sysconfdir}/my.cnf
 # bork
 mv %{buildroot}%{_bindir}/mysqlaccess.conf %{buildroot}%{_sysconfdir}/
 chmod 644 %{buildroot}%{_sysconfdir}/mysqlaccess.conf
-mv %{buildroot}%{_prefix}/scripts/mysql_install_db %{buildroot}%{_bindir}/
 mv %{buildroot}%{_datadir}/mysql/aclocal %{buildroot}%{_datadir}/aclocal
 
 pushd %{buildroot}%{_bindir}

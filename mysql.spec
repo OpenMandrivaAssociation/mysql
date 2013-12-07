@@ -42,7 +42,7 @@
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
 Version:	5.6.14
-Release:	5
+Release:	6
 Group:		Databases
 License:	GPLv2
 Url:		http://www.mysql.com/

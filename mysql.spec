@@ -41,8 +41,8 @@
 
 Summary:	A very fast and reliable SQL database engine
 Name: 		mysql
-Version:	5.6.14
-Release:	8
+Version:	5.6.23
+Release:	1
 Group:		Databases
 License:	GPLv2
 Url:		http://www.mysql.com/
@@ -57,7 +57,6 @@ Source7:	mysqld-wait-ready
 # fedora patches
 Patch1:		mysql-strmov.patch
 Patch2:		mysql-install-test.patch
-Patch3:		mysql-expired-certs.patch
 Patch5:		mysql-chain-certs.patch
 Patch10:	mysql-home.patch
 Patch11:	mysqld_safe-nowatch.patch
@@ -66,7 +65,6 @@ Patch100:	mysql-mysqldumpslow_no_basedir.diff
 Patch101:	mysql-logrotate.diff
 Patch102:	mysql-initscript.diff
 Patch103:	mysql_upgrade-exit-status.patch
-Patch104:	mysql-5.1.31-shebang.patch
 Patch105:	mysql-5.1.35-test-variables-big.patch
 Patch106:	mysql-5.1.36-hotcopy.patch
 Patch107:	mysql-install_db-quiet.patch
@@ -223,7 +221,6 @@ This package contains the static development libraries.
 # fedora patches
 %patch1 -p1 -b .strmov
 %patch2 -p1 -b .install-test
-%patch3 -p1 -b .expired-certs
 %patch5 -p1 -b .chain-certs
 %patch10 -p0 -b .home
 %patch11 -p1 -b .nowatch
@@ -233,7 +230,6 @@ This package contains the static development libraries.
 %patch101 -p0 -b .logrotate
 %patch102 -p0 -b .initscript
 %patch103 -p1 -b .mysql_upgrade-exit-status
-%patch104 -p1 -b .shebang
 %patch105 -p0 -b .test-variables-big
 %patch106 -p0 -b .hotcopy
 %patch107 -p0 -b .install_db-quiet

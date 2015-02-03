@@ -1,0 +1,15 @@
+diff --git a/cmake/ssl.cmake b/cmake/ssl.cmake
+index 42251a8..66eecd7 100644
+--- a/cmake/ssl.cmake
++++ b/cmake/ssl.cmake
+@@ -166,7 +166,7 @@ MACRO (MYSQL_CHECK_SSL)
+     # Encoded as MNNFFPPS: major minor fix patch status
+     FILE(STRINGS "${OPENSSL_INCLUDE_DIR}/openssl/opensslv.h"
+       OPENSSL_VERSION_NUMBER
+-      REGEX "^#define[\t ]+OPENSSL_VERSION_NUMBER[\t ]+0x[0-9].*"
++      REGEX "^#[\t ]+define[\t ]+OPENSSL_VERSION_NUMBER[\t ]+0x[0-9].*"
+     )
+     STRING(REGEX REPLACE
+       "^.*OPENSSL_VERSION_NUMBER[\t ]+0x([0-9]).*$" "\\1"
+-- 
+2.1.4

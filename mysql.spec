@@ -45,7 +45,7 @@ Version:	5.6.23
 Release:	2
 Group:		Databases
 License:	GPLv2
-Url:		http://www.mysql.com/
+Url:		https://www.mysql.com/
 Source0:	ftp://ftp.gwdg.de/pub/misc/mysql/Downloads/MySQL-5.5/mysql-%{version}.tar.gz
 #Source1:	%{SOURCE0}.asc
 Source2:	mysqld.sysconfig
